@@ -229,6 +229,12 @@ function AppShell() {
     await supabase.from('members').update({ membership_expiry: newExpiry }).eq('id', memberId);
     setMembers(prev => prev.map(item => item.id === memberId ? { ...item, membershipExpiry: newExpiry } : item));
   };
+
+  const setMemberExpiryDate = async (memberId, dateStr) => {
+    if (!dateStr) return;
+    await supabase.from('members').update({ membership_expiry: dateStr }).eq('id', memberId);
+    setMembers(prev => prev.map(item => item.id === memberId ? { ...item, membershipExpiry: dateStr } : item));
+  };
   const toggleMemberStatus = async (memberId) => {
     const m = members.find(m => m.id === memberId);
     if (!m) return;
@@ -296,7 +302,7 @@ function AppShell() {
           <AdminDashboard
             addWod={addWod}
             classes={classes} addClassSlot={addClassSlot} deleteClassSlot={deleteClassSlot}
-            members={members} setMemberExpiry={setMemberExpiry} toggleMemberStatus={toggleMemberStatus}
+            members={members} setMemberExpiry={setMemberExpiry} setMemberExpiryDate={setMemberExpiryDate} toggleMemberStatus={toggleMemberStatus}
             feed={feed} deleteFeedPost={deleteFeedPost}
             notices={notices} addNotice={addNotice} toggleNoticeActive={toggleNoticeActive} deleteNotice={deleteNotice}
           />

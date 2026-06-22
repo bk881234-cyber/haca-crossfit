@@ -428,3 +428,20 @@
   border-color: rgba(204, 255, 0, 0.4);
   color: var(--neon-lime);
 }
+
+.expiry-date-input {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  padding: 0.25rem 0.4rem;
+  width: 100%;
+  max-width: 140px;
+  cursor: pointer;
+}
+
+.expiry-date-input:focus {
+  outline: none;
+  border-color: var(--neon-lime);
+}

@@ -5,7 +5,7 @@ import './AdminDashboard.css';
 const AdminDashboard = ({
   addWod,
   classes, addClassSlot, deleteClassSlot,
-  members, setMemberExpiry, toggleMemberStatus,
+  members, setMemberExpiry, setMemberExpiryDate, toggleMemberStatus,
   feed, deleteFeedPost,
   notices, addNotice, toggleNoticeActive, deleteNotice,
 }) => {
@@ -198,6 +198,12 @@ const AdminDashboard = ({
                         </button>
                       ))}
                     </div>
+                    <input
+                      type="date"
+                      className="expiry-date-input"
+                      value={m.membershipExpiry || ''}
+                      onChange={e => setMemberExpiryDate(m.id, e.target.value)}
+                    />
                   </div>
                 </td>
                 <td>
