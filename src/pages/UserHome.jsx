@@ -103,7 +103,7 @@ const UserHome = ({ wods, classes, myReservations, members, setCurrentPage, lead
         {myBookedClasses.length > 0 ? (
           myBookedClasses.map(cls => (
             <div key={cls.id} className="quick-booking-card">
-              <div className="time-badge">{cls.time}</div>
+              <div className="booking-time-chip">{cls.time}</div>
               <div className="class-info">
                 <h3>크로스핏 클래스</h3>
                 <p>with {cls.coach}</p>

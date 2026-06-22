@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { MessageCircle, Heart, Send, Image, Award, Smile } from 'lucide-react';
+import { useState } from 'react';
+import { MessageCircle, Heart, Send, Image, Award, Smile, Bell, ChevronDown, ChevronUp } from 'lucide-react';
 import './CommunityPage.css';
 
 // Unsplash Workout Image Presets for Easy Mocking
@@ -10,10 +10,13 @@ const imagePresets = [
   'https://images.unsplash.com/photo-1571731979149-75be7a62506e?auto=format&fit=crop&w=800&q=80'
 ];
 
-function CommunityPage({ feed, addFeedPost, toggleLikeFeed, addCommentToFeed }) {
+function CommunityPage({ feed, addFeedPost, toggleLikeFeed, addCommentToFeed, notices = [] }) {
   const [postContent, setPostContent] = useState('');
   const [selectedPresetImage, setSelectedPresetImage] = useState('');
-  const [commentInputs, setCommentInputs] = useState({}); // { [feedId]: commentText }
+  const [commentInputs, setCommentInputs] = useState({});
+  const [expandedNotice, setExpandedNotice] = useState(null);
+
+  const activeNotices = notices.filter(n => n.isActive);
 
   const handleSubmitPost = (e) => {
     e.preventDefault();
@@ -45,8 +48,43 @@ function CommunityPage({ feed, addFeedPost, toggleLikeFeed, addCommentToFeed }) 
     <div className="community-container fade-in">
       <div className="community-header">
         <h1>오운완 커뮤니티</h1>
-        <p className="sub-text">오늘 운동 기록을 자랑하고 다른 크루원들의 성장을 응원해 주세요! 💬</p>
+        <p className="sub-text">오늘 운동 기록을 자랑하고 다른 크루원들의 성장을 응원해 주세요!</p>
       </div>
+
+      {/* 공지사항 섹션 */}
+      {activeNotices.length > 0 && (
+        <div className="community-notices">
+          <div className="notices-header">
+            <Bell size={16} className="text-lime" />
+            <span className="notices-title">공지사항</span>
+            <span className="notices-count">{activeNotices.length}</span>
+          </div>
+          <div className="notices-list">
+            {activeNotices.map(notice => (
+              <div key={notice.id} className="notice-item">
+                <button
+                  className="notice-toggle"
+                  onClick={() => setExpandedNotice(expandedNotice === notice.id ? null : notice.id)}
+                >
+                  <div className="notice-title-row">
+                    {notice.isPopup && <span className="notice-hot-badge">HOT</span>}
+                    <span className="notice-item-title">{notice.title}</span>
+                  </div>
+                  <div className="notice-meta">
+                    <span className="notice-date">{notice.timestamp}</span>
+                    {expandedNotice === notice.id ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                  </div>
+                </button>
+                {expandedNotice === notice.id && (
+                  <div className="notice-body fade-in">
+                    <p>{notice.content}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* 1. Create Post Form */}
       <form className="glass-card create-post-form" onSubmit={handleSubmitPost}>

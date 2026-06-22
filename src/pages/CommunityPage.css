@@ -16,6 +16,125 @@
   font-size: 0.95rem;
 }
 
+/* 공지사항 섹션 */
+.community-notices {
+  background: linear-gradient(135deg, rgba(204, 255, 0, 0.04) 0%, rgba(17, 20, 24, 0.8) 100%);
+  border: 1px solid rgba(204, 255, 0, 0.2);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.notices-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(204, 255, 0, 0.1);
+  background: rgba(204, 255, 0, 0.04);
+}
+
+.notices-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.notices-count {
+  background: var(--neon-lime);
+  color: #000;
+  font-size: 0.7rem;
+  font-weight: 800;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notices-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.notice-item {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.notice-item:last-child {
+  border-bottom: none;
+}
+
+.notice-toggle {
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 14px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  transition: background 0.2s;
+}
+
+.notice-toggle:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.notice-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  text-align: left;
+}
+
+.notice-hot-badge {
+  background: #ff3366;
+  color: white;
+  font-size: 0.6rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+.notice-item-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.notice-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.notice-date {
+  font-size: 0.78rem;
+}
+
+.notice-body {
+  padding: 0 20px 16px;
+}
+
+.notice-body p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  white-space: pre-wrap;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 12px 16px;
+  border-radius: 8px;
+  border-left: 3px solid rgba(204, 255, 0, 0.3);
+}
+
 /* Create Post Form */
 .create-post-form {
   border: 1px solid rgba(255, 255, 255, 0.05);

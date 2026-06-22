@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Calendar, Users, CheckCircle2, ChevronDown, ChevronUp, Clock } from 'lucide-react';
+import { useState } from 'react';
+import { Calendar, Users, ChevronDown, ChevronUp, Clock } from 'lucide-react';
 import './ReservationPage.css';
 
 function ReservationPage({ classes, myReservations, toggleBooking }) {
@@ -45,9 +45,9 @@ function ReservationPage({ classes, myReservations, toggleBooking }) {
               className={`date-card ${isSelected ? 'active' : ''} ${day.isToday ? 'today' : ''}`}
               onClick={() => handleDateSelect(day.date)}
             >
+              {day.isToday && <span className="today-badge">TODAY</span>}
               <span className="day-name">{day.dayName}</span>
               <span className="day-number">{day.date.split('-')[2]}</span>
-              {day.isToday && <span className="today-badge">TODAY</span>}
             </button>
           );
         })}

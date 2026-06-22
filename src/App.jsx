@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Shield, User, Dumbbell } from 'lucide-react';
 import Navbar from './components/Navbar';
 import UserHome from './pages/UserHome';
@@ -230,7 +230,7 @@ function App() {
       case 'reservation':
         return <ReservationPage classes={classes} myReservations={myReservations} toggleBooking={toggleBooking} />;
       case 'feed':
-        return <CommunityPage feed={feed} addFeedPost={addFeedPost} toggleLikeFeed={toggleLikeFeed} addCommentToFeed={addCommentToFeed} />;
+        return <CommunityPage feed={feed} addFeedPost={addFeedPost} toggleLikeFeed={toggleLikeFeed} addCommentToFeed={addCommentToFeed} notices={notices} />;
       case 'location':
         return <LocationPage />;
       default:
