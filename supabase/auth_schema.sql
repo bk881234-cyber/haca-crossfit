@@ -1,32 +1,39 @@
 -- ============================================================
--- HACA CrossFit — Auth Schema
+-- HACA CrossFit — Auth Schema (전화번호 기반 회원관리)
 -- Supabase 대시보드 > SQL Editor 에서 실행하세요
--- (기존 schema.sql 실행 후 실행)
 -- ============================================================
 
--- Profiles (Supabase Auth 연동)
+-- ⚠️ 중요: 실행 전 먼저 이메일 확인 비활성화
+-- Authentication > Providers > Email > "Confirm email" 토글 OFF
+
+-- Profiles 테이블 (Supabase Auth 연동)
 create table if not exists profiles (
   id uuid references auth.users(id) on delete cascade primary key,
   name text not null default '',
-  email text,
-  role text not null default 'member', -- 'member' | 'admin'
+  nickname text,
+  phone text,
+  birthdate text,
+  gender text,          -- 'male' | 'female'
+  role text not null default 'member',  -- 'member' | 'admin'
   created_at timestamptz default now()
 );
 
 alter table profiles enable row level security;
 create policy "본인 프로필 조회" on profiles for select using (auth.uid() = id);
 create policy "본인 프로필 수정" on profiles for update using (auth.uid() = id);
--- 관리자는 Supabase 대시보드에서 직접 role = 'admin' 으로 수정
 
--- 신규 가입 시 자동으로 profiles 생성
+-- 신규 가입 시 자동으로 profiles 생성 (raw_user_meta_data 에서 읽어옴)
 create or replace function public.handle_new_user()
 returns trigger as $$
 begin
-  insert into public.profiles (id, name, email)
+  insert into public.profiles (id, name, nickname, phone, birthdate, gender)
   values (
     new.id,
-    coalesce(new.raw_user_meta_data->>'name', split_part(new.email, '@', 1)),
-    new.email
+    coalesce(new.raw_user_meta_data->>'name', ''),
+    new.raw_user_meta_data->>'nickname',
+    new.raw_user_meta_data->>'phone',
+    new.raw_user_meta_data->>'birthdate',
+    new.raw_user_meta_data->>'gender'
   );
   return new;
 end;
@@ -37,7 +44,6 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
 
--- ── 첫 번째 관리자 계정 설정 방법 ──
--- 1. 앱에서 회원가입
--- 2. 아래 쿼리 실행 (이메일을 실제 이메일로 변경):
--- update profiles set role = 'admin' where email = 'bkbk881234@gmail.com';
+-- ── 관리자 설정 방법 ──
+-- 앱에서 회원가입 후 아래 쿼리 실행 (전화번호로 조회):
+-- update profiles set role = 'admin' where phone = '01012345678';

@@ -3,6 +3,9 @@ import { supabase } from '../lib/supabase';
 
 const AuthContext = createContext({});
 
+// 전화번호 → 내부용 이메일 변환 (Supabase Auth는 email 필수)
+const phoneToEmail = (phone) => `${phone.replace(/\D/g, '')}@haca.local`;
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
@@ -30,11 +33,25 @@ export function AuthProvider({ children }) {
     setLoading(false);
   };
 
-  const signIn = (email, password) =>
-    supabase.auth.signInWithPassword({ email, password });
+  // 전화번호 + 비밀번호로 로그인
+  const signIn = (phone, password) =>
+    supabase.auth.signInWithPassword({ email: phoneToEmail(phone), password });
 
-  const signUp = (email, password, name) =>
-    supabase.auth.signUp({ email, password, options: { data: { name } } });
+  // 이름/닉네임/전화번호/생년월일/성별 + 비밀번호로 회원가입
+  const signUp = (phone, password, userData) =>
+    supabase.auth.signUp({
+      email: phoneToEmail(phone),
+      password,
+      options: {
+        data: {
+          name: userData.name,
+          nickname: userData.nickname,
+          phone: phone.replace(/\D/g, ''),
+          birthdate: userData.birthdate,
+          gender: userData.gender,
+        },
+      },
+    });
 
   const signOut = () => supabase.auth.signOut();
 
@@ -44,7 +61,7 @@ export function AuthProvider({ children }) {
       profile,
       loading,
       isAdmin: profile?.role === 'admin',
-      displayName: profile?.name || user?.email?.split('@')[0] || '회원',
+      displayName: profile?.nickname || profile?.name || '회원',
       signIn,
       signUp,
       signOut,
