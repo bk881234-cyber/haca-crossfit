@@ -1,3 +1,6 @@
+# Env secrets (add to Vercel dashboard manually)
+.env
+
 # Logs
 logs
 *.log

@@ -1,19 +1,21 @@
-import React, { useState } from 'react';
-import { Users, Calendar, TrendingUp, Plus, Search, Activity, FileText, Settings, Bell, Trash2, Edit3, MessageSquare } from 'lucide-react';
+import { useState } from 'react';
+import { Users, Calendar, TrendingUp, Plus, Search, Activity, FileText, Bell, Trash2, MessageSquare } from 'lucide-react';
 import './AdminDashboard.css';
 
-const AdminDashboard = ({ wods, addWod, classes, setClasses, members, setMembers, feed, setFeed, notices, setNotices }) => {
+const AdminDashboard = ({
+  addWod,
+  classes, addClassSlot, deleteClassSlot,
+  members, adjustMemberSessions, toggleMemberStatus,
+  feed, deleteFeedPost,
+  notices, addNotice, toggleNoticeActive, deleteNotice,
+}) => {
   const [activeTab, setActiveTab] = useState('overview');
-  
-  // WOD 등록 폼
+
   const [newWod, setNewWod] = useState({
-    date: new Date().toISOString().split('T')[0], title: '', type: 'For Time', timeLimit: '', rxd: '', scaled: '', description: ''
+    date: new Date().toISOString().split('T')[0], title: '', type: 'For Time',
+    timeLimit: '', rxd: '', scaled: '', description: '',
   });
-
-  // 공지사항 등록 폼
   const [newNotice, setNewNotice] = useState({ title: '', content: '', isPopup: false });
-
-  // 클래스 등록 폼
   const [newClass, setNewClass] = useState({ time: '07:00', coach: 'David Coach', maxCapacity: 15 });
 
   const handleWodSubmit = (e) => {
@@ -25,73 +27,16 @@ const AdminDashboard = ({ wods, addWod, classes, setClasses, members, setMembers
 
   const handleNoticeSubmit = (e) => {
     e.preventDefault();
-    const noticeObj = {
-      id: `notice-${Date.now()}`,
-      title: newNotice.title,
-      content: newNotice.content,
-      isPopup: newNotice.isPopup,
-      isActive: true,
-      timestamp: new Date().toISOString().split('T')[0]
-    };
-    setNotices([noticeObj, ...notices]);
+    addNotice({ title: newNotice.title, content: newNotice.content, isPopup: newNotice.isPopup });
     alert('공지사항이 등록되었습니다.');
     setNewNotice({ title: '', content: '', isPopup: false });
   };
 
   const handleClassSubmit = (e) => {
     e.preventDefault();
-    const clsObj = {
-      id: `class-${Date.now()}`,
-      time: newClass.time,
-      coach: newClass.coach,
-      maxCapacity: Number(newClass.maxCapacity),
-      attendees: []
-    };
-    // 시간순 정렬
-    const newClasses = [...classes, clsObj].sort((a, b) => a.time.localeCompare(b.time));
-    setClasses(newClasses);
+    addClassSlot({ time: newClass.time, coach: newClass.coach, maxCapacity: Number(newClass.maxCapacity) });
     alert('클래스 스케줄이 등록되었습니다.');
   };
-
-  const deleteClass = (id) => {
-    if(window.confirm('이 클래스를 삭제하시겠습니까?')) {
-      setClasses(classes.filter(c => c.id !== id));
-    }
-  };
-
-  const deleteFeed = (id) => {
-    if(window.confirm('이 게시물을 삭제(가리기) 처리하시겠습니까?')) {
-      setFeed(feed.filter(f => f.id !== id));
-    }
-  };
-
-  const toggleNoticeActive = (id) => {
-    setNotices(notices.map(n => n.id === id ? { ...n, isActive: !n.isActive } : n));
-  };
-
-  const deleteNotice = (id) => {
-    if(window.confirm('공지를 삭제하시겠습니까?')) {
-      setNotices(notices.filter(n => n.id !== id));
-    }
-  };
-
-  const adjustMemberSessions = (memberId, delta) => {
-    setMembers(members.map(m => {
-      if (m.id === memberId) {
-        return { ...m, remainingSessions: Math.max(0, m.remainingSessions + delta) };
-      }
-      return m;
-    }));
-  };
-
-  const toggleMemberStatus = (memberId) => {
-    setMembers(members.map(m => {
-      if(m.id === memberId) {
-        return { ...m, status: m.status === 'Active' ? 'Inactive' : 'Active' };
-      }
-      return m;
-    }));
-  }
 
   const renderOverview = () => (
     <div className="admin-panel">
@@ -101,7 +46,7 @@ const AdminDashboard = ({ wods, addWod, classes, setClasses, members, setMembers
           <div className="stat-info">
             <span className="stat-label">총 회원수</span>
             <span className="stat-value">{members.length}명</span>
-            <span className="stat-sub">활성: {members.filter(m=>m.status==='Active').length}명</span>
+            <span className="stat-sub">활성: {members.filter(m => m.status === 'Active').length}명</span>
           </div>
         </div>
         <div className="admin-stat-card">
@@ -131,17 +76,17 @@ const AdminDashboard = ({ wods, addWod, classes, setClasses, members, setMembers
         <div className="form-row">
           <div className="form-group">
             <label>날짜</label>
-            <input type="date" value={newWod.date} onChange={e => setNewWod({...newWod, date: e.target.value})} required />
+            <input type="date" value={newWod.date} onChange={e => setNewWod({ ...newWod, date: e.target.value })} required />
           </div>
           <div className="form-group">
             <label>와드 이름</label>
-            <input type="text" value={newWod.title} onChange={e => setNewWod({...newWod, title: e.target.value})} placeholder="예: DT, Cindy" required />
+            <input type="text" value={newWod.title} onChange={e => setNewWod({ ...newWod, title: e.target.value })} placeholder="예: DT, Cindy" required />
           </div>
         </div>
         <div className="form-row">
           <div className="form-group">
             <label>타입</label>
-            <select value={newWod.type} onChange={e => setNewWod({...newWod, type: e.target.value})}>
+            <select value={newWod.type} onChange={e => setNewWod({ ...newWod, type: e.target.value })}>
               <option value="For Time">For Time</option>
               <option value="AMRAP">AMRAP</option>
               <option value="EMOM">EMOM</option>
@@ -150,24 +95,24 @@ const AdminDashboard = ({ wods, addWod, classes, setClasses, members, setMembers
           </div>
           <div className="form-group">
             <label>Time Cap (제한시간)</label>
-            <input type="text" value={newWod.timeLimit} onChange={e => setNewWod({...newWod, timeLimit: e.target.value})} placeholder="예: 20 Min" required />
+            <input type="text" value={newWod.timeLimit} onChange={e => setNewWod({ ...newWod, timeLimit: e.target.value })} placeholder="예: 20 Min" required />
           </div>
         </div>
         <div className="form-group">
           <label>간단 설명</label>
-          <input type="text" value={newWod.description} onChange={e => setNewWod({...newWod, description: e.target.value})} placeholder="와드에 대한 간략한 설명" required />
+          <input type="text" value={newWod.description} onChange={e => setNewWod({ ...newWod, description: e.target.value })} placeholder="와드에 대한 간략한 설명" required />
         </div>
         <div className="form-row">
           <div className="form-group">
             <label>Rx'd 내용</label>
-            <textarea value={newWod.rxd} onChange={e => setNewWod({...newWod, rxd: e.target.value})} placeholder="Rx'd 기준 운동 내용" rows={4} required />
+            <textarea value={newWod.rxd} onChange={e => setNewWod({ ...newWod, rxd: e.target.value })} placeholder="Rx'd 기준 운동 내용" rows={4} required />
           </div>
           <div className="form-group">
             <label>Scaled 내용</label>
-            <textarea value={newWod.scaled} onChange={e => setNewWod({...newWod, scaled: e.target.value})} placeholder="Scaled 기준 운동 내용" rows={4} required />
+            <textarea value={newWod.scaled} onChange={e => setNewWod({ ...newWod, scaled: e.target.value })} placeholder="Scaled 기준 운동 내용" rows={4} required />
           </div>
         </div>
-        <button type="submit" className="admin-submit-btn"><Plus size={18}/> 새 WOD 등록</button>
+        <button type="submit" className="admin-submit-btn"><Plus size={18} /> 새 WOD 등록</button>
       </form>
     </div>
   );
@@ -179,17 +124,17 @@ const AdminDashboard = ({ wods, addWod, classes, setClasses, members, setMembers
         <div className="form-row align-end">
           <div className="form-group">
             <label>시간 (HH:MM)</label>
-            <input type="time" value={newClass.time} onChange={e => setNewClass({...newClass, time: e.target.value})} required />
+            <input type="time" value={newClass.time} onChange={e => setNewClass({ ...newClass, time: e.target.value })} required />
           </div>
           <div className="form-group">
             <label>담당 코치</label>
-            <input type="text" value={newClass.coach} onChange={e => setNewClass({...newClass, coach: e.target.value})} placeholder="코치 이름 입력" required />
+            <input type="text" value={newClass.coach} onChange={e => setNewClass({ ...newClass, coach: e.target.value })} placeholder="코치 이름 입력" required />
           </div>
           <div className="form-group">
             <label>최대 정원</label>
-            <input type="number" min="1" max="50" value={newClass.maxCapacity} onChange={e => setNewClass({...newClass, maxCapacity: e.target.value})} required />
+            <input type="number" min="1" max="50" value={newClass.maxCapacity} onChange={e => setNewClass({ ...newClass, maxCapacity: e.target.value })} required />
           </div>
-          <button type="submit" className="admin-submit-btn inline"><Plus size={18}/> 추가</button>
+          <button type="submit" className="admin-submit-btn inline"><Plus size={18} /> 추가</button>
         </div>
       </form>
 
@@ -197,12 +142,7 @@ const AdminDashboard = ({ wods, addWod, classes, setClasses, members, setMembers
       <div className="data-table-wrap">
         <table className="data-table">
           <thead>
-            <tr>
-              <th>시간</th>
-              <th>코치</th>
-              <th>정원/예약</th>
-              <th>관리</th>
-            </tr>
+            <tr><th>시간</th><th>코치</th><th>정원/예약</th><th>관리</th></tr>
           </thead>
           <tbody>
             {classes.map(cls => (
@@ -211,7 +151,7 @@ const AdminDashboard = ({ wods, addWod, classes, setClasses, members, setMembers
                 <td>{cls.coach}</td>
                 <td>{cls.attendees.length} / {cls.maxCapacity}</td>
                 <td>
-                  <button className="action-btn text-red" onClick={() => deleteClass(cls.id)}><Trash2 size={16}/></button>
+                  <button className="action-btn text-red" onClick={() => deleteClassSlot(cls.id)}><Trash2 size={16} /></button>
                 </td>
               </tr>
             ))}
@@ -230,13 +170,7 @@ const AdminDashboard = ({ wods, addWod, classes, setClasses, members, setMembers
       <div className="data-table-wrap">
         <table className="data-table">
           <thead>
-            <tr>
-              <th>이름</th>
-              <th>연락처</th>
-              <th>누적 출석</th>
-              <th>남은 횟수 관리</th>
-              <th>상태</th>
-            </tr>
+            <tr><th>이름</th><th>연락처</th><th>누적 출석</th><th>남은 횟수 관리</th><th>상태</th></tr>
           </thead>
           <tbody>
             {members.map(m => (
@@ -252,10 +186,7 @@ const AdminDashboard = ({ wods, addWod, classes, setClasses, members, setMembers
                   </div>
                 </td>
                 <td>
-                  <button 
-                    className={`status-toggle ${m.status.toLowerCase()}`}
-                    onClick={() => toggleMemberStatus(m.id)}
-                  >
+                  <button className={`status-toggle ${m.status.toLowerCase()}`} onClick={() => toggleMemberStatus(m.id)}>
                     {m.status}
                   </button>
                 </td>
@@ -273,32 +204,26 @@ const AdminDashboard = ({ wods, addWod, classes, setClasses, members, setMembers
       <form className="admin-form mb-4" onSubmit={handleNoticeSubmit}>
         <div className="form-group">
           <label>제목</label>
-          <input type="text" value={newNotice.title} onChange={e => setNewNotice({...newNotice, title: e.target.value})} placeholder="공지 제목" required />
+          <input type="text" value={newNotice.title} onChange={e => setNewNotice({ ...newNotice, title: e.target.value })} placeholder="공지 제목" required />
         </div>
         <div className="form-group">
           <label>내용</label>
-          <textarea value={newNotice.content} onChange={e => setNewNotice({...newNotice, content: e.target.value})} placeholder="공지 내용 입력" rows={3} required />
+          <textarea value={newNotice.content} onChange={e => setNewNotice({ ...newNotice, content: e.target.value })} placeholder="공지 내용 입력" rows={3} required />
         </div>
         <div className="checkbox-group">
           <label className="checkbox-label">
-            <input type="checkbox" checked={newNotice.isPopup} onChange={e => setNewNotice({...newNotice, isPopup: e.target.checked})} />
+            <input type="checkbox" checked={newNotice.isPopup} onChange={e => setNewNotice({ ...newNotice, isPopup: e.target.checked })} />
             <span>메인 페이지 접속 시 팝업으로 띄우기 (최신 활성 공지 1건만 노출)</span>
           </label>
         </div>
-        <button type="submit" className="admin-submit-btn"><Bell size={18}/> 공지 등록</button>
+        <button type="submit" className="admin-submit-btn"><Bell size={18} /> 공지 등록</button>
       </form>
 
       <div className="panel-header mt-4"><h2>등록된 공지사항</h2></div>
       <div className="data-table-wrap mb-4">
         <table className="data-table">
           <thead>
-            <tr>
-              <th>작성일</th>
-              <th>제목</th>
-              <th>팝업</th>
-              <th>상태</th>
-              <th>관리</th>
-            </tr>
+            <tr><th>작성일</th><th>제목</th><th>팝업</th><th>상태</th><th>관리</th></tr>
           </thead>
           <tbody>
             {notices.map(n => (
@@ -311,7 +236,7 @@ const AdminDashboard = ({ wods, addWod, classes, setClasses, members, setMembers
                     {n.isActive ? '노출중' : '숨김'}
                   </button>
                 </td>
-                <td><button className="action-btn text-red" onClick={() => deleteNotice(n.id)}><Trash2 size={16}/></button></td>
+                <td><button className="action-btn text-red" onClick={() => deleteNotice(n.id)}><Trash2 size={16} /></button></td>
               </tr>
             ))}
           </tbody>
@@ -322,12 +247,7 @@ const AdminDashboard = ({ wods, addWod, classes, setClasses, members, setMembers
       <div className="data-table-wrap">
         <table className="data-table">
           <thead>
-            <tr>
-              <th>작성자</th>
-              <th>내용 (미리보기)</th>
-              <th>작성시간</th>
-              <th>강제 삭제</th>
-            </tr>
+            <tr><th>작성자</th><th>내용 (미리보기)</th><th>작성시간</th><th>강제 삭제</th></tr>
           </thead>
           <tbody>
             {feed.map(f => (
@@ -335,7 +255,7 @@ const AdminDashboard = ({ wods, addWod, classes, setClasses, members, setMembers
                 <td className="font-bold">{f.author}</td>
                 <td className="text-ellipsis">{f.content.substring(0, 30)}...</td>
                 <td>{f.timestamp}</td>
-                <td><button className="action-btn text-red" onClick={() => deleteFeed(f.id)}><Trash2 size={16}/></button></td>
+                <td><button className="action-btn text-red" onClick={() => deleteFeedPost(f.id)}><Trash2 size={16} /></button></td>
               </tr>
             ))}
           </tbody>

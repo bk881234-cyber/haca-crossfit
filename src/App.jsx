@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Shield, User } from 'lucide-react';
+import { supabase } from './lib/supabase';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import UserHome from './pages/UserHome';
@@ -10,119 +11,98 @@ import LocationPage from './pages/LocationPage';
 import SchedulePage from './pages/SchedulePage';
 import './App.css';
 
-// Initial WODs Data
-const initialWods = [
-  {
-    id: 'wod-1',
-    date: '2026-06-22',
-    title: 'DT (Benchmark WOD)',
-    type: 'For Time',
-    timeLimit: '20 Min',
-    rxd: '5 Rounds for time of:\n12 Deadlifts (155/105 lb)\n9 Hang Power Cleans (155/105 lb)\n6 Push Jerks (155/105 lb)',
-    scaled: '5 Rounds for time of:\n12 Deadlifts (95/65 lb)\n9 Hang Power Cleans (95/65 lb)\n6 Push Jerks (95/65 lb)',
-    description: '그립 강도와 어깨 근지구력을 테스트하는 유명한 벤치마크 와드입니다. 자신의 한계에 도전해보세요!'
-  }
-];
+const ME = '홍길동';
 
-// Initial Classes Data for Booking
-const initialClasses = [
-  { id: 'class-0700', time: '07:00', coach: 'David Coach', maxCapacity: 15, attendees: ['김철수', '이영희'] },
-  { id: 'class-0930', time: '09:30', coach: 'Sarah Coach', maxCapacity: 15, attendees: ['박민준', '최수지', '정우성'] },
-  { id: 'class-1200', time: '12:00', coach: 'David Coach', maxCapacity: 12, attendees: [] },
-  { id: 'class-1830', time: '18:30', coach: 'Alex Coach', maxCapacity: 20, attendees: ['황정민', '한효주', '류준열'] },
-  { id: 'class-2000', time: '20:00', coach: 'Alex Coach', maxCapacity: 20, attendees: ['공유', '이동욱', '김고은'] }
-];
-
-// Initial Members list (이용 가능 횟수 필드 'remainingSessions' 추가)
-const initialMembers = [
-  { id: 'm-1', name: '홍길동', phone: '010-1234-5678', attendanceCount: 24, remainingSessions: 12, status: 'Active' },
-  { id: 'm-2', name: '김철수', phone: '010-2345-6789', attendanceCount: 8, remainingSessions: 4, status: 'Active' },
-  { id: 'm-3', name: '이영희', phone: '010-3456-7890', attendanceCount: 6, remainingSessions: 0, status: 'Inactive' },
-  { id: 'm-4', name: '박민준', phone: '010-4567-8901', attendanceCount: 42, remainingSessions: 20, status: 'Active' }
-];
-
-// Initial Leaderboard Data
-const initialLeaderboard = [
-  { id: 'lb-1', rank: 1, name: '박민준', type: 'rxd', record: '12:35' },
-  { id: 'lb-2', rank: 2, name: '황정민', type: 'rxd', record: '13:12' },
-  { id: 'lb-3', rank: 3, name: '김철수', type: 'scaled', record: '16:48' }
-];
-
-// Initial Feed Data
-const initialFeed = [
-  {
-    id: 'feed-1',
-    author: '홍길동',
-    avatar: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=150&q=80',
-    content: '오늘 벤치마크 와드 완료!! 오운완 하세요!',
-    image: null,
-    likes: 12,
-    hasLiked: false,
-    comments: [],
-    timestamp: '3시간 전'
-  }
-];
-
-// Initial Notices
-const initialNotices = [
-  {
-    id: 'notice-1',
-    title: '🔥 이번 주 금요일 오픈짐 안내',
-    content: '회원 여러분! 이번 주 금요일 저녁 8시부터는 코치 없는 자율 오픈짐으로 운영됩니다. 이용에 참고 부탁드립니다.',
-    isPopup: true,
-    isActive: true,
-    timestamp: '2026-06-22'
-  }
-];
+const formatTimestamp = (ts) => {
+  const diff = Date.now() - new Date(ts).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return '방금 전';
+  if (mins < 60) return `${mins}분 전`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}시간 전`;
+  return `${Math.floor(hours / 24)}일 전`;
+};
 
 function App() {
   const [role, setRole] = useState(() => localStorage.getItem('haca_role') || 'user');
   const [currentPage, setCurrentPage] = useState(() => localStorage.getItem('haca_page') || 'wod');
-  
-  const [wods, setWods] = useState(() => {
-    const saved = localStorage.getItem('haca_wods');
-    return saved ? JSON.parse(saved) : initialWods;
-  });
+  const [loading, setLoading] = useState(true);
 
-  const [classes, setClasses] = useState(() => {
-    const saved = localStorage.getItem('haca_classes');
-    return saved ? JSON.parse(saved) : initialClasses;
-  });
-
-  const [members, setMembers] = useState(() => {
-    const saved = localStorage.getItem('haca_members');
-    return saved ? JSON.parse(saved) : initialMembers;
-  });
-
-  const [leaderboard, setLeaderboard] = useState(() => {
-    const saved = localStorage.getItem('haca_leaderboard');
-    return saved ? JSON.parse(saved) : initialLeaderboard;
-  });
-
-  const [feed, setFeed] = useState(() => {
-    const saved = localStorage.getItem('haca_feed');
-    return saved ? JSON.parse(saved) : initialFeed;
-  });
-
-  const [notices, setNotices] = useState(() => {
-    const saved = localStorage.getItem('haca_notices');
-    return saved ? JSON.parse(saved) : initialNotices;
-  });
-
-  const [myReservations, setMyReservations] = useState(() => {
-    const saved = localStorage.getItem('haca_my_reservations');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [wods, setWods] = useState([]);
+  const [classes, setClasses] = useState([]);
+  const [members, setMembers] = useState([]);
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [feed, setFeed] = useState([]);
+  const [notices, setNotices] = useState([]);
+  const [myReservations, setMyReservations] = useState([]);
 
   useEffect(() => { localStorage.setItem('haca_role', role); }, [role]);
   useEffect(() => { localStorage.setItem('haca_page', currentPage); }, [currentPage]);
-  useEffect(() => { localStorage.setItem('haca_wods', JSON.stringify(wods)); }, [wods]);
-  useEffect(() => { localStorage.setItem('haca_classes', JSON.stringify(classes)); }, [classes]);
-  useEffect(() => { localStorage.setItem('haca_members', JSON.stringify(members)); }, [members]);
-  useEffect(() => { localStorage.setItem('haca_leaderboard', JSON.stringify(leaderboard)); }, [leaderboard]);
-  useEffect(() => { localStorage.setItem('haca_feed', JSON.stringify(feed)); }, [feed]);
-  useEffect(() => { localStorage.setItem('haca_notices', JSON.stringify(notices)); }, [notices]);
-  useEffect(() => { localStorage.setItem('haca_my_reservations', JSON.stringify(myReservations)); }, [myReservations]);
+
+  useEffect(() => { loadAllData(); }, []);
+
+  const loadAllData = async () => {
+    setLoading(true);
+    try {
+      const [
+        { data: wodsData },
+        { data: classesData },
+        { data: reservationsData },
+        { data: membersData },
+        { data: leaderboardData },
+        { data: feedData },
+        { data: noticesData },
+      ] = await Promise.all([
+        supabase.from('wods').select('*').order('date', { ascending: false }),
+        supabase.from('classes').select('*').order('time'),
+        supabase.from('reservations').select('*'),
+        supabase.from('members').select('*'),
+        supabase.from('leaderboard').select('*').order('rank'),
+        supabase.from('feed_posts').select('*, feed_comments(*), feed_likes(*)').order('created_at', { ascending: false }),
+        supabase.from('notices').select('*').order('created_at', { ascending: false }),
+      ]);
+
+      setWods((wodsData || []).map(w => ({
+        id: w.id, date: w.date, title: w.title, type: w.type,
+        timeLimit: w.time_limit, rxd: w.rxd, scaled: w.scaled, description: w.description,
+      })));
+
+      setClasses((classesData || []).map(c => ({
+        id: c.id, time: c.time, coach: c.coach, maxCapacity: c.max_capacity,
+        attendees: (reservationsData || []).filter(r => r.class_id === c.id).map(r => r.member_name),
+      })));
+
+      setMembers((membersData || []).map(m => ({
+        id: m.id, name: m.name, phone: m.phone,
+        attendanceCount: m.attendance_count, remainingSessions: m.remaining_sessions, status: m.status,
+      })));
+
+      setLeaderboard((leaderboardData || []).map(l => ({
+        id: l.id, rank: l.rank, name: l.name, type: l.type, record: l.record,
+      })));
+
+      setFeed((feedData || []).map(p => ({
+        id: p.id, author: p.author, avatar: p.avatar, content: p.content, image: p.image,
+        likes: p.feed_likes?.length || 0,
+        hasLiked: p.feed_likes?.some(l => l.member_name === ME) || false,
+        comments: (p.feed_comments || []).map(c => ({ id: c.id, author: c.author, content: c.content })),
+        timestamp: formatTimestamp(p.created_at),
+      })));
+
+      setNotices((noticesData || []).map(n => ({
+        id: n.id, title: n.title, content: n.content,
+        isPopup: n.is_popup, isActive: n.is_active, timestamp: n.created_at?.split('T')[0],
+      })));
+
+      setMyReservations(
+        (reservationsData || []).filter(r => r.member_name === ME).map(r => r.class_id)
+      );
+    } catch (err) {
+      console.error('Supabase load error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleRoleToggle = () => {
     const newRole = role === 'user' ? 'coach' : 'user';
@@ -130,105 +110,203 @@ function App() {
     setCurrentPage(newRole === 'coach' ? 'admin' : 'wod');
   };
 
-  const toggleBooking = (classId) => {
-    // 권한 및 횟수 로직 간소화 (UI 시뮬레이션용)
-    const myProfile = members.find(m => m.name === '홍길동') || members[0];
-    
-    setClasses(prevClasses => prevClasses.map(cls => {
-      if (cls.id === classId) {
-        const isBooked = myReservations.includes(classId);
-        let newAttendees = [...cls.attendees];
-        if (isBooked) {
-          newAttendees = newAttendees.filter(name => name !== '홍길동');
-          setMyReservations(prev => prev.filter(id => id !== classId));
-          // 예약 취소 시 횟수 복구
-          setMembers(prevMembers => prevMembers.map(m => m.name === '홍길동' ? { ...m, remainingSessions: m.remainingSessions + 1 } : m));
-        } else {
-          if (myProfile.remainingSessions <= 0) {
-            alert('이용 가능 횟수가 부족합니다. 관리자에게 문의하세요.');
-            return cls;
-          }
-          if (newAttendees.length < cls.maxCapacity) {
-            newAttendees.push('홍길동');
-            setMyReservations(prev => [...prev, classId]);
-            // 예약 시 횟수 차감
-            setMembers(prevMembers => prevMembers.map(m => m.name === '홍길동' ? { ...m, remainingSessions: m.remainingSessions - 1 } : m));
-          } else {
-            alert('정원이 초과되었습니다.');
-          }
-        }
-        return { ...cls, attendees: newAttendees };
+  // ── 예약 토글 ──
+  const toggleBooking = async (classId) => {
+    const myProfile = members.find(m => m.name === ME) || members[0];
+    const isBooked = myReservations.includes(classId);
+    const cls = classes.find(c => c.id === classId);
+
+    if (isBooked) {
+      const { error } = await supabase.from('reservations')
+        .delete().match({ class_id: classId, member_name: ME });
+      if (error) { console.error(error); return; }
+      await supabase.from('members')
+        .update({ remaining_sessions: myProfile.remainingSessions + 1 }).eq('name', ME);
+
+      setClasses(prev => prev.map(c => c.id === classId
+        ? { ...c, attendees: c.attendees.filter(n => n !== ME) } : c));
+      setMyReservations(prev => prev.filter(id => id !== classId));
+      setMembers(prev => prev.map(m => m.name === ME
+        ? { ...m, remainingSessions: m.remainingSessions + 1 } : m));
+    } else {
+      if (myProfile.remainingSessions <= 0) {
+        alert('이용 가능 횟수가 부족합니다. 관리자에게 문의하세요.');
+        return;
       }
-      return cls;
-    }));
+      if (cls.attendees.length >= cls.maxCapacity) {
+        alert('정원이 초과되었습니다.');
+        return;
+      }
+      const { error } = await supabase.from('reservations')
+        .insert({ class_id: classId, member_name: ME });
+      if (error) { console.error(error); return; }
+      await supabase.from('members')
+        .update({ remaining_sessions: myProfile.remainingSessions - 1 }).eq('name', ME);
+
+      setClasses(prev => prev.map(c => c.id === classId
+        ? { ...c, attendees: [...c.attendees, ME] } : c));
+      setMyReservations(prev => [...prev, classId]);
+      setMembers(prev => prev.map(m => m.name === ME
+        ? { ...m, remainingSessions: m.remainingSessions - 1 } : m));
+    }
   };
 
-  const addWod = (newWod) => {
-    setWods(prev => [{ id: `wod-${Date.now()}`, ...newWod }, ...prev]);
+  // ── WOD ──
+  const addWod = async (newWod) => {
+    const { data, error } = await supabase.from('wods').insert({
+      date: newWod.date, title: newWod.title, type: newWod.type,
+      time_limit: newWod.timeLimit, rxd: newWod.rxd, scaled: newWod.scaled,
+      description: newWod.description,
+    }).select().single();
+    if (error) { console.error(error); return; }
+    setWods(prev => [{ ...newWod, id: data.id }, ...prev]);
   };
 
-  const addLeaderboardRecord = (type, recordStr) => {
-    setLeaderboard(prev => {
-      const newRecord = { id: `lb-${Date.now()}`, rank: 0, name: '홍길동 (나)', type: type, record: recordStr };
-      const newList = [...prev, newRecord].sort((a, b) => a.record.localeCompare(b.record));
-      return newList.map((item, index) => ({ ...item, rank: index + 1 }));
-    });
+  // ── 리더보드 ──
+  const addLeaderboardRecord = async (type, recordStr) => {
+    const { data, error } = await supabase.from('leaderboard').insert({
+      name: `${ME} (나)`, type, record: recordStr, rank: 0,
+    }).select().single();
+    if (error) { console.error(error); return; }
+    const newList = [...leaderboard, { id: data.id, rank: 0, name: `${ME} (나)`, type, record: recordStr }]
+      .sort((a, b) => a.record.localeCompare(b.record))
+      .map((item, i) => ({ ...item, rank: i + 1 }));
+    setLeaderboard(newList);
   };
 
-  const addFeedPost = (content, imageUrl) => {
+  // ── 커뮤니티 피드 ──
+  const addFeedPost = async (content, imageUrl) => {
+    const avatar = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=150&q=80';
+    const { data, error } = await supabase.from('feed_posts')
+      .insert({ author: ME, avatar, content, image: imageUrl || null }).select().single();
+    if (error) { console.error(error); return; }
     setFeed(prev => [{
-      id: `feed-${Date.now()}`,
-      author: '홍길동',
-      avatar: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=150&q=80',
-      content,
-      image: imageUrl || null,
-      likes: 0,
-      hasLiked: false,
-      comments: [],
-      timestamp: '방금 전'
+      id: data.id, author: ME, avatar, content, image: imageUrl || null,
+      likes: 0, hasLiked: false, comments: [], timestamp: '방금 전',
     }, ...prev]);
   };
 
-  const toggleLikeFeed = (feedId) => {
-    setFeed(prev => prev.map(post => post.id === feedId ? { ...post, likes: post.hasLiked ? post.likes - 1 : post.likes + 1, hasLiked: !post.hasLiked } : post));
+  const toggleLikeFeed = async (feedId) => {
+    const post = feed.find(p => p.id === feedId);
+    if (!post) return;
+    if (post.hasLiked) {
+      await supabase.from('feed_likes').delete().match({ post_id: feedId, member_name: ME });
+    } else {
+      await supabase.from('feed_likes').insert({ post_id: feedId, member_name: ME });
+    }
+    setFeed(prev => prev.map(p => p.id === feedId
+      ? { ...p, likes: p.hasLiked ? p.likes - 1 : p.likes + 1, hasLiked: !p.hasLiked } : p));
   };
 
-  const addCommentToFeed = (feedId, commentText) => {
-    setFeed(prev => prev.map(post => post.id === feedId ? {
-      ...post, comments: [...post.comments, { id: `c-${Date.now()}`, author: role === 'coach' ? 'Alex Coach' : '홍길동', content: commentText }]
-    } : post));
+  const addCommentToFeed = async (feedId, commentText) => {
+    const author = role === 'coach' ? 'Alex Coach' : ME;
+    const { data, error } = await supabase.from('feed_comments')
+      .insert({ post_id: feedId, author, content: commentText }).select().single();
+    if (error) { console.error(error); return; }
+    setFeed(prev => prev.map(p => p.id === feedId
+      ? { ...p, comments: [...p.comments, { id: data.id, author, content: commentText }] } : p));
+  };
+
+  // ── 관리자 — 공지사항 ──
+  const addNotice = async (noticeData) => {
+    const { data, error } = await supabase.from('notices').insert({
+      title: noticeData.title, content: noticeData.content,
+      is_popup: noticeData.isPopup, is_active: true,
+    }).select().single();
+    if (error) { console.error(error); return; }
+    setNotices(prev => [{
+      id: data.id, title: noticeData.title, content: noticeData.content,
+      isPopup: noticeData.isPopup, isActive: true, timestamp: data.created_at?.split('T')[0],
+    }, ...prev]);
+  };
+
+  const toggleNoticeActive = async (id) => {
+    const n = notices.find(n => n.id === id);
+    if (!n) return;
+    await supabase.from('notices').update({ is_active: !n.isActive }).eq('id', id);
+    setNotices(prev => prev.map(item => item.id === id ? { ...item, isActive: !item.isActive } : item));
+  };
+
+  const deleteNotice = async (id) => {
+    if (!window.confirm('공지를 삭제하시겠습니까?')) return;
+    await supabase.from('notices').delete().eq('id', id);
+    setNotices(prev => prev.filter(n => n.id !== id));
+  };
+
+  // ── 관리자 — 클래스 ──
+  const addClassSlot = async (classData) => {
+    const id = `class-${Date.now()}`;
+    const { error } = await supabase.from('classes').insert({
+      id, time: classData.time, coach: classData.coach, max_capacity: classData.maxCapacity,
+    });
+    if (error) { console.error(error); return; }
+    const newCls = { id, ...classData, attendees: [] };
+    setClasses(prev => [...prev, newCls].sort((a, b) => a.time.localeCompare(b.time)));
+  };
+
+  const deleteClassSlot = async (id) => {
+    if (!window.confirm('이 클래스를 삭제하시겠습니까?')) return;
+    await supabase.from('classes').delete().eq('id', id);
+    setClasses(prev => prev.filter(c => c.id !== id));
+  };
+
+  // ── 관리자 — 피드 ──
+  const deleteFeedPost = async (id) => {
+    if (!window.confirm('이 게시물을 삭제하시겠습니까?')) return;
+    await supabase.from('feed_posts').delete().eq('id', id);
+    setFeed(prev => prev.filter(f => f.id !== id));
+  };
+
+  // ── 관리자 — 회원 ──
+  const adjustMemberSessions = async (memberId, delta) => {
+    const m = members.find(m => m.id === memberId);
+    if (!m) return;
+    const newVal = Math.max(0, m.remainingSessions + delta);
+    await supabase.from('members').update({ remaining_sessions: newVal }).eq('id', memberId);
+    setMembers(prev => prev.map(item => item.id === memberId ? { ...item, remainingSessions: newVal } : item));
+  };
+
+  const toggleMemberStatus = async (memberId) => {
+    const m = members.find(m => m.id === memberId);
+    if (!m) return;
+    const newStatus = m.status === 'Active' ? 'Inactive' : 'Active';
+    await supabase.from('members').update({ status: newStatus }).eq('id', memberId);
+    setMembers(prev => prev.map(item => item.id === memberId ? { ...item, status: newStatus } : item));
   };
 
   const renderPage = () => {
+    if (loading) return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh', flexDirection: 'column', gap: '1rem', color: 'var(--text-secondary)' }}>
+        <div style={{ width: 40, height: 40, border: '3px solid var(--border-color)', borderTopColor: 'var(--neon-lime)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+        <span>데이터를 불러오는 중...</span>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    );
+
     if (role === 'coach') {
       return (
-        <AdminDashboard 
-          wods={wods} 
+        <AdminDashboard
+          wods={wods}
           addWod={addWod}
-          classes={classes} 
-          setClasses={setClasses}
-          members={members} 
-          setMembers={setMembers} 
+          classes={classes}
+          addClassSlot={addClassSlot}
+          deleteClassSlot={deleteClassSlot}
+          members={members}
+          adjustMemberSessions={adjustMemberSessions}
+          toggleMemberStatus={toggleMemberStatus}
           feed={feed}
-          setFeed={setFeed}
+          deleteFeedPost={deleteFeedPost}
           notices={notices}
-          setNotices={setNotices}
+          addNotice={addNotice}
+          toggleNoticeActive={toggleNoticeActive}
+          deleteNotice={deleteNotice}
         />
       );
     }
 
     switch (currentPage) {
       case 'wod':
-        return <UserHome 
-                 wods={wods} 
-                 classes={classes} 
-                 myReservations={myReservations} 
-                 members={members} 
-                 setCurrentPage={setCurrentPage}
-                 leaderboard={leaderboard}
-                 addLeaderboardRecord={addLeaderboardRecord}
-                 notices={notices}
-               />;
+        return <UserHome wods={wods} classes={classes} myReservations={myReservations} members={members} setCurrentPage={setCurrentPage} leaderboard={leaderboard} addLeaderboardRecord={addLeaderboardRecord} notices={notices} />;
       case 'reservation':
         return <ReservationPage classes={classes} myReservations={myReservations} toggleBooking={toggleBooking} />;
       case 'feed':
@@ -254,18 +332,17 @@ function App() {
           <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
         )}
         <button className={`role-btn ${role}`} onClick={handleRoleToggle}>
-          {role === 'coach' ? (<><Shield className="icon" size={16} /><span>관리자 모드</span></>) : (<><User className="icon" size={16} /><span>회원 모드</span></>)}
+          {role === 'coach'
+            ? (<><Shield className="icon" size={16} /><span>관리자 모드</span></>)
+            : (<><User className="icon" size={16} /><span>회원 모드</span></>)}
         </button>
       </div>
       <div className="main-content">
         {renderPage()}
       </div>
-
-      {/* 브랜드 워터마크 — 하단에 선수 실루엣 */}
       <div className="brand-watermark-section" aria-hidden="true">
         <img src="/athlete.png" alt="" className="brand-watermark-img" />
       </div>
-
       <Footer />
     </div>
   );
