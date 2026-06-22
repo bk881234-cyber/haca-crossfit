@@ -1,0 +1,139 @@
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 72px;
+  background-color: rgba(17, 20, 24, 0.85);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-top: 1px solid var(--border-color);
+  z-index: 99;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 16px;
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.nav-container {
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-item {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  cursor: pointer;
+  position: relative;
+  flex: 1;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  gap: 4px;
+}
+
+.icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.nav-icon {
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.nav-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  transition: color 0.2s ease;
+}
+
+/* Active State */
+.nav-item.active {
+  color: var(--accent);
+}
+
+.nav-item.active .icon-wrapper {
+  background-color: rgba(204, 255, 0, 0.1);
+  box-shadow: 0 0 15px rgba(204, 255, 0, 0.15);
+}
+
+.nav-item.active .nav-icon {
+  transform: translateY(-2px) scale(1.1);
+}
+
+.active-dot {
+  position: absolute;
+  bottom: 0px;
+  width: 5px;
+  height: 5px;
+  background-color: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--accent);
+  animation: scaleIn 0.2s ease-out forwards;
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Tablet & PC Adaptation */
+@media (min-width: 768px) {
+  .bottom-nav {
+    top: 57px; /* Positioned below the role switcher bar */
+    bottom: auto;
+    height: 60px;
+    border-top: none;
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    background-color: rgba(8, 10, 12, 0.85);
+  }
+  
+  .nav-container {
+    max-width: 800px;
+    justify-content: flex-end;
+    gap: 32px;
+  }
+  
+  .nav-item {
+    flex-direction: row;
+    flex: none;
+    gap: 8px;
+    padding: 6px 16px;
+    border-radius: 8px;
+  }
+
+  .nav-item.active .icon-wrapper {
+    background-color: transparent;
+    box-shadow: none;
+  }
+  
+  .nav-item.active .nav-icon {
+    transform: none;
+  }
+
+  .nav-label {
+    font-size: 0.9rem;
+  }
+  
+  .active-dot {
+    bottom: -6px;
+    width: 24px;
+    height: 2px;
+    border-radius: 1px;
+  }
+}
