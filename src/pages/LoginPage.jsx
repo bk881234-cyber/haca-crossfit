@@ -162,6 +162,11 @@ const LoginPage = () => {
           </button>
         </form>
 
+        {mode === 'login' && (
+          <p className="login-footer-note" style={{ marginTop: '0.75rem' }}>
+            비밀번호를 잊으셨나요? <strong>관리자에게 문의</strong>하시면 재설정해 드립니다.
+          </p>
+        )}
         <p className="login-footer-note">
           © {new Date().getFullYear()} HACA TRAINING. All rights reserved.
         </p>

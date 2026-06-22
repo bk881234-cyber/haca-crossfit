@@ -127,24 +127,28 @@ function AppShell() {
 
   // ── 예약 ──
   const toggleBooking = async (classId) => {
-    const myProfile = members.find(m => m.name === displayName) || members[0];
+    const myProfile = members.find(m => m.name === displayName);
     const isBooked = myReservations.includes(classId);
     const cls = classes.find(c => c.id === classId);
 
+    if (!isBooked) {
+      // 회원권 만료 확인
+      if (myProfile?.membershipExpiry) {
+        const expiry = new Date(myProfile.membershipExpiry);
+        expiry.setHours(23, 59, 59, 999);
+        if (expiry < new Date()) { alert('회원권이 만료되었습니다. 관리자에게 문의하세요.'); return; }
+      }
+      if (cls && cls.attendees.length >= cls.maxCapacity) { alert('정원이 초과되었습니다.'); return; }
+    }
+
     if (isBooked) {
       await supabase.from('reservations').delete().match({ class_id: classId, member_name: displayName });
-      await supabase.from('members').update({ remaining_sessions: myProfile.remainingSessions + 1 }).eq('name', displayName);
       setClasses(prev => prev.map(c => c.id === classId ? { ...c, attendees: c.attendees.filter(n => n !== displayName) } : c));
       setMyReservations(prev => prev.filter(id => id !== classId));
-      setMembers(prev => prev.map(m => m.name === displayName ? { ...m, remainingSessions: m.remainingSessions + 1 } : m));
     } else {
-      if (myProfile.remainingSessions <= 0) { alert('이용 가능 횟수가 부족합니다. 관리자에게 문의하세요.'); return; }
-      if (cls.attendees.length >= cls.maxCapacity) { alert('정원이 초과되었습니다.'); return; }
       await supabase.from('reservations').insert({ class_id: classId, member_name: displayName });
-      await supabase.from('members').update({ remaining_sessions: myProfile.remainingSessions - 1 }).eq('name', displayName);
       setClasses(prev => prev.map(c => c.id === classId ? { ...c, attendees: [...c.attendees, displayName] } : c));
       setMyReservations(prev => [...prev, classId]);
-      setMembers(prev => prev.map(m => m.name === displayName ? { ...m, remainingSessions: m.remainingSessions - 1 } : m));
     }
   };
 

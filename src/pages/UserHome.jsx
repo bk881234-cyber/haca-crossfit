@@ -90,8 +90,24 @@ const UserHome = ({ wods, classes, myReservations, members, setCurrentPage, lead
           <div className="stat-card">
             <div className="stat-icon" style={{background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6'}}><Trophy size={20} /></div>
             <div className="stat-info">
-              <span className="stat-label">남은 수강 횟수</span>
-              <span className="stat-value">{me.remainingSessions}회</span>
+              <span className="stat-label">회원권 만료일</span>
+              <span className="stat-value" style={{
+                fontSize: '0.95rem',
+                color: (() => {
+                  if (!me.membershipExpiry) return 'var(--text-secondary)';
+                  const days = Math.ceil((new Date(me.membershipExpiry) - new Date()) / 86400000);
+                  return days < 0 ? '#ff3366' : days <= 14 ? '#ff6b6b' : 'var(--text-primary)';
+                })()
+              }}>
+                {me.membershipExpiry
+                  ? (() => {
+                      const days = Math.ceil((new Date(me.membershipExpiry) - new Date()) / 86400000);
+                      if (days < 0) return '만료됨';
+                      if (days <= 14) return `${me.membershipExpiry} (D-${days})`;
+                      return me.membershipExpiry;
+                    })()
+                  : '미등록'}
+              </span>
             </div>
           </div>
         </div>
