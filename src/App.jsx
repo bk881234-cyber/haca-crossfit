@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Shield, User, Dumbbell } from 'lucide-react';
+import { Shield, User } from 'lucide-react';
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 import UserHome from './pages/UserHome';
 import ReservationPage from './pages/ReservationPage';
 import CommunityPage from './pages/CommunityPage';
@@ -245,8 +246,9 @@ function App() {
     <div className="app-container">
       <div className="role-switcher-bar">
         <div className="role-info">
-          <Dumbbell className="logo-icon text-lime" />
-          <span className="brand-name">HACA <span className="text-lime">CROSSFIT</span></span>
+          <button className="logo-btn" onClick={() => setCurrentPage('wod')} aria-label="홈으로">
+            <img src="/logo.png" alt="HACA Training Club" className="header-logo" />
+          </button>
         </div>
         {role === 'user' && (
           <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
@@ -258,6 +260,13 @@ function App() {
       <div className="main-content">
         {renderPage()}
       </div>
+
+      {/* 브랜드 워터마크 — 하단에 선수 실루엣 */}
+      <div className="brand-watermark-section" aria-hidden="true">
+        <img src="/athlete.png" alt="" className="brand-watermark-img" />
+      </div>
+
+      <Footer />
     </div>
   );
 }

@@ -263,6 +263,67 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+/* ── Brand watermark (athlete silhouette) ── */
+.brand-watermark-section {
+  width: 100%;
+  position: relative;
+  height: 260px;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+}
+
+.brand-watermark-img {
+  position: absolute;
+  bottom: -8%;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 560px;
+  width: auto;
+  opacity: 0.05;
+  filter: invert(1); /* white silhouette on dark bg */
+  object-fit: contain;
+}
+
+@media (min-width: 768px) {
+  .brand-watermark-section {
+    height: 380px;
+  }
+  .brand-watermark-img {
+    height: 820px;
+    bottom: -12%;
+  }
+}
+
+/* ── Logo button in header ── */
+.logo-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  transition: opacity 0.2s ease;
+}
+
+.logo-btn:hover {
+  opacity: 0.85;
+}
+
+.header-logo {
+  height: 40px;
+  width: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+@media (min-width: 768px) {
+  .header-logo {
+    height: 44px;
+    width: 44px;
+  }
+}
+
 /* Role Switcher Bar */
 .role-switcher-bar {
   display: flex;

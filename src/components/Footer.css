@@ -1,0 +1,16 @@
+.app-footer {
+  width: 100%;
+  padding: 20px 24px 110px; /* 110px for bottom nav */
+  text-align: center;
+  border-top: 1px solid var(--border-color);
+  background: transparent;
+  position: relative;
+  z-index: 1;
+}
+
+.footer-copy {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  font-weight: 500;
+}
