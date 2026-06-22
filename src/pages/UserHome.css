@@ -1,4 +1,4 @@
-.user-home {
+﻿.user-home {
   padding: 1.5rem;
   padding-bottom: 1rem;
   animation: fadeIn 0.4s ease-out;
@@ -20,7 +20,7 @@
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
-  border: 2px solid rgba(204, 255, 0, 0.3);
+  border: 2px solid rgba(0, 229, 255, 0.3);
 }
 
 .greeting-text h1 {
@@ -96,7 +96,7 @@
 }
 
 .stat-icon {
-  background: rgba(204, 255, 0, 0.1);
+  background: rgba(0, 229, 255, 0.1);
   padding: 0.75rem;
   border-radius: var(--radius-full);
   display: flex;
@@ -171,7 +171,7 @@
 }
 
 .status-badge.confirmed {
-  background: rgba(204, 255, 0, 0.15);
+  background: rgba(0, 229, 255, 0.15);
   color: var(--neon-lime);
 }
 
@@ -282,7 +282,7 @@
 }
 
 .type-badge.rxd {
-  background: rgba(204, 255, 0, 0.15);
+  background: rgba(0, 229, 255, 0.15);
   color: var(--neon-lime);
 }
 
@@ -435,7 +435,7 @@
 }
 
 .notice-icon {
-  background: rgba(204, 255, 0, 0.15);
+  background: rgba(0, 229, 255, 0.15);
   padding: 0.5rem;
   border-radius: 50%;
   display: flex;
@@ -498,5 +498,5 @@
 }
 
 .btn-close-notice:hover {
-  background: rgba(204, 255, 0, 0.05);
+  background: rgba(0, 229, 255, 0.05);
 }

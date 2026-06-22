@@ -1,4 +1,4 @@
-.schedule-page {
+﻿.schedule-page {
   display: flex;
   flex-direction: column;
   gap: 28px;
@@ -33,7 +33,7 @@
 }
 
 .schedule-table thead tr {
-  background: rgba(204, 255, 0, 0.05);
+  background: rgba(0, 229, 255, 0.05);
   border-bottom: 1px solid var(--border-color);
 }
 
@@ -197,7 +197,7 @@
 }
 
 .open-gym-card:hover {
-  border-color: rgba(204, 255, 0, 0.2);
+  border-color: rgba(0, 229, 255, 0.2);
 }
 
 .open-gym-card.sat-card {

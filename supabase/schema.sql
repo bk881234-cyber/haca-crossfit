@@ -102,6 +102,16 @@ alter table feed_comments enable row level security;
 alter table feed_likes enable row level security;
 alter table notices enable row level security;
 
+drop policy if exists "public_all" on wods;
+drop policy if exists "public_all" on classes;
+drop policy if exists "public_all" on members;
+drop policy if exists "public_all" on reservations;
+drop policy if exists "public_all" on leaderboard;
+drop policy if exists "public_all" on feed_posts;
+drop policy if exists "public_all" on feed_comments;
+drop policy if exists "public_all" on feed_likes;
+drop policy if exists "public_all" on notices;
+
 create policy "public_all" on wods for all using (true) with check (true);
 create policy "public_all" on classes for all using (true) with check (true);
 create policy "public_all" on members for all using (true) with check (true);

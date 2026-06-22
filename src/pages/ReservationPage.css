@@ -1,4 +1,4 @@
-.reservation-container {
+﻿.reservation-container {
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -48,11 +48,11 @@
 }
 
 .date-card:hover {
-  border-color: rgba(204, 255, 0, 0.4);
+  border-color: rgba(0, 229, 255, 0.4);
 }
 
 .date-card.active {
-  background-color: rgba(204, 255, 0, 0.1);
+  background-color: rgba(0, 229, 255, 0.1);
   border-color: var(--accent);
   box-shadow: var(--shadow-glow);
 }
@@ -116,8 +116,8 @@
 }
 
 .class-slot-card.booked {
-  border-color: rgba(204, 255, 0, 0.3);
-  box-shadow: 0 10px 35px -10px rgba(0, 0, 0, 0.7), 0 0 15px rgba(204, 255, 0, 0.05);
+  border-color: rgba(0, 229, 255, 0.3);
+  box-shadow: 0 10px 35px -10px rgba(0, 0, 0, 0.7), 0 0 15px rgba(0, 229, 255, 0.05);
 }
 
 .class-slot-main {
@@ -177,7 +177,7 @@
 
 .capacity-progress-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #ccff00 0%, #00e5ff 100%);
+  background: linear-gradient(90deg, #00e5ff 0%, #00e5ff 100%);
   border-radius: 3px;
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
