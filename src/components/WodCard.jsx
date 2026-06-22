@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Timer, Flame } from 'lucide-react';
+import { Timer } from 'lucide-react';
 import './WodCard.css';
 
 const WodCard = ({ wod }) => {
@@ -35,7 +35,6 @@ const WodCard = ({ wod }) => {
         <div className="wod-content">
           <div className="wod-meta-info">
             <div className="meta-item">
-              <Flame size={18} className="text-lime" />
               <span className="meta-value-large">{wod.type}</span>
             </div>
             <div className="meta-item time-cap-item">

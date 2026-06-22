@@ -267,32 +267,18 @@ h1, h2, h3, h4, h5, h6 {
 .brand-watermark-section {
   width: 100%;
   position: relative;
-  height: 420px;
   overflow: hidden;
   pointer-events: none;
   user-select: none;
+  line-height: 0;
 }
 
 .brand-watermark-img {
-  position: absolute;
-  bottom: -4%;
-  left: 50%;
-  transform: translateX(-50%);
-  height: 500px;
-  width: auto;
-  max-width: none;
+  width: 100%;
+  height: auto;
+  display: block;
   opacity: 0.07;
   object-fit: contain;
-}
-
-@media (min-width: 768px) {
-  .brand-watermark-section {
-    height: 600px;
-  }
-  .brand-watermark-img {
-    height: 720px;
-    bottom: -6%;
-  }
 }
 
 /* ── Logo button in header ── */

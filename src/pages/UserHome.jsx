@@ -69,8 +69,11 @@ const UserHome = ({ wods, classes, myReservations, members, setCurrentPage, lead
 
       <header className="home-header">
         <div className="user-greeting">
-          <h1>Hello, {me.name}님! <span className="wave">👋</span></h1>
-          <p>오늘도 화이팅하세요!</p>
+          <img src="/logo.png" alt="HACA" className="greeting-logo" />
+          <div className="greeting-text">
+            <h1>Hello, {me.name}님! <span className="wave">👋</span></h1>
+            <p>오늘도 화이팅하세요!</p>
+          </div>
         </div>
       </header>
 

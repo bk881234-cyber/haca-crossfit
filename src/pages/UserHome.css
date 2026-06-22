@@ -6,15 +6,34 @@
 
 .home-header {
   margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: flex-end;
 }
 
-.user-greeting h1 {
+.user-greeting {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  text-align: right;
+}
+
+.greeting-logo {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid rgba(204, 255, 0, 0.3);
+}
+
+.greeting-text h1 {
   font-size: 1.75rem;
   font-weight: 800;
   margin: 0 0 0.25rem 0;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  justify-content: flex-end;
 }
 
 .wave {
@@ -34,9 +53,10 @@
   100% { transform: rotate( 0.0deg) }
 }
 
-.user-greeting p {
+.greeting-text p {
   color: var(--text-secondary);
   margin: 0;
+  text-align: right;
 }
 
 .section-header {

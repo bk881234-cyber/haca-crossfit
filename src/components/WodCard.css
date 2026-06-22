@@ -108,12 +108,12 @@
 /* 크게 적용된 For Time / Time Cap */
 .meta-value-large {
   font-weight: 800;
-  font-size: 1.1rem;
+  font-size: 1.4rem;
   color: var(--text-primary);
 }
 
 .meta-label-large {
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: var(--text-secondary);
   font-weight: 500;
 }
