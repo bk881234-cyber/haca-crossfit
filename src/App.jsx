@@ -6,6 +6,7 @@ import ReservationPage from './pages/ReservationPage';
 import CommunityPage from './pages/CommunityPage';
 import AdminDashboard from './pages/AdminDashboard';
 import LocationPage from './pages/LocationPage';
+import SchedulePage from './pages/SchedulePage';
 import './App.css';
 
 // Initial WODs Data
@@ -231,6 +232,8 @@ function App() {
         return <ReservationPage classes={classes} myReservations={myReservations} toggleBooking={toggleBooking} />;
       case 'feed':
         return <CommunityPage feed={feed} addFeedPost={addFeedPost} toggleLikeFeed={toggleLikeFeed} addCommentToFeed={addCommentToFeed} notices={notices} />;
+      case 'schedule':
+        return <SchedulePage />;
       case 'location':
         return <LocationPage />;
       default:

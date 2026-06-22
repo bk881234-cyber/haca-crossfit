@@ -1,0 +1,281 @@
+.schedule-page {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  width: 100%;
+}
+
+.schedule-page-header h1 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.schedule-page-header .sub-text {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+/* ── Table ── */
+.schedule-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 14px;
+  border: 1px solid var(--border-color);
+  -webkit-overflow-scrolling: touch;
+}
+
+.schedule-table {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.schedule-table thead tr {
+  background: rgba(204, 255, 0, 0.05);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.schedule-table th {
+  padding: 12px 8px;
+  text-align: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+}
+
+.time-header {
+  min-width: 68px;
+}
+
+.schedule-table tbody tr {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.schedule-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.schedule-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.time-col {
+  padding: 14px 10px;
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  background: rgba(0, 0, 0, 0.15);
+  border-right: 1px solid var(--border-color);
+  min-width: 68px;
+  line-height: 1.5;
+}
+
+.time-col.small {
+  font-size: 0.75rem;
+}
+
+.cell {
+  padding: 14px 8px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  border-right: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.cell:last-child {
+  border-right: none;
+}
+
+/* CrossFit - 흰색 */
+.cell.crossfit {
+  color: #ffffff;
+  font-size: 0.85rem;
+}
+
+/* HYROX - 노란색 */
+.cell.hyrox {
+  color: #f5c518;
+  letter-spacing: 0.03em;
+}
+
+/* Hybrid Training - 하늘색 */
+.cell.hybrid {
+  color: var(--accent-secondary);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+/* Open Gym - 연회색 */
+.cell.open-gym {
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.8rem;
+  background: rgba(0, 0, 0, 0.1);
+  letter-spacing: 0.05em;
+}
+
+.cell.sat-open {
+  font-size: 0.72rem;
+  line-height: 1.6;
+}
+
+.wc-label {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  opacity: 0.7;
+}
+
+.cell.empty {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+/* ── 범례 ── */
+.legend-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 14px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.crossfit-dot  { background: #ffffff; }
+.hyrox-dot     { background: #f5c518; }
+.hybrid-dot    { background: var(--accent-secondary); }
+.opengym-dot   { background: var(--text-muted); }
+
+/* ── 오픈짐 안내 ── */
+.section-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.section-sub {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.open-gym-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.open-gym-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 20px 24px;
+  transition: border-color 0.2s;
+}
+
+.open-gym-card:hover {
+  border-color: rgba(204, 255, 0, 0.2);
+}
+
+.open-gym-card.sat-card {
+  border-color: rgba(0, 229, 255, 0.15);
+}
+
+.gym-time-label {
+  display: flex;
+  flex-direction: column;
+  min-width: 110px;
+}
+
+.period {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  letter-spacing: 0.1em;
+  margin-bottom: 2px;
+}
+
+.gym-name {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.gym-hours {
+  font-size: 0.82rem;
+  color: var(--neon-lime);
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.gym-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 2px;
+  border-left: 2px solid var(--border-color);
+  padding-left: 20px;
+  flex: 1;
+}
+
+.gym-info p {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.coach-note {
+  color: var(--text-primary) !important;
+  margin-top: 4px !important;
+}
+
+.coach-note strong {
+  color: var(--neon-lime);
+}
+
+@media (min-width: 768px) {
+  .schedule-page-header h1 {
+    font-size: 2.2rem;
+  }
+
+  .open-gym-cards {
+    flex-direction: row;
+  }
+
+  .open-gym-card {
+    flex: 1;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .gym-info {
+    border-left: none;
+    border-top: 1px solid var(--border-color);
+    padding-left: 0;
+    padding-top: 12px;
+  }
+}
