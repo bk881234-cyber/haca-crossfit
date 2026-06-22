@@ -45,8 +45,8 @@
   display: flex;
   gap: 1.5rem;
   margin-bottom: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px dashed var(--border-color);
+  padding-bottom: 0.75rem;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
 }
 
 .meta-item {
@@ -74,13 +74,6 @@
 .highlight-cap {
   color: var(--neon-lime);
   font-size: 1.05rem;
-}
-
-.wod-desc {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  line-height: 1.5;
-  margin-bottom: 1.5rem;
 }
 
 .level-toggle {
@@ -128,40 +121,3 @@
   font-weight: 500;
 }
 
-.wod-actions {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.timer-btn {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
-  padding: 1rem;
-  border-radius: var(--radius-md);
-  font-weight: 700;
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.timer-btn.active {
-  background: #ff4757;
-  color: white;
-  border-color: #ff4757;
-}
-
-.timer-display {
-  font-size: 1.5rem;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-  color: var(--neon-lime);
-  min-width: 100px;
-  text-align: right;
-}
