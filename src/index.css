@@ -372,3 +372,7 @@ h1, h2, h3, h4, h5, h6 {
   background-color: rgba(204, 255, 0, 0.2);
 }
 
+@media (max-width: 480px) {
+  .logout-name-hide { display: none; }
+}
+
