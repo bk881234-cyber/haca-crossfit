@@ -230,13 +230,15 @@ function AppShell() {
       : new Date();
     base.setMonth(base.getMonth() + months);
     const newExpiry = base.toISOString().split('T')[0];
-    await supabase.from('members').update({ membership_expiry: newExpiry }).eq('id', memberId);
+    const { error } = await supabase.from('members').update({ membership_expiry: newExpiry }).eq('id', memberId);
+    if (error) { console.error('만료일 업데이트 실패:', error.message); alert('저장 실패: ' + error.message); return; }
     setMembers(prev => prev.map(item => item.id === memberId ? { ...item, membershipExpiry: newExpiry } : item));
   };
 
   const setMemberExpiryDate = async (memberId, dateStr) => {
     if (!dateStr) return;
-    await supabase.from('members').update({ membership_expiry: dateStr }).eq('id', memberId);
+    const { error } = await supabase.from('members').update({ membership_expiry: dateStr }).eq('id', memberId);
+    if (error) { console.error('만료일 업데이트 실패:', error.message); alert('저장 실패: ' + error.message); return; }
     setMembers(prev => prev.map(item => item.id === memberId ? { ...item, membershipExpiry: dateStr } : item));
   };
   const toggleMemberStatus = async (memberId) => {
