@@ -5,7 +5,7 @@ import './AdminDashboard.css';
 const AdminDashboard = ({
   addWod,
   classes, addClassSlot, deleteClassSlot,
-  members, adjustMemberSessions, toggleMemberStatus,
+  members, setMemberExpiry, toggleMemberStatus,
   feed, deleteFeedPost,
   notices, addNotice, toggleNoticeActive, deleteNotice,
 }) => {
@@ -170,19 +170,34 @@ const AdminDashboard = ({
       <div className="data-table-wrap">
         <table className="data-table">
           <thead>
-            <tr><th>이름</th><th>연락처</th><th>누적 출석</th><th>남은 횟수 관리</th><th>상태</th></tr>
+            <tr><th>이름</th><th>연락처</th><th>누적 출석</th><th>회원권 만료일</th><th>상태</th></tr>
           </thead>
           <tbody>
-            {members.map(m => (
+            {members.map(m => {
+              const expiry = m.membershipExpiry ? new Date(m.membershipExpiry) : null;
+              const today = new Date();
+              today.setHours(0,0,0,0);
+              const daysLeft = expiry ? Math.ceil((expiry - today) / 86400000) : null;
+              const isExpired = daysLeft !== null && daysLeft < 0;
+              const isSoon = daysLeft !== null && daysLeft >= 0 && daysLeft <= 14;
+              return (
               <tr key={m.id}>
                 <td className="font-bold">{m.name}</td>
                 <td>{m.phone}</td>
                 <td>{m.attendanceCount}회</td>
                 <td>
-                  <div className="counter-control">
-                    <button onClick={() => adjustMemberSessions(m.id, -1)}>-</button>
-                    <span className="count-val">{m.remainingSessions}</span>
-                    <button onClick={() => adjustMemberSessions(m.id, 1)}>+</button>
+                  <div className="expiry-cell">
+                    <span className={`expiry-date ${isExpired ? 'expired' : isSoon ? 'soon' : ''}`}>
+                      {expiry ? (isExpired ? '만료됨' : m.membershipExpiry) : '미등록'}
+                      {isSoon && ` (D-${daysLeft})`}
+                    </span>
+                    <div className="expiry-btns">
+                      {[1,3,6,12].map(mo => (
+                        <button key={mo} className="expiry-btn" onClick={() => setMemberExpiry(m.id, mo)}>
+                          +{mo < 12 ? `${mo}개월` : '1년'}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </td>
                 <td>
@@ -191,7 +206,8 @@ const AdminDashboard = ({
                   </button>
                 </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>

@@ -95,7 +95,7 @@ function AppShell() {
 
       setMembers((membersData || []).map(m => ({
         id: m.id, name: m.name, phone: m.phone,
-        attendanceCount: m.attendance_count, remainingSessions: m.remaining_sessions, status: m.status,
+        attendanceCount: m.attendance_count, membershipExpiry: m.membership_expiry, status: m.status,
       })));
 
       setLeaderboard((leaderboardData || []).map(l => ({
@@ -218,12 +218,16 @@ function AppShell() {
     await supabase.from('feed_posts').delete().eq('id', id);
     setFeed(prev => prev.filter(f => f.id !== id));
   };
-  const adjustMemberSessions = async (memberId, delta) => {
+  const setMemberExpiry = async (memberId, months) => {
     const m = members.find(m => m.id === memberId);
     if (!m) return;
-    const newVal = Math.max(0, m.remainingSessions + delta);
-    await supabase.from('members').update({ remaining_sessions: newVal }).eq('id', memberId);
-    setMembers(prev => prev.map(item => item.id === memberId ? { ...item, remainingSessions: newVal } : item));
+    const base = m.membershipExpiry && new Date(m.membershipExpiry) > new Date()
+      ? new Date(m.membershipExpiry)
+      : new Date();
+    base.setMonth(base.getMonth() + months);
+    const newExpiry = base.toISOString().split('T')[0];
+    await supabase.from('members').update({ membership_expiry: newExpiry }).eq('id', memberId);
+    setMembers(prev => prev.map(item => item.id === memberId ? { ...item, membershipExpiry: newExpiry } : item));
   };
   const toggleMemberStatus = async (memberId) => {
     const m = members.find(m => m.id === memberId);
@@ -292,7 +296,7 @@ function AppShell() {
           <AdminDashboard
             addWod={addWod}
             classes={classes} addClassSlot={addClassSlot} deleteClassSlot={deleteClassSlot}
-            members={members} adjustMemberSessions={adjustMemberSessions} toggleMemberStatus={toggleMemberStatus}
+            members={members} setMemberExpiry={setMemberExpiry} toggleMemberStatus={toggleMemberStatus}
             feed={feed} deleteFeedPost={deleteFeedPost}
             notices={notices} addNotice={addNotice} toggleNoticeActive={toggleNoticeActive} deleteNotice={deleteNotice}
           />

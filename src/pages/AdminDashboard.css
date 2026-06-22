@@ -380,3 +380,51 @@
   outline: none;
   font-size: 0.9rem;
 }
+
+/* 회원권 만료일 */
+.expiry-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.expiry-date {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.expiry-date.soon {
+  color: #ff6b6b;
+  font-weight: 700;
+}
+
+.expiry-date.expired {
+  color: #ff3366;
+  font-weight: 700;
+}
+
+.expiry-btns {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.expiry-btn {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.expiry-btn:hover {
+  background: rgba(204, 255, 0, 0.1);
+  border-color: rgba(204, 255, 0, 0.4);
+  color: var(--neon-lime);
+}
