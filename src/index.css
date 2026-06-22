@@ -321,8 +321,8 @@ h1, h2, h3, h4, h5, h6 {
   position: sticky;
   top: 0;
   z-index: 100;
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  /* backdrop-filter removed: it creates a new containing block that breaks
+     position:fixed on child Navbar (mobile bottom nav becomes top-relative) */
 }
 .role-info {
   display: flex;

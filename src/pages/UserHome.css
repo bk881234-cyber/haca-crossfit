@@ -7,14 +7,13 @@
 .home-header {
   margin-bottom: 1.5rem;
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
 }
 
 .user-greeting {
   display: flex;
   align-items: center;
   gap: 0.875rem;
-  text-align: right;
 }
 
 .greeting-logo {
@@ -33,7 +32,6 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  justify-content: flex-end;
 }
 
 .wave {
@@ -56,7 +54,6 @@
 .greeting-text p {
   color: var(--text-secondary);
   margin: 0;
-  text-align: right;
 }
 
 .section-header {
