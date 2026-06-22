@@ -267,7 +267,7 @@ h1, h2, h3, h4, h5, h6 {
 .brand-watermark-section {
   width: 100%;
   position: relative;
-  height: 260px;
+  height: 420px;
   overflow: hidden;
   pointer-events: none;
   user-select: none;
@@ -275,22 +275,23 @@ h1, h2, h3, h4, h5, h6 {
 
 .brand-watermark-img {
   position: absolute;
-  bottom: -8%;
+  bottom: -4%;
   left: 50%;
   transform: translateX(-50%);
-  height: 560px;
+  height: 500px;
   width: auto;
-  opacity: 0.05;
+  max-width: none;
+  opacity: 0.07;
   object-fit: contain;
 }
 
 @media (min-width: 768px) {
   .brand-watermark-section {
-    height: 380px;
+    height: 600px;
   }
   .brand-watermark-img {
-    height: 820px;
-    bottom: -12%;
+    height: 720px;
+    bottom: -6%;
   }
 }
 
@@ -306,20 +307,20 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .logo-btn:hover {
-  opacity: 0.85;
+  opacity: 0.8;
 }
 
 .header-logo {
-  height: 40px;
-  width: 40px;
+  height: 52px;
+  width: 52px;
   border-radius: 50%;
   object-fit: cover;
 }
 
 @media (min-width: 768px) {
   .header-logo {
-    height: 44px;
-    width: 44px;
+    height: 56px;
+    width: 56px;
   }
 }
 
