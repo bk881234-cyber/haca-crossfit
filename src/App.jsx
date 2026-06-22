@@ -245,6 +245,9 @@ function App() {
           <Dumbbell className="logo-icon text-lime" />
           <span className="brand-name">HACA <span className="text-lime">CROSSFIT</span></span>
         </div>
+        {role === 'user' && (
+          <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
+        )}
         <button className={`role-btn ${role}`} onClick={handleRoleToggle}>
           {role === 'coach' ? (<><Shield className="icon" size={16} /><span>관리자 모드</span></>) : (<><User className="icon" size={16} /><span>회원 모드</span></>)}
         </button>
@@ -252,9 +255,6 @@ function App() {
       <div className="main-content">
         {renderPage()}
       </div>
-      {role === 'user' && (
-        <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
-      )}
     </div>
   );
 }

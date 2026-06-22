@@ -11,78 +11,31 @@
   overflow: hidden;
 }
 
-/* Decoration line */
-.wod-card::before {
+/* Subtle kettlebell background */
+.wod-card::after {
   content: '';
   position: absolute;
+  right: 0;
   top: 0;
-  left: 0;
-  width: 4px;
-  height: 100%;
-  background: var(--neon-lime);
+  bottom: 0;
+  width: 55%;
+  background: url('https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=900&q=80') center / cover no-repeat;
+  opacity: 0.06;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 45%);
+  mask-image: linear-gradient(to right, transparent 0%, black 45%);
 }
 
-.wod-header {
-  margin-bottom: 1rem;
-}
-
-.wod-date {
-  font-size: 0.8rem;
-  color: var(--neon-lime);
-  font-weight: 700;
-  letter-spacing: 1px;
-  margin-bottom: 0.3rem;
-}
-
-.wod-title {
-  font-size: 1.5rem;
-  font-weight: 800;
-  margin: 0;
-  color: var(--text-primary);
-}
-
-.wod-meta-info {
-  display: flex;
-  gap: 1.5rem;
-  margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
-}
-
-.meta-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.meta-label {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-}
-
-.meta-value {
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-/* Time cap 강조 */
-.time-cap-item {
-  background: rgba(204, 255, 0, 0.1);
-  padding: 0.3rem 0.6rem;
-  border-radius: var(--radius-sm);
-}
-.highlight-cap {
-  color: var(--neon-lime);
-  font-size: 1.05rem;
-}
-
+/* 1. Level Toggle (최상단) */
 .level-toggle {
   display: flex;
   background: var(--bg-surface);
   border-radius: var(--radius-md);
   padding: 0.3rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
   border: 1px solid var(--border-color);
+  position: relative;
+  z-index: 1;
 }
 
 .toggle-btn {
@@ -103,12 +56,76 @@
   box-shadow: 0 2px 8px rgba(204, 255, 0, 0.2);
 }
 
+/* 2. Date + Title */
+.wod-header {
+  margin-bottom: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.wod-date {
+  font-size: 0.8rem;
+  color: var(--neon-lime);
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 0.3rem;
+}
+
+.wod-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+/* 3. Content box */
 .wod-content {
   background: var(--bg-surface);
-  padding: 1.5rem;
+  padding: 1.25rem 1.5rem;
   border-radius: var(--radius-md);
-  margin-bottom: 1.5rem;
   border: 1px solid var(--border-color);
+  position: relative;
+  z-index: 1;
+}
+
+.wod-meta-info {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+  align-items: center;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* 크게 적용된 For Time / Time Cap */
+.meta-value-large {
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+.meta-label-large {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.time-cap-item {
+  background: rgba(204, 255, 0, 0.08);
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(204, 255, 0, 0.15);
+}
+
+.highlight-cap {
+  color: var(--neon-lime);
+  font-size: 1.2rem;
 }
 
 .wod-content pre {
@@ -120,4 +137,3 @@
   white-space: pre-wrap;
   font-weight: 500;
 }
-
