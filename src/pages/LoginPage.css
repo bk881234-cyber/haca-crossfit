@@ -90,7 +90,7 @@
 }
 
 .login-tab.active {
-  background: var(--neon-lime);
+  background: #ffffff;
   color: #000;
 }
 
@@ -153,7 +153,7 @@
 }
 
 .login-submit {
-  background: var(--neon-lime);
+  background: #ffffff;
   color: #000;
   border: none;
   border-radius: var(--radius-md);
@@ -167,7 +167,7 @@
 }
 
 .login-submit:hover:not(:disabled) {
-  background: #00ccee;
+  background: #e8e8e8;
   transform: translateY(-1px);
   box-shadow: 0 4px 20px rgba(0, 229, 255, 0.25);
 }
@@ -210,7 +210,7 @@
 }
 
 .gender-toggle button.active {
-  background: var(--neon-lime);
+  background: #ffffff;
   color: #000;
 }
 

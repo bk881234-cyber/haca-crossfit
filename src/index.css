@@ -125,11 +125,11 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-primary {
-  background-color: var(--accent);
+  background-color: #ffffff;
   color: #000000;
 }
 .btn-primary:hover {
-  background-color: #00ccee;
+  background-color: #e8e8e8;
   box-shadow: var(--shadow-glow);
   transform: translateY(-2px);
 }

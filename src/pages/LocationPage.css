@@ -43,7 +43,7 @@
 .nav-btn {
   width: 100%;
   padding: 0.8rem;
-  background: var(--neon-lime);
+  background: #ffffff;
   color: #000;
   border: none;
   border-radius: var(--radius-md);

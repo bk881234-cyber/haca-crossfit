@@ -49,7 +49,7 @@
 }
 
 .admin-tab.active {
-  background: var(--neon-lime);
+  background: #ffffff;
   color: #000;
   border-color: var(--neon-lime);
 }
@@ -204,7 +204,7 @@
 }
 
 .admin-submit-btn {
-  background: var(--neon-lime);
+  background: #ffffff;
   color: #000;
   border: none;
   padding: 1rem;
