@@ -33,15 +33,22 @@ const UserHome = ({ wods, classes, myReservations, members, setCurrentPage, lead
     setPopupNotice(null);
   };
 
+  const [wodTab, setWodTab] = useState('today');
+
   const { displayName, profile } = useAuth();
 
-  const todayWod = wods[0];
+  const todayStr = new Date().toISOString().split('T')[0];
+  const tomorrowDate = new Date();
+  tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+  const tomorrowStr = tomorrowDate.toISOString().split('T')[0];
+
+  const todayWod = wods.find(w => w.date === todayStr) || wods[0];
+  const tomorrowWod = wods.find(w => w.date === tomorrowStr);
+
   const normalizePhone = (p) => p?.replace(/\D/g, '') || '';
   const me = members.find(m => normalizePhone(m.phone) === normalizePhone(profile?.phone))
           || members.find(m => m.name === profile?.name)
           || {};
-
-  const todayStr = new Date().toISOString().split('T')[0];
   const myBookedClasses = classes.filter(cls => myReservations.some(r => r.classId === cls.id && r.date === todayStr));
 
   const handleRecordSubmit = (e) => {
@@ -147,12 +154,34 @@ const UserHome = ({ wods, classes, myReservations, members, setCurrentPage, lead
         )}
       </section>
 
-      {/* 오늘의 와드 */}
+      {/* 오늘/내일 와드 */}
       <section className="wod-section">
         <div className="section-header">
-          <h2>오늘의 WOD</h2>
+          <h2>WOD</h2>
         </div>
-        {todayWod ? <WodCard wod={todayWod} /> : <div className="empty-state">등록된 WOD가 없습니다.</div>}
+        <div className="wod-tabs">
+          <button
+            className={`wod-tab-btn ${wodTab === 'today' ? 'active' : ''}`}
+            onClick={() => setWodTab('today')}
+          >
+            오늘
+          </button>
+          <button
+            className={`wod-tab-btn ${wodTab === 'tomorrow' ? 'active' : ''}`}
+            onClick={() => setWodTab('tomorrow')}
+          >
+            내일
+          </button>
+        </div>
+        {wodTab === 'today' ? (
+          todayWod
+            ? <WodCard wod={todayWod} />
+            : <div className="empty-state">오늘 등록된 WOD가 없습니다.</div>
+        ) : (
+          tomorrowWod
+            ? <WodCard wod={tomorrowWod} />
+            : <div className="empty-state">내일 WOD가 아직 등록되지 않았습니다.</div>
+        )}
       </section>
 
       {/* 실시간 리더보드 */}
