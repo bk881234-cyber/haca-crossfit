@@ -53,7 +53,8 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
   const [recordType, setRecordType]  = useState('for_time');
   const [timeMin, setTimeMin]   = useState('');
   const [timeSec, setTimeSec]   = useState('');
-  const [amrapVal, setAmrapVal] = useState('');
+  const [amrapRounds, setAmrapRounds] = useState('');
+  const [amrapReps, setAmrapReps] = useState('');
   const [failDone, setFailDone] = useState('DONE');
   const [weightVal, setWeightVal] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -67,7 +68,14 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
 
   const getRecordValue = () => {
     if (recordType === 'for_time')  return `${timeMin || '0'}:${(timeSec || '0').padStart(2, '0')}`;
-    if (recordType === 'amrap')     return amrapVal.trim();
+    if (recordType === 'amrap') {
+      const rounds = parseInt(amrapRounds) || 0;
+      const reps = parseInt(amrapReps) || 0;
+      if (rounds === 0 && reps === 0) return '';
+      if (rounds > 0 && reps > 0) return `${rounds}R + ${reps}`;
+      if (rounds > 0 && reps === 0) return `${rounds}R`;
+      if (rounds === 0 && reps > 0) return `${reps} REPS`;
+    }
     if (recordType === 'fail_done') return failDone;
     if (recordType === 'weight')    return `${weightVal} LB`;
     return '';
@@ -88,7 +96,7 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
     });
     setSubmitting(false);
     setJustSaved(true);
-    setTimeMin(''); setTimeSec(''); setAmrapVal(''); setWeightVal('');
+    setTimeMin(''); setTimeSec(''); setAmrapRounds(''); setAmrapReps(''); setWeightVal('');
     setTimeout(() => setJustSaved(false), 2500);
   };
 
@@ -216,11 +224,19 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
               </div>
             )}
             {recordType === 'amrap' && (
-              <input
-                type="text" placeholder="예) 137 REPS 또는 5R + 37"
-                value={amrapVal} onChange={e => setAmrapVal(e.target.value)}
-                className="rp-text-input" required
-              />
+              <div className="rp-time-row">
+                <input
+                  type="number" min="0" placeholder="라운드(R)"
+                  value={amrapRounds} onChange={e => setAmrapRounds(e.target.value)}
+                  className="rp-time-input" style={{ width: '100px' }}
+                />
+                <span className="rp-colon" style={{ fontSize: '1.2rem' }}>R +</span>
+                <input
+                  type="number" min="0" placeholder="랩스(Reps)"
+                  value={amrapReps} onChange={e => setAmrapReps(e.target.value)}
+                  className="rp-time-input" style={{ width: '100px' }}
+                />
+              </div>
             )}
             {recordType === 'fail_done' && (
               <div className="rp-fd-row">
