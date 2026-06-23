@@ -317,7 +317,7 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
           <div className="rp-empty glass-card">아직 등록된 기록이 없습니다.</div>
         ) : (
           <div className="rp-lb-list">
-            {groupedRecords.map((user, idx) => {
+            {groupedRecords.map((user) => {
               const currentLevel = (levelMap && levelMap[user.member_name]) || user.member_level || 'Beginner';
               const s = LEVEL_STYLE[currentLevel] || LEVEL_STYLE.Beginner;
               const fbs = user.feedbacks;
@@ -328,12 +328,9 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
               return (
                 <div key={user.member_name} className="rp-lb-card glass-card">
                   <div className="rp-lb-main">
-                    <div className="rp-lb-rank">#{idx + 1}</div>
                     <div className="rp-lb-info">
-                      <div className="rp-lb-name-row">
-                        <span className="rp-lb-name">{user.member_name}</span>
-                        <span className="rp-lb-level" style={{ color: s.color, background: s.bg, border: `1px solid ${s.border}` }}>{currentLevel}</span>
-                      </div>
+                      <span className="rp-lb-name">{user.member_name}</span>
+                      <span className="rp-lb-level" style={{ color: s.color, background: s.bg, border: `1px solid ${s.border}` }}>{currentLevel}</span>
                     </div>
 
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', flex: 1, justifyContent: 'flex-end', marginRight: '0.5rem' }}>
