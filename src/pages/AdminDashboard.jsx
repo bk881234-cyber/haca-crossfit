@@ -18,7 +18,7 @@ const AdminDashboard = ({
     timeLimit: '', rxd: '', scaled: '', description: '',
   });
   const [newNotice, setNewNotice] = useState({ title: '', content: '', isPopup: false });
-  const [newClass, setNewClass] = useState({ time: '07:00', coach: 'David Coach', maxCapacity: 15 });
+  const [newClass, setNewClass] = useState({ time: '06:30', className: 'CrossFit', coach: '', maxCapacity: 15, dayOfWeek: '' });
 
   const handleWodSubmit = (e) => {
     e.preventDefault();
@@ -36,7 +36,7 @@ const AdminDashboard = ({
 
   const handleClassSubmit = (e) => {
     e.preventDefault();
-    addClassSlot({ time: newClass.time, coach: newClass.coach, maxCapacity: Number(newClass.maxCapacity) });
+    addClassSlot({ time: newClass.time, className: newClass.className, coach: newClass.coach, maxCapacity: Number(newClass.maxCapacity), dayOfWeek: newClass.dayOfWeek });
     alert('클래스 스케줄이 등록되었습니다.');
   };
 
@@ -125,15 +125,36 @@ const AdminDashboard = ({
       <form className="admin-form mb-4" onSubmit={handleClassSubmit}>
         <div className="form-row align-end">
           <div className="form-group">
-            <label>시간 (HH:MM)</label>
+            <label>요일</label>
+            <select value={newClass.dayOfWeek} onChange={e => setNewClass({ ...newClass, dayOfWeek: e.target.value })}>
+              <option value="">매일</option>
+              <option value="1">월</option>
+              <option value="2">화</option>
+              <option value="3">수</option>
+              <option value="4">목</option>
+              <option value="5">금</option>
+              <option value="6">토</option>
+              <option value="0">일</option>
+            </select>
+          </div>
+          <div className="form-group">
+            <label>시간</label>
             <input type="time" value={newClass.time} onChange={e => setNewClass({ ...newClass, time: e.target.value })} required />
           </div>
           <div className="form-group">
-            <label>담당 코치</label>
-            <input type="text" value={newClass.coach} onChange={e => setNewClass({ ...newClass, coach: e.target.value })} placeholder="코치 이름 입력" required />
+            <label>종류</label>
+            <select value={newClass.className} onChange={e => setNewClass({ ...newClass, className: e.target.value })}>
+              <option value="CrossFit">CrossFit</option>
+              <option value="HYROX">HYROX</option>
+              <option value="HYBRID TRAINING">HYBRID TRAINING</option>
+            </select>
           </div>
           <div className="form-group">
-            <label>최대 정원</label>
+            <label>코치</label>
+            <input type="text" value={newClass.coach} onChange={e => setNewClass({ ...newClass, coach: e.target.value })} placeholder="코치 이름" required />
+          </div>
+          <div className="form-group">
+            <label>정원</label>
             <input type="number" min="1" max="50" value={newClass.maxCapacity} onChange={e => setNewClass({ ...newClass, maxCapacity: e.target.value })} required />
           </div>
           <button type="submit" className="admin-submit-btn inline"><Plus size={18} /> 추가</button>
@@ -144,19 +165,24 @@ const AdminDashboard = ({
       <div className="data-table-wrap">
         <table className="data-table">
           <thead>
-            <tr><th>시간</th><th>코치</th><th>정원/예약</th><th>관리</th></tr>
+            <tr><th>요일</th><th>시간</th><th>종류</th><th>코치</th><th>정원/예약</th><th>관리</th></tr>
           </thead>
           <tbody>
-            {classes.map(cls => (
-              <tr key={cls.id}>
-                <td className="highlight-text">{cls.time}</td>
-                <td>{cls.coach}</td>
-                <td>{cls.attendees.length} / {cls.maxCapacity}</td>
-                <td>
-                  <button className="action-btn text-red" onClick={() => deleteClassSlot(cls.id)}><Trash2 size={16} /></button>
-                </td>
-              </tr>
-            ))}
+            {classes.map(cls => {
+              const dayLabels = ['일','월','화','수','목','금','토'];
+              return (
+                <tr key={cls.id}>
+                  <td>{cls.dayOfWeek != null ? dayLabels[cls.dayOfWeek] : '매일'}</td>
+                  <td className="highlight-text">{cls.time}</td>
+                  <td>{cls.className || 'CrossFit'}</td>
+                  <td>{cls.coach}</td>
+                  <td>{cls.attendees.length} / {cls.maxCapacity}</td>
+                  <td>
+                    <button className="action-btn text-red" onClick={() => deleteClassSlot(cls.id)}><Trash2 size={16} /></button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

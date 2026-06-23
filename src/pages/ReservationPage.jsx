@@ -24,6 +24,12 @@ function ReservationPage({ classes, myReservations, toggleBooking, allReservatio
   const koreanDayNames = { '월': '월요일', '화': '화요일', '수': '수요일', '목': '목요일', '금': '금요일', '토': '토요일', '일': '일요일' };
   const selectedDay = weekDays.find(d => d.date === selectedDate);
 
+  const selectedDayOfWeek = new Date(selectedDate + 'T00:00:00').getDay(); // 0=일,1=월...
+
+  const dayClasses = classes.filter(cls =>
+    cls.dayOfWeek == null || cls.dayOfWeek === selectedDayOfWeek
+  );
+
   const isBookedOnDate = (classId) =>
     myReservations.some(r => r.classId === classId && r.date === selectedDate);
 
@@ -72,12 +78,12 @@ function ReservationPage({ classes, myReservations, toggleBooking, allReservatio
 
       {/* Class List */}
       <div className="class-list-container">
-        {classes.length === 0 && (
+        {dayClasses.length === 0 && (
           <div className="empty-classes glass-card">
-            <p>등록된 클래스 스케줄이 없습니다.</p>
+            <p>이 날은 예약 가능한 클래스가 없습니다.</p>
           </div>
         )}
-        {classes.map((cls) => {
+        {dayClasses.map((cls) => {
           const isBooked = isBookedOnDate(cls.id);
           const attendees = getAttendeesForDate(cls.id);
           const isFull = attendees.length >= cls.maxCapacity;
@@ -89,9 +95,14 @@ function ReservationPage({ classes, myReservations, toggleBooking, allReservatio
             <div key={cls.id} className={`glass-card class-slot-card ${isBooked ? 'booked' : ''}`}>
               <div className="class-slot-main">
                 <div className="class-time-info">
-                  <div className="time-badge">
-                    <Clock size={16} />
-                    <span>{cls.time}</span>
+                  <div className="time-row">
+                    <div className="time-badge">
+                      <Clock size={16} />
+                      <span>{cls.time}</span>
+                    </div>
+                    <span className={`class-type-badge type-${(cls.className || '').toLowerCase().replace(/\s+/g, '-')}`}>
+                      {cls.className}
+                    </span>
                   </div>
                   <div className="coach-info">코치: {cls.coach}</div>
                 </div>

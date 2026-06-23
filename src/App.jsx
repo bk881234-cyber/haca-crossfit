@@ -95,6 +95,8 @@ function AppShell() {
       setAllReservations(reservationsData || []);
       setClasses((classesData || []).map(c => ({
         id: c.id, time: c.time, coach: c.coach, maxCapacity: c.max_capacity,
+        className: c.class_name || 'CrossFit',
+        dayOfWeek: c.day_of_week,
         attendees: (reservationsData || [])
           .filter(r => r.class_id === c.id && (r.reservation_date === todayStr || !r.reservation_date))
           .map(r => r.member_name),
@@ -246,9 +248,17 @@ function AppShell() {
     setNotices(prev => prev.filter(n => n.id !== id));
   };
   const addClassSlot = async (cls) => {
-    const id = `class-${Date.now()}`;
-    await supabase.from('classes').insert({ id, time: cls.time, coach: cls.coach, max_capacity: cls.maxCapacity });
-    setClasses(prev => [...prev, { id, ...cls, attendees: [] }].sort((a, b) => a.time.localeCompare(b.time)));
+    const { data, error } = await supabase.from('classes').insert({
+      time: cls.time, coach: cls.coach, max_capacity: cls.maxCapacity,
+      class_name: cls.className || 'CrossFit',
+      day_of_week: cls.dayOfWeek !== '' && cls.dayOfWeek != null ? Number(cls.dayOfWeek) : null,
+    }).select().single();
+    if (error) { console.error(error); return; }
+    setClasses(prev => [...prev, {
+      id: data.id, time: cls.time, coach: cls.coach, maxCapacity: cls.maxCapacity,
+      className: cls.className || 'CrossFit', dayOfWeek: cls.dayOfWeek,
+      attendees: []
+    }].sort((a, b) => a.time.localeCompare(b.time)));
   };
   const deleteClassSlot = async (id) => {
     if (!window.confirm('이 클래스를 삭제하시겠습니까?')) return;
