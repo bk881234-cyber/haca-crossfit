@@ -11,6 +11,16 @@
   }
 }
 
+/* Date bar — above both blocks */
+.wod-date-top {
+  grid-column: 1 / -1;
+  font-size: 0.78rem;
+  color: var(--accent);
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 0 0.25rem 0.25rem;
+}
+
 /* ── Block (W1 or W2) ── */
 .wod-block {
   border-radius: var(--radius-lg);

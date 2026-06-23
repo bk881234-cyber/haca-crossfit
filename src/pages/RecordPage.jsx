@@ -55,6 +55,9 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
   const myLevel = profile?.level || 'Beginner';
   const today = new Date().toISOString().split('T')[0];
   const todayWod = wods?.find(w => w.date === today) || wods?.[0];
+  const autoType = workoutTab === 'workout1'
+    ? 'weight'
+    : (todayWod?.type ? (WOD_TYPE_MAP[todayWod.type] ?? 'for_time') : 'for_time');
 
   /* ── Form state ── */
   const [workoutTab, setWorkoutTab] = useState('workout2');
@@ -231,30 +234,49 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
                   </button>
                 ))}
               </div>
-              <button type="button" className="rp-cancel-manual" onClick={() => {
-                setManualType(false);
-                if (workoutTab === 'workout1') setRecordType('weight');
-                else setRecordType(todayWod?.type ? (WOD_TYPE_MAP[todayWod.type] ?? 'for_time') : 'for_time');
-              }}>↩ 자동 감지로 되돌리기</button>
+              <button type="button" className="rp-cancel-manual" onClick={() => { setManualType(false); setRecordType(autoType); }}>
+                ↩ 자동 감지로 되돌리기
+              </button>
             </div>
           ) : (
-            <div className="rp-auto-type-row">
-              <div className="rp-auto-badge">
+            <div className="rp-type-smart">
+              {/* Auto-detected primary type */}
+              <button
+                type="button"
+                className={`rp-auto-primary ${recordType === autoType ? 'selected' : ''}`}
+                onClick={() => setRecordType(autoType)}
+              >
                 <span className="rp-auto-icon">⚡</span>
                 <div>
-                  <span className="rp-auto-label">{RECORD_TYPES.find(r => r.id === recordType)?.label}</span>
+                  <span className="rp-auto-label">{RECORD_TYPES.find(r => r.id === autoType)?.label}</span>
                   <span className="rp-auto-source">
                     {workoutTab === 'workout1'
                       ? '스트렝스 — 무게 자동 선택'
-                      : todayWod?.type
-                        ? `WOD 타입: ${todayWod.type}`
-                        : '기본값'}
+                      : todayWod?.type ? `WOD 타입: ${todayWod.type}` : '기본값'}
                   </span>
                 </div>
-              </div>
-              <button type="button" className="rp-override-btn" onClick={() => setManualType(true)}>
-                직접 변경
               </button>
+              {/* Quick secondary options */}
+              <div className="rp-quick-opts">
+                <button
+                  type="button"
+                  className={`rp-quick-btn done ${recordType === 'fail_done' && failDone === 'DONE' ? 'active' : ''}`}
+                  onClick={() => { setRecordType('fail_done'); setFailDone('DONE'); }}
+                >DONE</button>
+                <button
+                  type="button"
+                  className={`rp-quick-btn fail ${recordType === 'fail_done' && failDone === 'FAIL' ? 'active' : ''}`}
+                  onClick={() => { setRecordType('fail_done'); setFailDone('FAIL'); }}
+                >FAIL</button>
+                {autoType !== 'weight' && (
+                  <button
+                    type="button"
+                    className={`rp-quick-btn weight ${recordType === 'weight' ? 'active' : ''}`}
+                    onClick={() => setRecordType('weight')}
+                  >무게</button>
+                )}
+                <button type="button" className="rp-override-btn" onClick={() => setManualType(true)}>더보기</button>
+              </div>
             </div>
           )}
 
