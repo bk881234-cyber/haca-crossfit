@@ -66,6 +66,7 @@ function AppShell() {
 
   const [workoutRecords, setWorkoutRecords] = useState([]);
   const [recordFeedback, setRecordFeedback] = useState([]);
+  const [memberLevelMap, setMemberLevelMap] = useState({});
 
   useEffect(() => { loadAllData(); }, [displayName]);
 
@@ -82,6 +83,7 @@ function AppShell() {
         { data: noticesData },
         { data: workoutRecordsData },
         { data: recordFeedbackData },
+        { data: profilesData },
       ] = await Promise.all([
         supabase.from('wods').select('*').order('date', { ascending: false }),
         supabase.from('classes').select('*').order('time'),
@@ -92,6 +94,7 @@ function AppShell() {
         supabase.from('notices').select('*').order('created_at', { ascending: false }),
         supabase.from('workout_records').select('*').order('created_at', { ascending: false }),
         supabase.from('record_feedback').select('*').order('created_at', { ascending: true }),
+        supabase.from('profiles').select('name, nickname, phone'),
       ]);
 
       setWods((wodsData || []).map(w => ({
@@ -135,6 +138,18 @@ function AppShell() {
 
       setWorkoutRecords(workoutRecordsData || []);
       setRecordFeedback(recordFeedbackData || []);
+
+      // displayName(닉네임 우선) → 현재 레벨 맵 구성
+      // workout_records.member_name = 닉네임 or 실명 이므로 profiles에서 매핑
+      const norm = (p) => (p || '').replace(/\D/g, '');
+      const lvlMap = {};
+      (profilesData || []).forEach(p => {
+        const dName = p.nickname || p.name;
+        if (!dName) return;
+        const member = (membersData || []).find(m => norm(m.phone) === norm(p.phone));
+        if (member) lvlMap[dName] = member.level || 'Beginner';
+      });
+      setMemberLevelMap(lvlMap);
 
       setMyReservations(
         (reservationsData || [])
@@ -322,7 +337,19 @@ function AppShell() {
   const setMemberLevel = async (memberId, level) => {
     const { error } = await supabase.from('members').update({ level }).eq('id', memberId);
     if (error) { console.error('레벨 업데이트 실패:', error.message); alert('저장 실패: ' + error.message); return; }
-    setMembers(prev => prev.map(item => item.id === memberId ? { ...item, level } : item));
+    const updatedMembers = members.map(item => item.id === memberId ? { ...item, level } : item);
+    setMembers(updatedMembers);
+    // profiles 조회해서 displayName→level 맵 재구성
+    const norm = (p) => (p || '').replace(/\D/g, '');
+    const { data: pData } = await supabase.from('profiles').select('name, nickname, phone');
+    const lvlMap = {};
+    (pData || []).forEach(p => {
+      const dName = p.nickname || p.name;
+      if (!dName) return;
+      const m = updatedMembers.find(mb => norm(mb.phone) === norm(p.phone));
+      if (m) lvlMap[dName] = m.level || 'Beginner';
+    });
+    setMemberLevelMap(lvlMap);
   };
 
   const setMemberExpiryDate = async (memberId, dateStr) => {
@@ -357,11 +384,10 @@ function AppShell() {
       case 'feed': return <CommunityPage feed={feed} addFeedPost={addFeedPost} toggleLikeFeed={toggleLikeFeed} addCommentToFeed={addCommentToFeed} notices={notices} />;
       case 'record': {
         const normalize = (p) => p?.replace(/\D/g, '') || '';
-        // email형식이 '01087288635@haca.local'이므로 전화번호 추출 가능
         const myPhone = normalize(profile?.phone || user?.email?.split('@')[0]);
         const myMember = members.find(m => normalize(m.phone) === myPhone);
         const myMemberLevel = myMember?.level || 'Beginner';
-        return <RecordPage workoutRecords={workoutRecords} recordFeedback={recordFeedback} addWorkoutRecord={addWorkoutRecord} deleteWorkoutRecord={deleteWorkoutRecord} addRecordFeedback={addRecordFeedback} isAdmin={isAdmin} wods={wods} memberLevel={myMemberLevel} />;
+        return <RecordPage workoutRecords={workoutRecords} recordFeedback={recordFeedback} addWorkoutRecord={addWorkoutRecord} deleteWorkoutRecord={deleteWorkoutRecord} addRecordFeedback={addRecordFeedback} isAdmin={isAdmin} wods={wods} memberLevel={myMemberLevel} levelMap={memberLevelMap} />;
       }
       case 'schedule': return <SchedulePage />;
       case 'location': return <LocationPage />;

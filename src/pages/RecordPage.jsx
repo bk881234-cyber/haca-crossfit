@@ -50,7 +50,7 @@ const sortRecords = (records) =>
     return 0;
   });
 
-export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutRecord, deleteWorkoutRecord, addRecordFeedback, isAdmin, wods, memberLevel }) {
+export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutRecord, deleteWorkoutRecord, addRecordFeedback, isAdmin, wods, memberLevel, levelMap }) {
   const { displayName } = useAuth();
   const myLevel = memberLevel || 'Beginner';
   const today = new Date().toISOString().split('T')[0];
@@ -389,7 +389,8 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
         ) : (
           <div className="rp-lb-list">
             {groupedRecords.map((user, idx) => {
-              const s = LEVEL_STYLE[user.member_level] || LEVEL_STYLE.Beginner;
+              const currentLevel = (levelMap && levelMap[user.member_name]) || user.member_level || 'Beginner';
+              const s = LEVEL_STYLE[currentLevel] || LEVEL_STYLE.Beginner;
               const fbs = user.feedbacks;
               const isExp = expanded === user.member_name;
               const primaryRecordId = user.workout2Records[0]?.id || user.workout1Records[0]?.id;
@@ -404,7 +405,7 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
                       <div className="rp-lb-name-row">
                         <span className="rp-lb-name">{user.member_name}</span>
                         <span className="rp-lb-level" style={{ color: s.color, background: s.bg, border: `1px solid ${s.border}` }}>
-                          {user.member_level}
+                          {currentLevel}
                         </span>
                       </div>
                     </div>
