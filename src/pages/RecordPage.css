@@ -191,6 +191,24 @@
   align-items: center;
 }
 
+/* DONE/FAIL 그룹 — 하나의 묶음처럼 보이도록 */
+.rp-fd-group {
+  display: flex;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  flex: 2;
+}
+.rp-fd-group .rp-quick-btn {
+  border-radius: 0;
+  border: none;
+  border-right: 1px solid var(--border-color);
+  flex: 1;
+}
+.rp-fd-group .rp-quick-btn:last-child {
+  border-right: none;
+}
+
 .rp-quick-btn {
   flex: 1;
   padding: 0.5rem 0.5rem;

@@ -258,16 +258,20 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
               </button>
               {/* Quick secondary options */}
               <div className="rp-quick-opts">
-                <button
-                  type="button"
-                  className={`rp-quick-btn done ${recordType === 'fail_done' && failDone === 'DONE' ? 'active' : ''}`}
-                  onClick={() => { setRecordType('fail_done'); setFailDone('DONE'); }}
-                >DONE</button>
-                <button
-                  type="button"
-                  className={`rp-quick-btn fail ${recordType === 'fail_done' && failDone === 'FAIL' ? 'active' : ''}`}
-                  onClick={() => { setRecordType('fail_done'); setFailDone('FAIL'); }}
-                >FAIL</button>
+                {/* DONE / FAIL — 둘 중 하나 선택 */}
+                <div className="rp-fd-group">
+                  <button
+                    type="button"
+                    className={`rp-quick-btn done ${recordType === 'fail_done' && failDone === 'DONE' ? 'active' : ''}`}
+                    onClick={() => { setRecordType('fail_done'); setFailDone('DONE'); }}
+                  >DONE</button>
+                  <button
+                    type="button"
+                    className={`rp-quick-btn fail ${recordType === 'fail_done' && failDone === 'FAIL' ? 'active' : ''}`}
+                    onClick={() => { setRecordType('fail_done'); setFailDone('FAIL'); }}
+                  >FAIL</button>
+                </div>
+                {/* 무게 — 별도 */}
                 {autoType !== 'weight' && (
                   <button
                     type="button"
