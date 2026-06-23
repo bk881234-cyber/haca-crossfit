@@ -112,7 +112,6 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
 
       {/* ══ RECORD UPLOAD ══ */}
       <section className="rp-section">
-        <h2 className="rp-title"><Trophy size={18} /> 대시보드</h2>
 
         {/* 오늘의 WOD 표시 */}
         {todayWod && (
@@ -229,7 +228,7 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
 
         {/* Workout filter */}
         <div className="rp-lb-tabs">
-          {[{id:'workout2',label:'WORKOUT 2'},{id:'workout1',label:'WORKOUT 1'}].map(t => (
+          {[{id:'workout1',label:'WORKOUT 1'},{id:'workout2',label:'WORKOUT 2'}].map(t => (
             <button key={t.id} className={`rp-lb-tab ${lbWorkout === t.id ? 'active' : ''}`} onClick={() => setLbWorkout(t.id)}>
               {t.label}
             </button>

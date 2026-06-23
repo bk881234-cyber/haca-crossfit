@@ -22,12 +22,10 @@
 
 .workout1-block {
   background: var(--bg-card);
-  border-left: 3px solid #ededed;
 }
 
 .workout2-block {
   background: var(--bg-card);
-  border-left: 3px solid var(--accent);
 }
 
 /* Subtle BG image on workout2 */
