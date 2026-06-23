@@ -139,33 +139,33 @@
   margin-top: 0.2rem;
 }
 
-/* Smart type selector */
-.rp-type-smart {
+/* 설정값 변경 버튼 bar */
+.rp-settings-bar {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  justify-content: flex-end;
 }
 
-.rp-auto-primary {
+/* 타입 배지 + 기본 입력 — 같은 행 */
+.rp-primary-row {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   background: rgba(0, 229, 255, 0.04);
-  border: 1px solid rgba(0, 229, 255, 0.15);
+  border: 1px solid rgba(0, 229, 255, 0.18);
   border-radius: var(--radius-sm);
   padding: 0.75rem 1rem;
-  cursor: pointer;
-  text-align: left;
-  width: 100%;
-  transition: all 0.15s ease;
 }
-.rp-auto-primary.selected {
-  background: rgba(0, 229, 255, 0.1);
-  border-color: rgba(0, 229, 255, 0.4);
+
+.rp-auto-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex: 1;
+  min-width: 0;
 }
 
 .rp-auto-icon {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   line-height: 1;
   flex-shrink: 0;
 }
@@ -173,68 +173,68 @@
 .rp-auto-label {
   display: block;
   font-weight: 900;
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: var(--accent);
-  letter-spacing: 0.03em;
+  letter-spacing: 0.05em;
 }
 
 .rp-auto-source {
   display: block;
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   color: var(--text-muted);
   margin-top: 0.1rem;
 }
 
-.rp-quick-opts {
+.rp-primary-input-slot {
+  flex-shrink: 0;
+}
+
+/* DONE / FAIL + 무게 row */
+.rp-df-section {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.rp-df-label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  min-width: 2.5rem;
+}
+
+.rp-df-btns {
   display: flex;
   gap: 0.5rem;
-  align-items: center;
-}
-
-/* DONE/FAIL 그룹 — 하나의 묶음처럼 보이도록 */
-.rp-fd-group {
-  display: flex;
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  border: 1px solid var(--border-color);
-  flex: 2;
-}
-.rp-fd-group .rp-quick-btn {
-  border-radius: 0;
-  border: none;
-  border-right: 1px solid var(--border-color);
   flex: 1;
 }
-.rp-fd-group .rp-quick-btn:last-child {
-  border-right: none;
-}
 
-.rp-quick-btn {
+.rp-df-btn {
   flex: 1;
-  padding: 0.5rem 0.5rem;
+  padding: 0.65rem 0.5rem;
   border-radius: var(--radius-sm);
-  font-size: 0.78rem;
+  font-size: 0.85rem;
   font-weight: 800;
   cursor: pointer;
   border: 1px solid var(--border-color);
   background: var(--bg-tertiary);
   color: var(--text-secondary);
   transition: all 0.15s ease;
+  letter-spacing: 0.05em;
 }
-.rp-quick-btn.done.active {
+
+.rp-df-btn.done.active {
   background: rgba(0, 229, 255, 0.12);
   border-color: var(--accent);
   color: var(--accent);
 }
-.rp-quick-btn.fail.active {
+
+.rp-df-btn.fail.active {
   background: rgba(255, 68, 68, 0.12);
   border-color: #ff4444;
   color: #ff4444;
-}
-.rp-quick-btn.weight.active {
-  background: rgba(255, 200, 0, 0.12);
-  border-color: #ffc800;
-  color: #ffc800;
 }
 
 .rp-override-btn {
@@ -268,15 +268,7 @@
 }
 .rp-cancel-manual:hover { color: var(--text-secondary); }
 
-/* Dynamic Input Area */
-.rp-input-area {
-  min-height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.rp-time-row, .rp-weight-row, .rp-fd-row {
+.rp-time-row, .rp-weight-row {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -316,19 +308,6 @@
   color: var(--text-secondary);
 }
 
-.rp-fd-btn {
-  flex: 1;
-  padding: 0.75rem;
-  font-weight: 800;
-  font-size: 1rem;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  color: var(--text-secondary);
-  cursor: pointer;
-}
-.rp-fd-btn.done.active { background: rgba(0, 229, 255, 0.15); border-color: var(--accent); color: var(--accent); }
-.rp-fd-btn.fail.active { background: rgba(255, 68, 68, 0.15); border-color: #ff4444; color: #ff4444; }
 
 .rp-submit {
   width: 100%;
