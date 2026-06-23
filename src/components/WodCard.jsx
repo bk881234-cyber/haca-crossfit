@@ -1,11 +1,9 @@
 import './WodCard.css';
 
 const WodCard = ({ wod, large = false }) => {
-  const w1Title = wod?.workout1Title || 'Deadlift 5-5-5-5-5';
-  const w1Desc = wod?.workout1Description || 'Build to a heavy 5 rep Deadlift for the day.\nRest 2-3 mins between sets.';
-  
   return (
   <div className={`wod-card-container ${large ? 'large' : ''}`}>
+    {wod?.workout1Title && (
     <div className="wod-block workout1-block">
       <div className="wod-block-header">
         <span className="wod-block-num">01</span>
@@ -14,9 +12,10 @@ const WodCard = ({ wod, large = false }) => {
           <div className="wod-block-sub">Strength &amp; Accessory</div>
         </div>
       </div>
-      <h3 className="wod-title">{w1Title}</h3>
-      <pre className="wod-pre">{w1Desc}</pre>
+      <h3 className="wod-title">{wod.workout1Title}</h3>
+      {wod.workout1Description && <pre className="wod-pre">{wod.workout1Description}</pre>}
     </div>
+    )}
 
     <div className="wod-block workout2-block">
       <div className="wod-block-header">

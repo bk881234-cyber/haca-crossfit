@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Send, MessageSquare, ChevronDown, ChevronUp, Trophy, Trash2 } from 'lucide-react';
+import { Send, MessageSquare, ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import WodCard from '../components/WodCard';
 import './RecordPage.css';
@@ -63,8 +63,7 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
   const [justSaved, setJustSaved]   = useState(false);
 
   /* ── Leaderboard state ── */
-  const [lbWorkout, setLbWorkout] = useState('workout2');
-  const [lbLevel, setLbLevel]     = useState('all');
+  const [lbLevel, setLbLevel] = useState('all');
   const [expanded, setExpanded]   = useState(null);
   const [fbText, setFbText]       = useState('');
 

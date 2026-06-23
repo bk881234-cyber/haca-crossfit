@@ -28,7 +28,7 @@ const AdminDashboard = ({
     e.preventDefault();
     addWod(newWod);
     alert('WOD가 등록되었습니다.');
-    setNewWod({ ...newWod, title: '', rxd: '', scaled: '', description: '' });
+    setNewWod({ ...newWod, workout1Title: '', workout1Description: '', title: '', rxd: '', description: '', timeLimit: '' });
   };
 
   const handleNoticeSubmit = (e) => {
