@@ -120,24 +120,25 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
           </div>
         )}
 
-        {/* Workout tabs */}
-        <div className="rp-workout-tabs">
-          {[
-            { id: 'workout1', label: 'WORKOUT 1', sub: 'Strength' },
-            { id: 'workout2', label: 'WORKOUT 2', sub: 'WOD' },
-          ].map(t => (
-            <button
-              key={t.id}
-              className={`rp-workout-tab ${workoutTab === t.id ? 'active' : ''}`}
-              onClick={() => setWorkoutTab(t.id)}
-            >
-              <span className="rp-tab-main">{t.label}</span>
-              <span className="rp-tab-sub">{t.sub}</span>
-            </button>
-          ))}
-        </div>
-
         <form className="rp-form glass-card" onSubmit={handleSubmit}>
+          {/* Workout tabs */}
+          <div className="rp-workout-tabs">
+            {[
+              { id: 'workout1', label: 'WORKOUT 1', sub: 'Strength' },
+              { id: 'workout2', label: 'WORKOUT 2', sub: 'WOD' },
+            ].map(t => (
+              <button
+                type="button"
+                key={t.id}
+                className={`rp-workout-tab ${workoutTab === t.id ? 'active' : ''}`}
+                onClick={() => setWorkoutTab(t.id)}
+              >
+                <span className="rp-tab-main">{t.label}</span>
+                <span className="rp-tab-sub">{t.sub}</span>
+              </button>
+            ))}
+          </div>
+
           {/* Name + Level row */}
           <div className="rp-meta-row">
             <div className="rp-meta-item">
