@@ -161,7 +161,7 @@
   flex-shrink: 0;
 }
 
-.crossfit-dot  { background: #ffffff; }
+.crossfit-dot  { background: #ededed; }
 .hyrox-dot     { background: #f5c518; }
 .hybrid-dot    { background: var(--accent-secondary); }
 .opengym-dot   { background: var(--text-muted); }
