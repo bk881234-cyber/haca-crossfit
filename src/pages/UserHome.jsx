@@ -46,7 +46,7 @@ const UserHome = ({ wods, classes, myReservations, members, setCurrentPage, lead
           || {};
   const myBookedClasses = classes.filter(cls => myReservations.some(r => r.classId === cls.id && r.date === todayStr));
 
-  const myBookedClasses = classes.filter(cls => myReservations.some(r => r.classId === cls.id && r.date === todayStr));
+
 
   return (
     <div className="user-home">
