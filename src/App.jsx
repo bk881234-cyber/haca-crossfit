@@ -356,7 +356,9 @@ function AppShell() {
       case 'reservation': return <ReservationPage classes={classes} myReservations={myReservations} toggleBooking={toggleBooking} allReservations={allReservations} />;
       case 'feed': return <CommunityPage feed={feed} addFeedPost={addFeedPost} toggleLikeFeed={toggleLikeFeed} addCommentToFeed={addCommentToFeed} notices={notices} />;
       case 'record': {
-        const myMember = members.find(m => m.name === displayName);
+        const normalizePhone = (p) => p?.replace(/\D/g, '') || '';
+        const myMember = members.find(m => normalizePhone(m.phone) === normalizePhone(profile?.phone))
+                      || members.find(m => m.name === displayName);
         const myMemberLevel = myMember?.level || 'Beginner';
         return <RecordPage workoutRecords={workoutRecords} recordFeedback={recordFeedback} addWorkoutRecord={addWorkoutRecord} deleteWorkoutRecord={deleteWorkoutRecord} addRecordFeedback={addRecordFeedback} isAdmin={isAdmin} wods={wods} memberLevel={myMemberLevel} />;
       }
