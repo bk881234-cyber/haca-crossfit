@@ -1,141 +1,144 @@
-﻿.wod-card-container {
+.wod-card-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   width: 100%;
 }
 
-.wod-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
+/* ── Block (W1 or W2) ── */
+.wod-block {
   border-radius: var(--radius-lg);
-  padding: 1.5rem;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--border-color);
   position: relative;
   overflow: hidden;
 }
 
-/* Subtle kettlebell background */
-.wod-card::after {
+.workout1-block {
+  background: var(--bg-card);
+  border-left: 3px solid #ededed;
+}
+
+.workout2-block {
+  background: var(--bg-card);
+  border-left: 3px solid var(--accent);
+}
+
+/* Subtle BG image on workout2 */
+.workout2-block::after {
   content: '';
   position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
+  right: 0; top: 0; bottom: 0;
   width: 55%;
   background: url('https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=900&q=80') center / cover no-repeat;
-  opacity: 0.06;
+  opacity: 0.05;
   pointer-events: none;
   -webkit-mask-image: linear-gradient(to right, transparent 0%, black 45%);
   mask-image: linear-gradient(to right, transparent 0%, black 45%);
 }
 
-/* 1. Level Toggle (최상단) */
-.level-toggle {
+/* Header row: number + type label */
+.wod-block-header {
   display: flex;
-  background: var(--bg-surface);
-  border-radius: var(--radius-md);
-  padding: 0.3rem;
-  margin-bottom: 1.25rem;
-  border: 1px solid var(--border-color);
-  position: relative;
-  z-index: 1;
-}
-
-.toggle-btn {
-  flex: 1;
-  padding: 0.6rem;
-  border: none;
-  background: transparent;
-  color: var(--text-secondary);
-  font-weight: 600;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.toggle-btn.active {
-  background: #ededed;
-  color: #000;
-  box-shadow: 0 2px 8px rgba(0, 229, 255, 0.2);
-}
-
-/* 2. Date + Title */
-.wod-header {
+  align-items: center;
+  gap: 0.75rem;
   margin-bottom: 1rem;
   position: relative;
   z-index: 1;
 }
 
+.wod-block-num {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 900;
+  color: rgba(255,255,255,0.08);
+  line-height: 1;
+  letter-spacing: -2px;
+}
+
+.workout1-block .wod-block-num { color: rgba(255,255,255,0.1); }
+.workout2-block .wod-block-num { color: rgba(0,229,255,0.15); }
+
+.wod-block-type {
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.workout1-block .wod-block-type { color: #ededed; }
+.workout2-block .wod-block-type { color: var(--accent); }
+
+.wod-block-sub {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-top: 1px;
+}
+
+/* Content */
 .wod-date {
-  font-size: 0.8rem;
-  color: var(--neon-lime);
+  font-size: 0.78rem;
+  color: var(--accent);
   font-weight: 700;
   letter-spacing: 1px;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.2rem;
+  position: relative;
+  z-index: 1;
 }
 
 .wod-title {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 800;
-  margin: 0;
+  margin: 0 0 0.75rem 0;
   color: var(--text-primary);
-}
-
-/* 3. Content box — semi-transparent so kettlebell bg shows through */
-.wod-content {
-  background: rgba(25, 30, 36, 0.5);
-  padding: 1.25rem 1.5rem;
-  border-radius: var(--radius-md);
-  border: 1px solid rgba(255, 255, 255, 0.07);
   position: relative;
   z-index: 1;
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
 }
 
-.wod-meta-info {
-  display: flex;
-  gap: 1.5rem;
-  margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
-  align-items: center;
-}
-
-.meta-item {
+.wod-meta-row {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
+  margin-bottom: 0.875rem;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
 }
 
-/* 크게 적용된 For Time / Time Cap */
-.meta-value-large {
+.wod-type-tag {
+  font-size: 0.8rem;
   font-weight: 800;
-  font-size: 1.4rem;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
   color: var(--text-primary);
-}
-
-.meta-label-large {
-  font-size: 1rem;
-  color: var(--text-secondary);
-  font-weight: 500;
-}
-
-.time-cap-item {
-  background: rgba(0, 229, 255, 0.08);
-  padding: 0.35rem 0.75rem;
+  padding: 0.2rem 0.7rem;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(0, 229, 255, 0.15);
 }
 
-.highlight-cap {
-  color: var(--neon-lime);
-  font-size: 1.2rem;
+.wod-timecap {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent);
+  background: rgba(0,229,255,0.08);
+  border: 1px solid rgba(0,229,255,0.2);
+  padding: 0.2rem 0.7rem;
+  border-radius: var(--radius-sm);
 }
 
-.wod-content pre {
+.wod-pre {
   margin: 0;
   font-family: inherit;
-  font-size: 1rem;
+  font-size: 0.95rem;
   line-height: 1.8;
   color: var(--text-primary);
   white-space: pre-wrap;
   font-weight: 500;
+  background: rgba(25, 30, 36, 0.5);
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255,255,255,0.06);
+  position: relative;
+  z-index: 1;
+  backdrop-filter: blur(2px);
 }

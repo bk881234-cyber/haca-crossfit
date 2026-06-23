@@ -1,54 +1,42 @@
-import { useState } from 'react';
-import { Timer } from 'lucide-react';
 import './WodCard.css';
 
-const WodCard = ({ wod }) => {
-  const [level, setLevel] = useState('rxd');
-
-  return (
-    <div className="wod-card-container">
-      <div className="wod-card">
-
-        {/* 1. Rx'd / Scaled 토글 - 최상단 */}
-        <div className="level-toggle">
-          <button
-            className={`toggle-btn ${level === 'rxd' ? 'active' : ''}`}
-            onClick={() => setLevel('rxd')}
-          >
-            Rx'd
-          </button>
-          <button
-            className={`toggle-btn ${level === 'scaled' ? 'active' : ''}`}
-            onClick={() => setLevel('scaled')}
-          >
-            Scaled
-          </button>
-        </div>
-
-        {/* 2. 날짜 + WOD 이름 */}
-        <div className="wod-header">
-          <div className="wod-date">{wod.date}</div>
-          <h3 className="wod-title">{wod.title}</h3>
-        </div>
-
-        {/* 3. For Time + Time Cap + 운동 내용 */}
-        <div className="wod-content">
-          <div className="wod-meta-info">
-            <div className="meta-item">
-              <span className="meta-value-large">{wod.type}</span>
-            </div>
-            <div className="meta-item time-cap-item">
-              <Timer size={18} className="text-lime" />
-              <span className="meta-label-large">Time Cap</span>
-              <span className="meta-value-large highlight-cap">{wod.timeLimit}</span>
-            </div>
+const WodCard = ({ wod }) => (
+  <div className="wod-card-container">
+    {wod.workout1Title && (
+      <div className="wod-block workout1-block">
+        <div className="wod-block-header">
+          <span className="wod-block-num">01</span>
+          <div>
+            <div className="wod-block-type">WORKOUT 1</div>
+            <div className="wod-block-sub">Strength &amp; Accessory</div>
           </div>
-          <pre>{level === 'rxd' ? wod.rxd : wod.scaled}</pre>
         </div>
-
+        <h3 className="wod-title">{wod.workout1Title}</h3>
+        {wod.workout1Description && (
+          <pre className="wod-pre">{wod.workout1Description}</pre>
+        )}
       </div>
+    )}
+
+    <div className="wod-block workout2-block">
+      <div className="wod-block-header">
+        <span className="wod-block-num">02</span>
+        <div>
+          <div className="wod-block-type">WORKOUT 2</div>
+          <div className="wod-block-sub">WOD</div>
+        </div>
+      </div>
+      <div className="wod-date">{wod.date}</div>
+      <h3 className="wod-title">{wod.title}</h3>
+      <div className="wod-meta-row">
+        <span className="wod-type-tag">{wod.type}</span>
+        {wod.timeLimit && (
+          <span className="wod-timecap">⏱ Time Cap · {wod.timeLimit}</span>
+        )}
+      </div>
+      {wod.rxd && <pre className="wod-pre">{wod.rxd}</pre>}
     </div>
-  );
-};
+  </div>
+);
 
 export default WodCard;

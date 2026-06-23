@@ -5,11 +5,6 @@ import { useAuth } from '../contexts/AuthContext';
 import './UserHome.css';
 
 const UserHome = ({ wods, classes, myReservations, members, setCurrentPage, leaderboard, addLeaderboardRecord, notices, monthlyAttendance }) => {
-  const [showRecordModal, setShowRecordModal] = useState(false);
-  const [recordType, setRecordType] = useState('rxd');
-  const [recordTime, setRecordTime] = useState('');
-  
-  // 팝업 공지 상태
   const [popupNotice, setPopupNotice] = useState(null);
 
   useEffect(() => {
@@ -51,13 +46,7 @@ const UserHome = ({ wods, classes, myReservations, members, setCurrentPage, lead
           || {};
   const myBookedClasses = classes.filter(cls => myReservations.some(r => r.classId === cls.id && r.date === todayStr));
 
-  const handleRecordSubmit = (e) => {
-    e.preventDefault();
-    if (!recordTime.trim()) return;
-    addLeaderboardRecord(recordType, recordTime);
-    setRecordTime('');
-    setShowRecordModal(false);
-  };
+  const myBookedClasses = classes.filter(cls => myReservations.some(r => r.classId === cls.id && r.date === todayStr));
 
   return (
     <div className="user-home">
@@ -184,62 +173,19 @@ const UserHome = ({ wods, classes, myReservations, members, setCurrentPage, lead
         )}
       </section>
 
-      {/* 실시간 리더보드 */}
+      {/* 실시간 리더보드 안내 */}
       <section className="leaderboard-section">
         <div className="section-header">
-          <h2>실시간 리더보드</h2>
-          <button className="add-record-btn" onClick={() => setShowRecordModal(true)}>
-            <Plus size={16} /> 내 기록 입력
+          <h2>오늘의 리더보드</h2>
+        </div>
+        <div className="empty-state" style={{marginTop: '1rem', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center'}}>
+          <Trophy size={40} className="text-lime" />
+          <p style={{margin: 0, fontWeight: 700}}>새로워진 기록 페이지에서 오늘의 성적을 확인하세요!</p>
+          <button className="add-record-btn" onClick={() => setCurrentPage('record')} style={{width: 'auto', padding: '0.75rem 1.5rem', marginTop: '0.5rem'}}>
+            기록 보기 및 입력
           </button>
         </div>
-        <div className="leaderboard-list">
-          {leaderboard.slice(0, 5).map((lb, idx) => (
-            <div key={lb.id} className="leaderboard-item">
-              <div className="rank">
-                {idx === 0 ? <Medal size={20} className="gold" /> : 
-                 idx === 1 ? <Medal size={20} className="silver" /> : 
-                 idx === 2 ? <Medal size={20} className="bronze" /> : 
-                 lb.rank}
-              </div>
-              <div className="user-info">
-                <span className="name">{lb.name}{lb.name === displayName ? ' (나)' : ''}</span>
-                <span className={`type-badge ${lb.type}`}>{lb.type === 'rxd' ? "Rx'd" : "Scaled"}</span>
-              </div>
-              <div className="record">{lb.record}</div>
-            </div>
-          ))}
-        </div>
       </section>
-
-      {/* 내 기록 입력 모달 */}
-      {showRecordModal && (
-        <div className="modal-overlay">
-          <div className="modal-content record-modal">
-            <button className="close-modal" onClick={() => setShowRecordModal(false)}><X size={24} /></button>
-            <h2>내 기록 입력</h2>
-            <form onSubmit={handleRecordSubmit} className="record-form">
-              <div className="form-group">
-                <label>타입 선택</label>
-                <div className="type-toggle">
-                  <button type="button" className={recordType === 'rxd' ? 'active' : ''} onClick={() => setRecordType('rxd')}>Rx'd</button>
-                  <button type="button" className={recordType === 'scaled' ? 'active' : ''} onClick={() => setRecordType('scaled')}>Scaled</button>
-                </div>
-              </div>
-              <div className="form-group">
-                <label>기록 (예: 12:35 또는 5R 12Reps)</label>
-                <input 
-                  type="text" 
-                  value={recordTime} 
-                  onChange={(e) => setRecordTime(e.target.value)}
-                  placeholder="자신의 기록을 입력하세요"
-                  required
-                />
-              </div>
-              <button type="submit" className="submit-btn">기록 등록</button>
-            </form>
-          </div>
-        </div>
-      )}
 
     </div>
   );

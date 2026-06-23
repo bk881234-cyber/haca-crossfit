@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { Users, Calendar, TrendingUp, Plus, Search, Activity, FileText, Bell, Trash2, MessageSquare } from 'lucide-react';
 import './AdminDashboard.css';
 
+const LEVELS = ['Black', 'Red', 'Yellow', 'White', 'Rainbow', 'Beginner'];
+
 const AdminDashboard = ({
   addWod,
   classes, addClassSlot, deleteClassSlot,
-  members, setMemberExpiry, setMemberExpiryDate, toggleMemberStatus,
+  members, setMemberExpiry, setMemberExpiryDate, toggleMemberStatus, setMemberLevel,
   feed, deleteFeedPost,
   notices, addNotice, toggleNoticeActive, deleteNotice,
 }) => {
@@ -14,8 +16,10 @@ const AdminDashboard = ({
   const [memberSearch, setMemberSearch] = useState('');
 
   const [newWod, setNewWod] = useState({
-    date: new Date().toISOString().split('T')[0], title: '', type: 'For Time',
-    timeLimit: '', rxd: '', scaled: '', description: '',
+    date: new Date().toISOString().split('T')[0],
+    workout1Title: '', workout1Description: '',
+    title: '', type: 'For Time',
+    timeLimit: '', rxd: '', description: '',
   });
   const [newNotice, setNewNotice] = useState({ title: '', content: '', isPopup: false });
   const [newClass, setNewClass] = useState({ time: '06:30', className: 'CrossFit', coach: '', maxCapacity: 15, dayOfWeek: '' });
@@ -80,12 +84,26 @@ const AdminDashboard = ({
             <label>날짜</label>
             <input type="date" value={newWod.date} onChange={e => setNewWod({ ...newWod, date: e.target.value })} required />
           </div>
+        </div>
+
+        {/* WORKOUT 1 */}
+        <div className="wod-section-label-admin">WORKOUT 1 — Strength &amp; Accessory</div>
+        <div className="form-group">
+          <label>WORKOUT 1 이름</label>
+          <input type="text" value={newWod.workout1Title} onChange={e => setNewWod({ ...newWod, workout1Title: e.target.value })} placeholder="예: Back Squat 5×5 @ 80%" />
+        </div>
+        <div className="form-group">
+          <label>WORKOUT 1 내용</label>
+          <textarea value={newWod.workout1Description} onChange={e => setNewWod({ ...newWod, workout1Description: e.target.value })} placeholder="운동 내용 입력" rows={3} />
+        </div>
+
+        {/* WORKOUT 2 */}
+        <div className="wod-section-label-admin">WORKOUT 2 — WOD</div>
+        <div className="form-row">
           <div className="form-group">
-            <label>와드 이름</label>
+            <label>WOD 이름</label>
             <input type="text" value={newWod.title} onChange={e => setNewWod({ ...newWod, title: e.target.value })} placeholder="예: DT, Cindy" required />
           </div>
-        </div>
-        <div className="form-row">
           <div className="form-group">
             <label>타입</label>
             <select value={newWod.type} onChange={e => setNewWod({ ...newWod, type: e.target.value })}>
@@ -96,24 +114,15 @@ const AdminDashboard = ({
             </select>
           </div>
           <div className="form-group">
-            <label>Time Cap (제한시간)</label>
-            <input type="text" value={newWod.timeLimit} onChange={e => setNewWod({ ...newWod, timeLimit: e.target.value })} placeholder="예: 20 Min" required />
+            <label>Time Cap</label>
+            <input type="text" value={newWod.timeLimit} onChange={e => setNewWod({ ...newWod, timeLimit: e.target.value })} placeholder="예: 20 Min" />
           </div>
         </div>
         <div className="form-group">
-          <label>간단 설명</label>
-          <input type="text" value={newWod.description} onChange={e => setNewWod({ ...newWod, description: e.target.value })} placeholder="와드에 대한 간략한 설명" required />
+          <label>WOD 내용</label>
+          <textarea value={newWod.rxd} onChange={e => setNewWod({ ...newWod, rxd: e.target.value })} placeholder="운동 내용 입력" rows={5} required />
         </div>
-        <div className="form-row">
-          <div className="form-group">
-            <label>Rx'd 내용</label>
-            <textarea value={newWod.rxd} onChange={e => setNewWod({ ...newWod, rxd: e.target.value })} placeholder="Rx'd 기준 운동 내용" rows={4} required />
-          </div>
-          <div className="form-group">
-            <label>Scaled 내용</label>
-            <textarea value={newWod.scaled} onChange={e => setNewWod({ ...newWod, scaled: e.target.value })} placeholder="Scaled 기준 운동 내용" rows={4} required />
-          </div>
-        </div>
+
         <button type="submit" className="admin-submit-btn"><Plus size={18} /> 새 WOD 등록</button>
       </form>
     </div>
@@ -198,7 +207,7 @@ const AdminDashboard = ({
       <div className="data-table-wrap">
         <table className="data-table">
           <thead>
-            <tr><th>이름</th><th>연락처</th><th>누적 출석</th><th>회원권 만료일</th><th>상태</th></tr>
+            <tr><th>이름</th><th>연락처</th><th>레벨</th><th>누적 출석</th><th>회원권 만료일</th><th>상태</th></tr>
           </thead>
           <tbody>
             {members.filter(m => !memberSearch || m.name?.includes(memberSearch) || m.phone?.includes(memberSearch)).map(m => {
@@ -212,6 +221,15 @@ const AdminDashboard = ({
               <tr key={m.id}>
                 <td className="font-bold">{m.name}</td>
                 <td>{m.phone}</td>
+                <td>
+                  <select
+                    className={`level-select level-${(m.level || 'Beginner').toLowerCase()}`}
+                    value={m.level || 'Beginner'}
+                    onChange={e => setMemberLevel(m.id, e.target.value)}
+                  >
+                    {LEVELS.map(l => <option key={l} value={l}>{l}</option>)}
+                  </select>
+                </td>
                 <td>{m.attendanceCount}회</td>
                 <td>
                   <div className="expiry-cell">

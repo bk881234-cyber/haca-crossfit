@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { LogOut, Shield, UserCircle } from 'lucide-react';
 import { supabase } from './lib/supabase';
@@ -13,6 +13,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import LocationPage from './pages/LocationPage';
 import SchedulePage from './pages/SchedulePage';
 import ProfilePage from './pages/ProfilePage';
+import RecordPage from './pages/RecordPage';
 import './App.css';
 
 const formatTimestamp = (ts) => {
@@ -63,6 +64,9 @@ function AppShell() {
   const [allReservations, setAllReservations] = useState([]);
   const [monthlyAttendance, setMonthlyAttendance] = useState(0);
 
+  const [workoutRecords, setWorkoutRecords] = useState([]);
+  const [recordFeedback, setRecordFeedback] = useState([]);
+
   useEffect(() => { loadAllData(); }, [displayName]);
 
   const loadAllData = async () => {
@@ -76,6 +80,8 @@ function AppShell() {
         { data: leaderboardData },
         { data: feedData },
         { data: noticesData },
+        { data: workoutRecordsData },
+        { data: recordFeedbackData },
       ] = await Promise.all([
         supabase.from('wods').select('*').order('date', { ascending: false }),
         supabase.from('classes').select('*').order('time'),
@@ -84,6 +90,8 @@ function AppShell() {
         supabase.from('leaderboard').select('*').order('rank'),
         supabase.from('feed_posts').select('*, feed_comments(*), feed_likes(*)').order('created_at', { ascending: false }),
         supabase.from('notices').select('*').order('created_at', { ascending: false }),
+        supabase.from('workout_records').select('*').order('created_at', { ascending: false }),
+        supabase.from('record_feedback').select('*').order('created_at', { ascending: true }),
       ]);
 
       setWods((wodsData || []).map(w => ({
@@ -123,6 +131,9 @@ function AppShell() {
         id: n.id, title: n.title, content: n.content,
         isPopup: n.is_popup, isActive: n.is_active, timestamp: n.created_at?.split('T')[0],
       })));
+
+      setWorkoutRecords(workoutRecordsData || []);
+      setRecordFeedback(recordFeedbackData || []);
 
       setMyReservations(
         (reservationsData || [])
@@ -230,6 +241,19 @@ function AppShell() {
     setFeed(prev => prev.map(p => p.id === feedId ? { ...p, comments: [...p.comments, { id: data.id, author: displayName, content: commentText }] } : p));
   };
 
+  // ── 기록 업로드 & 피드백 ──
+  const addWorkoutRecord = async (record) => {
+    const { data, error } = await supabase.from('workout_records').insert(record).select().single();
+    if (error) { console.error(error); return; }
+    setWorkoutRecords(prev => [data, ...prev]);
+  };
+
+  const addRecordFeedback = async (recordId, content) => {
+    const { data, error } = await supabase.from('record_feedback').insert({ record_id: recordId, author: displayName, content }).select().single();
+    if (error) { console.error(error); return; }
+    setRecordFeedback(prev => [...prev, data]);
+  };
+
   // ── 관리자 ──
   const addNotice = async (n) => {
     const { data, error } = await supabase.from('notices').insert({ title: n.title, content: n.content, is_popup: n.isPopup, is_active: true }).select().single();
@@ -310,9 +334,10 @@ function AppShell() {
       </div>
     );
     switch (currentPage) {
-      case 'wod': return <UserHome wods={wods} classes={classes} myReservations={myReservations} members={members} setCurrentPage={setCurrentPage} leaderboard={leaderboard} addLeaderboardRecord={addLeaderboardRecord} notices={notices} monthlyAttendance={monthlyAttendance} />;
+      case 'wod': return <UserHome wods={wods} classes={classes} myReservations={myReservations} members={members} setCurrentPage={setCurrentPage} leaderboard={leaderboard} addLeaderboardRecord={addLeaderboardRecord} notices={notices} monthlyAttendance={monthlyAttendance} workoutRecords={workoutRecords} />;
       case 'reservation': return <ReservationPage classes={classes} myReservations={myReservations} toggleBooking={toggleBooking} allReservations={allReservations} />;
       case 'feed': return <CommunityPage feed={feed} addFeedPost={addFeedPost} toggleLikeFeed={toggleLikeFeed} addCommentToFeed={addCommentToFeed} notices={notices} />;
+      case 'record': return <RecordPage workoutRecords={workoutRecords} recordFeedback={recordFeedback} addWorkoutRecord={addWorkoutRecord} addRecordFeedback={addRecordFeedback} isAdmin={isAdmin} />;
       case 'schedule': return <SchedulePage />;
       case 'location': return <LocationPage />;
       case 'profile': return <ProfilePage setCurrentPage={setCurrentPage} />;

@@ -445,3 +445,33 @@
   outline: none;
   border-color: var(--neon-lime);
 }
+
+/* WOD section divider label */
+.wod-section-label-admin {
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border-left: 3px solid var(--accent);
+  padding-left: 0.6rem;
+  margin: 1.25rem 0 0.75rem;
+}
+
+/* Level select in member table */
+.level-select {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+}
+.level-select.level-black  { color: #fff;    border-color: #555; }
+.level-select.level-red    { color: #ff4444; border-color: #ff4444; }
+.level-select.level-yellow { color: #ffc800; border-color: #ffc800; }
+.level-select.level-white  { color: #f0f0f0; border-color: #ccc; }
+.level-select.level-rainbow{ color: #00e5ff; border-color: #00e5ff; }
+.level-select.level-beginner{ color: #9999ff; border-color: #9999ff; }
