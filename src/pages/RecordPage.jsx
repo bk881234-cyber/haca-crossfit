@@ -153,7 +153,12 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
 
   /* ── Leaderboard grouping ── */
   const todayRecords = (workoutRecords || []).filter(r => r.wod_date === today);
-  const filtered = lbLevel === 'all' ? todayRecords : todayRecords.filter(r => r.member_level === lbLevel);
+  const filtered = lbLevel === 'all'
+    ? todayRecords
+    : todayRecords.filter(r => {
+        const lvl = (levelMap && levelMap[r.member_name]) || r.member_level || 'Beginner';
+        return lvl === lbLevel;
+      });
   const sorted = sortRecords(filtered);
 
   const userRecordsMap = {};
@@ -172,7 +177,6 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
     if (!seenUsers.has(r.member_name)) { seenUsers.add(r.member_name); groupedRecords.push(userRecordsMap[r.member_name]); }
   });
 
-  const ls = LEVEL_STYLE[myLevel] || LEVEL_STYLE.Beginner;
   const currentTypeMeta = RECORD_TYPES.find(r => r.id === recordType);
 
   return (
@@ -199,18 +203,6 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
                 <span className="rp-tab-sub">{t.sub}</span>
               </button>
             ))}
-          </div>
-
-          {/* Name + Level */}
-          <div className="rp-meta-row">
-            <div className="rp-meta-item">
-              <span className="rp-meta-label">이름</span>
-              <span className="rp-meta-value">{displayName}</span>
-            </div>
-            <div className="rp-meta-item">
-              <span className="rp-meta-label">레벨</span>
-              <span className="rp-level-badge" style={{ color: ls.color, background: ls.bg, border: `1px solid ${ls.border}` }}>{myLevel}</span>
-            </div>
           </div>
 
           {/* ── 타입 선택 모드 (설정값 변경 클릭 시) ── */}
@@ -279,25 +271,20 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
               </div>
 
               {/* DONE / FAIL 선택 (선택사항 — 다시 클릭하면 해제) */}
-              <div className="rp-df-section">
-                <span className="rp-df-label">결과</span>
-                <div className="rp-df-btns">
-                  <button type="button" className={`rp-df-btn done ${doneFailStatus === 'D' ? 'active' : ''}`}
-                    onClick={() => setDoneFailStatus(s => s === 'D' ? null : 'D')}>DONE</button>
-                  <button type="button" className={`rp-df-btn fail ${doneFailStatus === 'F' ? 'active' : ''}`}
-                    onClick={() => setDoneFailStatus(s => s === 'F' ? null : 'F')}>FAIL</button>
-                </div>
+              <div className="rp-df-btns">
+                <button type="button" className={`rp-df-btn done ${doneFailStatus === 'D' ? 'active' : ''}`}
+                  onClick={() => setDoneFailStatus(s => s === 'D' ? null : 'D')}>DONE</button>
+                <button type="button" className={`rp-df-btn fail ${doneFailStatus === 'F' ? 'active' : ''}`}
+                  onClick={() => setDoneFailStatus(s => s === 'F' ? null : 'F')}>FAIL</button>
               </div>
 
               {/* 추가 무게 (선택사항, weight 기본타입 아닐 때) */}
               {recordType !== 'weight' && (
-                <div className="rp-df-section">
-                  <span className="rp-df-label">무게</span>
-                  <div className="rp-time-row" style={{ flex: 1 }}>
-                    <input type="number" min="0" step="0.5" placeholder="0" value={extraWeightVal}
-                      onChange={e => setExtraWeightVal(e.target.value)} className="rp-time-input" style={{ width: '90px' }} />
-                    <span className="rp-unit">LB</span>
-                  </div>
+                <div className="rp-center-weight">
+                  <span className="rp-weight-label">무게</span>
+                  <input type="number" min="0" step="0.5" placeholder="0" value={extraWeightVal}
+                    onChange={e => setExtraWeightVal(e.target.value)} className="rp-time-input" style={{ width: '90px' }} />
+                  <span className="rp-unit">LB</span>
                 </div>
               )}
             </>

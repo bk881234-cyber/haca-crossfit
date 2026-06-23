@@ -189,20 +189,18 @@
   flex-shrink: 0;
 }
 
-/* DONE / FAIL + 무게 row */
-.rp-df-section {
+/* 무게 중앙 정렬 섹션 */
+.rp-center-weight {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.75rem;
 }
 
-.rp-df-label {
-  font-size: 0.7rem;
+.rp-weight-label {
+  font-size: 1.05rem;
   font-weight: 800;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  min-width: 2.5rem;
+  color: var(--text-primary);
 }
 
 .rp-df-btns {
