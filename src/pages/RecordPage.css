@@ -29,6 +29,8 @@
     max-height: calc(100vh - 2rem);
     overflow-y: auto;
     padding-right: 0.25rem;
+    /* WOD date 텍스트 높이만큼 내려서 카드 상단 라인 맞춤 */
+    padding-top: 1.6rem;
   }
 
   .rp-lb-col::-webkit-scrollbar { width: 4px; }
@@ -351,6 +353,62 @@
   background: var(--accent) !important;
   color: #000;
 }
+
+/* Leaderboard header + dropdown */
+.rp-lb-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.rp-level-dropdown {
+  position: relative;
+}
+
+.rp-level-drop-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  font-weight: 800;
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.rp-level-drop-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  z-index: 200;
+  min-width: 110px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+
+.rp-level-drop-item {
+  display: block;
+  width: 100%;
+  padding: 0.55rem 1rem;
+  background: none;
+  border: none;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.rp-level-drop-item:hover { background: var(--bg-tertiary); }
+.rp-level-drop-item.active { background: var(--bg-tertiary); }
 
 /* Leaderboard */
 .rp-lb-tabs {

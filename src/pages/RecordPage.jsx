@@ -83,8 +83,9 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
 
   /* ── Leaderboard state ── */
   const [lbLevel, setLbLevel] = useState('all');
-  const [expanded, setExpanded] = useState(null);
-  const [fbText, setFbText]     = useState('');
+  const [expanded, setExpanded]       = useState(null);
+  const [fbText, setFbText]           = useState('');
+  const [showLevelDrop, setShowLevelDrop] = useState(false);
 
   /* ── Build record value: "12:42 (F, 75LB)" ── */
   const getPrimaryValue = () => {
@@ -299,18 +300,31 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
 
       {/* ══ LEADERBOARD ══ */}
       <section className="rp-section rp-lb-col">
-        <h2 className="rp-title">오늘의 리더보드</h2>
-
-        <div className="rp-level-pills">
-          <button className={`rp-level-pill ${lbLevel === 'all' ? 'active' : ''}`} onClick={() => setLbLevel('all')}>전체</button>
-          {LEVELS.map(l => {
-            const s = LEVEL_STYLE[l];
-            return (
-              <button key={l} className={`rp-level-pill ${lbLevel === l ? 'active' : ''}`}
-                style={lbLevel === l ? { color: s.color, background: s.bg, borderColor: s.border } : {}}
-                onClick={() => setLbLevel(l)}>{l}</button>
-            );
-          })}
+        <div className="rp-lb-header">
+          <h2 className="rp-title" style={{ margin: 0 }}>오늘의 리더보드</h2>
+          <div className="rp-level-dropdown">
+            <button
+              className="rp-level-drop-btn"
+              onClick={() => setShowLevelDrop(s => !s)}
+            >
+              <span style={lbLevel !== 'all' ? { color: LEVEL_STYLE[lbLevel]?.color } : {}}>
+                {lbLevel === 'all' ? '전체' : lbLevel}
+              </span>
+              <ChevronDown size={13} style={{ transition: '0.2s', transform: showLevelDrop ? 'rotate(180deg)' : 'none' }} />
+            </button>
+            {showLevelDrop && (
+              <div className="rp-level-drop-menu">
+                <button className={`rp-level-drop-item ${lbLevel === 'all' ? 'active' : ''}`}
+                  onClick={() => { setLbLevel('all'); setShowLevelDrop(false); }}>전체</button>
+                {LEVELS.map(l => (
+                  <button key={l}
+                    className={`rp-level-drop-item ${lbLevel === l ? 'active' : ''}`}
+                    style={{ color: LEVEL_STYLE[l]?.color }}
+                    onClick={() => { setLbLevel(l); setShowLevelDrop(false); }}>{l}</button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {groupedRecords.length === 0 ? (
