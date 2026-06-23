@@ -59,6 +59,7 @@ function AppShell() {
   const [feed, setFeed] = useState([]);
   const [notices, setNotices] = useState([]);
   const [myReservations, setMyReservations] = useState([]);
+  const [monthlyAttendance, setMonthlyAttendance] = useState(0);
 
   useEffect(() => { loadAllData(); }, [displayName]);
 
@@ -118,6 +119,14 @@ function AppShell() {
       setMyReservations(
         (reservationsData || []).filter(r => r.member_name === displayName).map(r => r.class_id)
       );
+
+      const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
+      const { count } = await supabase
+        .from('reservations')
+        .select('*', { count: 'exact', head: true })
+        .eq('member_name', displayName)
+        .gte('created_at', startOfMonth);
+      setMonthlyAttendance(count || 0);
     } catch (err) {
       console.error('Supabase load error:', err);
     } finally {
@@ -145,10 +154,12 @@ function AppShell() {
       await supabase.from('reservations').delete().match({ class_id: classId, member_name: displayName });
       setClasses(prev => prev.map(c => c.id === classId ? { ...c, attendees: c.attendees.filter(n => n !== displayName) } : c));
       setMyReservations(prev => prev.filter(id => id !== classId));
+      setMonthlyAttendance(prev => Math.max(0, prev - 1));
     } else {
       await supabase.from('reservations').insert({ class_id: classId, member_name: displayName });
       setClasses(prev => prev.map(c => c.id === classId ? { ...c, attendees: [...c.attendees, displayName] } : c));
       setMyReservations(prev => [...prev, classId]);
+      setMonthlyAttendance(prev => prev + 1);
     }
   };
 
@@ -263,12 +274,12 @@ function AppShell() {
       </div>
     );
     switch (currentPage) {
-      case 'wod': return <UserHome wods={wods} classes={classes} myReservations={myReservations} members={members} setCurrentPage={setCurrentPage} leaderboard={leaderboard} addLeaderboardRecord={addLeaderboardRecord} notices={notices} />;
+      case 'wod': return <UserHome wods={wods} classes={classes} myReservations={myReservations} members={members} setCurrentPage={setCurrentPage} leaderboard={leaderboard} addLeaderboardRecord={addLeaderboardRecord} notices={notices} monthlyAttendance={monthlyAttendance} />;
       case 'reservation': return <ReservationPage classes={classes} myReservations={myReservations} toggleBooking={toggleBooking} />;
       case 'feed': return <CommunityPage feed={feed} addFeedPost={addFeedPost} toggleLikeFeed={toggleLikeFeed} addCommentToFeed={addCommentToFeed} notices={notices} />;
       case 'schedule': return <SchedulePage />;
       case 'location': return <LocationPage />;
-      default: return <UserHome wods={wods} classes={classes} myReservations={myReservations} members={members} setCurrentPage={setCurrentPage} leaderboard={leaderboard} addLeaderboardRecord={addLeaderboardRecord} notices={notices} />;
+      default: return <UserHome wods={wods} classes={classes} myReservations={myReservations} members={members} setCurrentPage={setCurrentPage} leaderboard={leaderboard} addLeaderboardRecord={addLeaderboardRecord} notices={notices} monthlyAttendance={monthlyAttendance} />;
     }
   };
 

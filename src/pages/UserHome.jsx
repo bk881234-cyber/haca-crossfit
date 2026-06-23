@@ -4,7 +4,7 @@ import WodCard from '../components/WodCard';
 import { useAuth } from '../contexts/AuthContext';
 import './UserHome.css';
 
-const UserHome = ({ wods, classes, myReservations, members, setCurrentPage, leaderboard, addLeaderboardRecord, notices }) => {
+const UserHome = ({ wods, classes, myReservations, members, setCurrentPage, leaderboard, addLeaderboardRecord, notices, monthlyAttendance }) => {
   const [showRecordModal, setShowRecordModal] = useState(false);
   const [recordType, setRecordType] = useState('rxd');
   const [recordTime, setRecordTime] = useState('');
@@ -90,7 +90,7 @@ const UserHome = ({ wods, classes, myReservations, members, setCurrentPage, lead
             <div className="stat-icon"><Activity size={20} className="text-lime" /></div>
             <div className="stat-info">
               <span className="stat-label">이번 달 출석</span>
-              <span className="stat-value">{me?.attendanceCount ?? 0}회</span>
+              <span className="stat-value">{monthlyAttendance}회</span>
             </div>
           </div>
           <div className="stat-card">
