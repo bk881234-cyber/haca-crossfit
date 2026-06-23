@@ -16,12 +16,14 @@ create table if not exists wods (
   created_at timestamptz default now()
 );
 
--- Classes (daily schedule)
+-- Classes (weekly schedule with day_of_week)
 create table if not exists classes (
-  id text primary key,
+  id text primary key default gen_random_uuid()::text,
   time text not null,
+  class_name text default 'CrossFit',
   coach text,
   max_capacity int default 15,
+  day_of_week int,  -- 0=일,1=월,2=화,3=수,4=목,5=금,6=토 / null=매일
   created_at timestamptz default now()
 );
 
@@ -31,18 +33,19 @@ create table if not exists members (
   name text not null,
   phone text,
   attendance_count int default 0,
-  remaining_sessions int default 0,
+  membership_expiry date,
   status text default 'Active',
   created_at timestamptz default now()
 );
 
--- Reservations (class ↔ member many-to-many)
+-- Reservations (date-based: class + member + date unique)
 create table if not exists reservations (
   id text primary key default gen_random_uuid()::text,
   class_id text references classes(id) on delete cascade,
   member_name text not null,
+  reservation_date date,
   created_at timestamptz default now(),
-  unique(class_id, member_name)
+  unique(class_id, member_name, reservation_date)
 );
 
 -- Leaderboard
@@ -91,7 +94,7 @@ create table if not exists notices (
   created_at timestamptz default now()
 );
 
--- ── Row Level Security (auth 추가 전 임시 전체 허용) ──
+-- ── Row Level Security ──
 alter table wods enable row level security;
 alter table classes enable row level security;
 alter table members enable row level security;
@@ -136,42 +139,53 @@ insert into wods (id, date, title, type, time_limit, rxd, scaled, description) v
  '그립 강도와 어깨 근지구력을 테스트하는 유명한 벤치마크 와드입니다.')
 on conflict (id) do nothing;
 
-insert into classes (id, time, coach, max_capacity) values
-('class-0700', '07:00', 'David Coach', 15),
-('class-0930', '09:30', 'Sarah Coach', 15),
-('class-1200', '12:00', 'David Coach', 12),
-('class-1830', '18:30', 'Alex Coach', 20),
-('class-2000', '20:00', 'Alex Coach', 20)
-on conflict (id) do nothing;
-
-insert into members (id, name, phone, attendance_count, remaining_sessions, status) values
-('m-1', '홍길동', '010-1234-5678', 24, 12, 'Active'),
-('m-2', '김철수', '010-2345-6789', 8, 4, 'Active'),
-('m-3', '이영희', '010-3456-7890', 6, 0, 'Inactive'),
-('m-4', '박민준', '010-4567-8901', 42, 20, 'Active')
-on conflict (id) do nothing;
-
-insert into reservations (class_id, member_name) values
-('class-0700', '김철수'), ('class-0700', '이영희'),
-('class-0930', '박민준'), ('class-0930', '최수지'), ('class-0930', '정우성'),
-('class-1830', '황정민'), ('class-1830', '한효주'), ('class-1830', '류준열'),
-('class-2000', '공유'), ('class-2000', '이동욱'), ('class-2000', '김고은')
-on conflict do nothing;
-
-insert into leaderboard (id, name, type, record, rank) values
-('lb-1', '박민준', 'rxd', '12:35', 1),
-('lb-2', '황정민', 'rxd', '13:12', 2),
-('lb-3', '김철수', 'scaled', '16:48', 3)
-on conflict (id) do nothing;
-
-insert into feed_posts (id, author, avatar, content) values
-('feed-1', '홍길동',
- 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=150&q=80',
- '오늘 벤치마크 와드 완료!! 오운완 하세요!')
-on conflict (id) do nothing;
+-- HACA 실제 시간표 (SchedulePage 기준)
+insert into classes (time, class_name, coach, max_capacity, day_of_week) values
+-- 월요일 (1)
+('06:30', 'HYROX',           '코치', 15, 1),
+('10:00', 'CrossFit',        '코치', 15, 1),
+('11:30', 'HYROX',           '코치', 15, 1),
+('18:30', 'CrossFit',        '코치', 15, 1),
+('19:30', 'HYROX',           '코치', 15, 1),
+('20:30', 'CrossFit',        '코치', 15, 1),
+-- 화요일 (2)
+('06:30', 'CrossFit',        '코치', 15, 2),
+('10:00', 'HYROX',           '코치', 15, 2),
+('11:30', 'CrossFit',        '코치', 15, 2),
+('18:30', 'HYROX',           '코치', 15, 2),
+('19:30', 'CrossFit',        '코치', 15, 2),
+('20:30', 'HYROX',           '코치', 15, 2),
+-- 수요일 (3)
+('06:30', 'HYROX',           '코치', 15, 3),
+('10:00', 'CrossFit',        '코치', 15, 3),
+('11:30', 'HYROX',           '코치', 15, 3),
+('18:30', 'CrossFit',        '코치', 15, 3),
+('19:30', 'HYROX',           '코치', 15, 3),
+('20:30', 'CrossFit',        '코치', 15, 3),
+-- 목요일 (4)
+('06:30', 'CrossFit',        '코치', 15, 4),
+('10:00', 'HYROX',           '코치', 15, 4),
+('11:30', 'CrossFit',        '코치', 15, 4),
+('18:30', 'HYROX',           '코치', 15, 4),
+('19:30', 'CrossFit',        '코치', 15, 4),
+('20:30', 'HYROX',           '코치', 15, 4),
+-- 금요일 (5)
+('06:30', 'HYROX',           '코치', 15, 5),
+('10:00', 'CrossFit',        '코치', 15, 5),
+('11:30', 'HYROX',           '코치', 15, 5),
+('18:30', 'CrossFit',        '코치', 15, 5),
+('19:30', 'HYROX',           '코치', 15, 5),
+('20:30', 'CrossFit',        '코치', 15, 5),
+-- 토요일 (6)
+('10:00', 'HYBRID TRAINING', '코치', 15, 6),
+('11:30', 'HYBRID TRAINING', '코치', 15, 6);
 
 insert into notices (id, title, content, is_popup, is_active) values
 ('notice-1', '🔥 이번 주 금요일 오픈짐 안내',
  '회원 여러분! 이번 주 금요일 저녁 8시부터는 코치 없는 자율 오픈짐으로 운영됩니다. 이용에 참고 부탁드립니다.',
  true, true)
 on conflict (id) do nothing;
+
+-- ── 관리자 설정 ──
+-- 앱에서 회원가입 후 아래 쿼리 실행:
+-- update profiles set role = 'admin' where phone = '01055352285';
