@@ -256,6 +256,32 @@
   padding: 10px 20px;
 }
 
+.date-card.sunday .day-name,
+.date-card.sunday .day-number {
+  color: #ff6b6b;
+}
+
+.duplicate-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.85rem 1rem;
+  background: rgba(255, 165, 0, 0.08);
+  border: 1px solid rgba(255, 165, 0, 0.25);
+  border-radius: var(--radius-md);
+  color: #ffa500;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.duplicate-notice svg { flex-shrink: 0; margin-top: 1px; }
+
+.empty-classes {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-secondary);
+}
+
 @media (min-width: 768px) {
   .reservation-header h1 {
     font-size: 2.2rem;

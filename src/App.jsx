@@ -12,6 +12,7 @@ import CommunityPage from './pages/CommunityPage';
 import AdminDashboard from './pages/AdminDashboard';
 import LocationPage from './pages/LocationPage';
 import SchedulePage from './pages/SchedulePage';
+import ProfilePage from './pages/ProfilePage';
 import './App.css';
 
 const formatTimestamp = (ts) => {
@@ -44,7 +45,7 @@ function AppLoader() {
 
 // ── Main app shell (member + admin shared) ──
 function AppShell() {
-  const { displayName, isAdmin, signOut } = useAuth();
+  const { displayName, profile, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const isAdminRoute = location.pathname === '/admin';
@@ -58,7 +59,8 @@ function AppShell() {
   const [leaderboard, setLeaderboard] = useState([]);
   const [feed, setFeed] = useState([]);
   const [notices, setNotices] = useState([]);
-  const [myReservations, setMyReservations] = useState([]);
+  const [myReservations, setMyReservations] = useState([]); // [{classId, date}]
+  const [allReservations, setAllReservations] = useState([]);
   const [monthlyAttendance, setMonthlyAttendance] = useState(0);
 
   useEffect(() => { loadAllData(); }, [displayName]);
@@ -89,9 +91,13 @@ function AppShell() {
         timeLimit: w.time_limit, rxd: w.rxd, scaled: w.scaled, description: w.description,
       })));
 
+      const todayStr = new Date().toISOString().split('T')[0];
+      setAllReservations(reservationsData || []);
       setClasses((classesData || []).map(c => ({
         id: c.id, time: c.time, coach: c.coach, maxCapacity: c.max_capacity,
-        attendees: (reservationsData || []).filter(r => r.class_id === c.id).map(r => r.member_name),
+        attendees: (reservationsData || [])
+          .filter(r => r.class_id === c.id && (r.reservation_date === todayStr || !r.reservation_date))
+          .map(r => r.member_name),
       })));
 
       setMembers((membersData || []).map(m => ({
@@ -117,7 +123,9 @@ function AppShell() {
       })));
 
       setMyReservations(
-        (reservationsData || []).filter(r => r.member_name === displayName).map(r => r.class_id)
+        (reservationsData || [])
+          .filter(r => r.member_name === displayName)
+          .map(r => ({ classId: r.class_id, date: r.reservation_date || new Date().toISOString().split('T')[0] }))
       );
 
       const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
@@ -135,30 +143,48 @@ function AppShell() {
   };
 
   // ── 예약 ──
-  const toggleBooking = async (classId) => {
-    const myProfile = members.find(m => m.name === displayName);
-    const isBooked = myReservations.includes(classId);
-    const cls = classes.find(c => c.id === classId);
+  const toggleBooking = async (classId, date) => {
+    const bookDate = date || new Date().toISOString().split('T')[0];
+    const isBooked = myReservations.some(r => r.classId === classId && r.date === bookDate);
 
     if (!isBooked) {
+      // 같은 날 중복 예약 차단
+      const hasSameDayBooking = myReservations.some(r => r.date === bookDate);
+      if (hasSameDayBooking) {
+        alert('이미 해당 날짜에 예약이 있습니다. 기존 예약을 취소한 후 다시 예약해주세요.');
+        return;
+      }
       // 회원권 만료 확인
+      const normalizePhone = (p) => p?.replace(/\D/g, '') || '';
+      const myProfile = members.find(m => normalizePhone(m.phone) === normalizePhone(profile?.phone))
+                     || members.find(m => m.name === (profile?.name || displayName));
       if (myProfile?.membershipExpiry) {
         const expiry = new Date(myProfile.membershipExpiry);
         expiry.setHours(23, 59, 59, 999);
         if (expiry < new Date()) { alert('회원권이 만료되었습니다. 관리자에게 문의하세요.'); return; }
       }
-      if (cls && cls.attendees.length >= cls.maxCapacity) { alert('정원이 초과되었습니다.'); return; }
+      // 정원 확인
+      const dateAttendees = allReservations.filter(r => r.class_id === classId && r.reservation_date === bookDate);
+      const cls = classes.find(c => c.id === classId);
+      if (cls && dateAttendees.length >= cls.maxCapacity) { alert('정원이 초과되었습니다.'); return; }
     }
 
     if (isBooked) {
-      await supabase.from('reservations').delete().match({ class_id: classId, member_name: displayName });
-      setClasses(prev => prev.map(c => c.id === classId ? { ...c, attendees: c.attendees.filter(n => n !== displayName) } : c));
-      setMyReservations(prev => prev.filter(id => id !== classId));
+      await supabase.from('reservations').delete()
+        .match({ class_id: classId, member_name: displayName, reservation_date: bookDate });
+      setMyReservations(prev => prev.filter(r => !(r.classId === classId && r.date === bookDate)));
+      setAllReservations(prev => prev.filter(r => !(r.class_id === classId && r.member_name === displayName && r.reservation_date === bookDate)));
+      if (bookDate === new Date().toISOString().split('T')[0]) {
+        setClasses(prev => prev.map(c => c.id === classId ? { ...c, attendees: c.attendees.filter(n => n !== displayName) } : c));
+      }
       setMonthlyAttendance(prev => Math.max(0, prev - 1));
     } else {
-      await supabase.from('reservations').insert({ class_id: classId, member_name: displayName });
-      setClasses(prev => prev.map(c => c.id === classId ? { ...c, attendees: [...c.attendees, displayName] } : c));
-      setMyReservations(prev => [...prev, classId]);
+      await supabase.from('reservations').insert({ class_id: classId, member_name: displayName, reservation_date: bookDate });
+      setMyReservations(prev => [...prev, { classId, date: bookDate }]);
+      setAllReservations(prev => [...prev, { class_id: classId, member_name: displayName, reservation_date: bookDate }]);
+      if (bookDate === new Date().toISOString().split('T')[0]) {
+        setClasses(prev => prev.map(c => c.id === classId ? { ...c, attendees: [...c.attendees, displayName] } : c));
+      }
       setMonthlyAttendance(prev => prev + 1);
     }
   };
@@ -275,10 +301,11 @@ function AppShell() {
     );
     switch (currentPage) {
       case 'wod': return <UserHome wods={wods} classes={classes} myReservations={myReservations} members={members} setCurrentPage={setCurrentPage} leaderboard={leaderboard} addLeaderboardRecord={addLeaderboardRecord} notices={notices} monthlyAttendance={monthlyAttendance} />;
-      case 'reservation': return <ReservationPage classes={classes} myReservations={myReservations} toggleBooking={toggleBooking} />;
+      case 'reservation': return <ReservationPage classes={classes} myReservations={myReservations} toggleBooking={toggleBooking} allReservations={allReservations} />;
       case 'feed': return <CommunityPage feed={feed} addFeedPost={addFeedPost} toggleLikeFeed={toggleLikeFeed} addCommentToFeed={addCommentToFeed} notices={notices} />;
       case 'schedule': return <SchedulePage />;
       case 'location': return <LocationPage />;
+      case 'profile': return <ProfilePage setCurrentPage={setCurrentPage} />;
       default: return <UserHome wods={wods} classes={classes} myReservations={myReservations} members={members} setCurrentPage={setCurrentPage} leaderboard={leaderboard} addLeaderboardRecord={addLeaderboardRecord} notices={notices} monthlyAttendance={monthlyAttendance} />;
     }
   };
@@ -307,9 +334,13 @@ function AppShell() {
               <span>{isAdminRoute ? '회원 보기' : '관리자'}</span>
             </button>
           )}
-          <button className="role-btn" onClick={handleSignOut} title="로그아웃">
+          {!isAdminRoute && (
+            <button className="role-btn user" onClick={() => setCurrentPage('profile')} title="내 정보">
+              <span className="logout-name-hide">{displayName}</span>
+            </button>
+          )}
+          <button className="role-btn" onClick={handleSignOut} title="로그아웃" style={{ padding: '8px 10px' }}>
             <LogOut size={16} />
-            <span className="logout-name-hide">{displayName}</span>
           </button>
         </div>
       </div>

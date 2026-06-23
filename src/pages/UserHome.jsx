@@ -41,7 +41,8 @@ const UserHome = ({ wods, classes, myReservations, members, setCurrentPage, lead
           || members.find(m => m.name === profile?.name)
           || {};
 
-  const myBookedClasses = classes.filter(cls => myReservations.includes(cls.id));
+  const todayStr = new Date().toISOString().split('T')[0];
+  const myBookedClasses = classes.filter(cls => myReservations.some(r => r.classId === cls.id && r.date === todayStr));
 
   const handleRecordSubmit = (e) => {
     e.preventDefault();

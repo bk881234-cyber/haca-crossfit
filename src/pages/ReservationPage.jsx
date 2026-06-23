@@ -1,73 +1,89 @@
 import { useState } from 'react';
-import { Calendar, Users, ChevronDown, ChevronUp, Clock } from 'lucide-react';
+import { Calendar, Users, ChevronDown, ChevronUp, Clock, AlertCircle } from 'lucide-react';
 import './ReservationPage.css';
 
-function ReservationPage({ classes, myReservations, toggleBooking }) {
-  const [selectedDate, setSelectedDate] = useState('2026-06-22'); // 기본 오늘 날짜
-  const [expandedClass, setExpandedClass] = useState(null); // 참석자 목록 펼침 제어
+function ReservationPage({ classes, myReservations, toggleBooking, allReservations }) {
+  const today = new Date().toISOString().split('T')[0];
+  const [selectedDate, setSelectedDate] = useState(today);
+  const [expandedClass, setExpandedClass] = useState(null);
 
-  // Week days helper (Mon - Fri)
-  const weekDays = [
-    { dayName: '월', date: '2026-06-22', isToday: true },
-    { dayName: '화', date: '2026-06-23', isToday: false },
-    { dayName: '수', date: '2026-06-24', isToday: false },
-    { dayName: '목', date: '2026-06-25', isToday: false },
-    { dayName: '금', date: '2026-06-26', isToday: false },
-  ];
+  const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
 
-  const handleDateSelect = (date) => {
-    setSelectedDate(date);
-    // 날짜별로 다른 예약을 시뮬레이션할 수 있음
-  };
+  const weekDays = Array.from({ length: 14 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() + i);
+    return {
+      dayName: dayNames[d.getDay()],
+      date: d.toISOString().split('T')[0],
+      dayNumber: d.getDate(),
+      isToday: i === 0,
+      isSunday: d.getDay() === 0,
+    };
+  });
 
-  const toggleExpandClass = (classId) => {
-    if (expandedClass === classId) {
-      setExpandedClass(null);
-    } else {
-      setExpandedClass(classId);
-    }
-  };
+  const koreanDayNames = { '월': '월요일', '화': '화요일', '수': '수요일', '목': '목요일', '금': '금요일', '토': '토요일', '일': '일요일' };
+  const selectedDay = weekDays.find(d => d.date === selectedDate);
+
+  const isBookedOnDate = (classId) =>
+    myReservations.some(r => r.classId === classId && r.date === selectedDate);
+
+  const hasAnyBookingOnDate = myReservations.some(r => r.date === selectedDate);
+
+  const getAttendeesForDate = (classId) =>
+    (allReservations || []).filter(r => r.class_id === classId && r.reservation_date === selectedDate).map(r => r.member_name);
 
   return (
     <div className="reservation-container fade-in">
       <div className="reservation-header">
         <h1>클래스 예약</h1>
-        <p className="sub-text">참석하실 날짜와 시간대를 선택하여 클래스를 예약해 주세요.</p>
+        <p className="sub-text">날짜와 시간대를 선택하여 예약하세요.</p>
       </div>
 
-      {/* 1. Date Selector (Calendar horizontal scroll style) */}
+      {/* Date Selector */}
       <div className="date-selector-row">
-        {weekDays.map((day) => {
-          const isSelected = selectedDate === day.date;
-          return (
-            <button
-              key={day.date}
-              className={`date-card ${isSelected ? 'active' : ''} ${day.isToday ? 'today' : ''}`}
-              onClick={() => handleDateSelect(day.date)}
-            >
-              {day.isToday && <span className="today-badge">TODAY</span>}
-              <span className="day-name">{day.dayName}</span>
-              <span className="day-number">{day.date.split('-')[2]}</span>
-            </button>
-          );
-        })}
+        {weekDays.map((day) => (
+          <button
+            key={day.date}
+            className={`date-card ${selectedDate === day.date ? 'active' : ''} ${day.isSunday ? 'sunday' : ''}`}
+            onClick={() => setSelectedDate(day.date)}
+          >
+            {day.isToday && <span className="today-badge">TODAY</span>}
+            <span className="day-name">{day.dayName}</span>
+            <span className="day-number">{day.dayNumber}</span>
+          </button>
+        ))}
       </div>
 
-      {/* Selected Date Summary */}
+      {/* Selected Date Banner */}
       <div className="selected-date-banner glass-card">
         <Calendar size={18} className="text-lime" />
         <span className="date-text">
-          2026년 6월 {selectedDate.split('-')[2]}일 (월요일 기준 스케줄)
+          {selectedDate.replace(/-/g, '년 ').replace(/-/, '월 ')}일 ({selectedDay?.dayName && koreanDayNames[selectedDay.dayName]})
         </span>
       </div>
 
-      {/* 2. Class List */}
+      {/* 중복 예약 안내 */}
+      {hasAnyBookingOnDate && (
+        <div className="duplicate-notice">
+          <AlertCircle size={16} />
+          <span>이 날짜에 이미 예약이 있습니다. 예약을 취소해야 다른 시간으로 변경할 수 있습니다.</span>
+        </div>
+      )}
+
+      {/* Class List */}
       <div className="class-list-container">
+        {classes.length === 0 && (
+          <div className="empty-classes glass-card">
+            <p>등록된 클래스 스케줄이 없습니다.</p>
+          </div>
+        )}
         {classes.map((cls) => {
-          const isBooked = myReservations.includes(cls.id);
-          const isFull = cls.attendees.length >= cls.maxCapacity;
-          const fillPercentage = (cls.attendees.length / cls.maxCapacity) * 100;
+          const isBooked = isBookedOnDate(cls.id);
+          const attendees = getAttendeesForDate(cls.id);
+          const isFull = attendees.length >= cls.maxCapacity;
+          const fillPercentage = Math.min((attendees.length / cls.maxCapacity) * 100, 100);
           const isExpanded = expandedClass === cls.id;
+          const canBook = isBooked || !hasAnyBookingOnDate;
 
           return (
             <div key={cls.id} className={`glass-card class-slot-card ${isBooked ? 'booked' : ''}`}>
@@ -83,16 +99,13 @@ function ReservationPage({ classes, myReservations, toggleBooking }) {
                 <div className="capacity-info">
                   <div className="capacity-label">
                     <Users size={16} />
-                    <span>
-                      {cls.attendees.length} / {cls.maxCapacity} 명
-                    </span>
+                    <span>{attendees.length} / {cls.maxCapacity} 명</span>
                   </div>
-                  {isFull && <span className="badge badge-danger">마감</span>}
+                  {isFull && !isBooked && <span className="badge badge-danger">마감</span>}
                   {isBooked && <span className="badge badge-accent">예약완료</span>}
                 </div>
               </div>
 
-              {/* Progress Bar (Visual representation of capacity) */}
               <div className="capacity-progress-bar-bg">
                 <div
                   className={`capacity-progress-bar-fill ${isFull ? 'full' : ''}`}
@@ -100,24 +113,19 @@ function ReservationPage({ classes, myReservations, toggleBooking }) {
                 />
               </div>
 
-              {/* Accordion Toggle for Attendees List */}
               <div className="attendee-accordion">
-                <button
-                  className="accordion-trigger btn-ghost"
-                  onClick={() => toggleExpandClass(cls.id)}
-                >
-                  <span>예약자 명단 보기 ({cls.attendees.length}명)</span>
+                <button className="accordion-trigger btn-ghost" onClick={() => setExpandedClass(isExpanded ? null : cls.id)}>
+                  <span>예약자 명단 ({attendees.length}명)</span>
                   {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </button>
-
                 {isExpanded && (
                   <div className="attendees-panel fade-in">
-                    {cls.attendees.length > 0 ? (
+                    {attendees.length > 0 ? (
                       <div className="attendees-grid">
-                        {cls.attendees.map((attendee, index) => (
-                          <div key={index} className="attendee-chip">
+                        {attendees.map((name, i) => (
+                          <div key={i} className="attendee-chip">
                             <span className="dot" />
-                            <span>{attendee}</span>
+                            <span>{name}</span>
                           </div>
                         ))}
                       </div>
@@ -128,22 +136,18 @@ function ReservationPage({ classes, myReservations, toggleBooking }) {
                 )}
               </div>
 
-              {/* Booking Actions */}
               <div className="class-booking-action-row">
                 {isBooked ? (
-                  <button
-                    className="btn btn-danger btn-booking-action"
-                    onClick={() => toggleBooking(cls.id)}
-                  >
+                  <button className="btn btn-danger btn-booking-action" onClick={() => toggleBooking(cls.id, selectedDate)}>
                     예약 취소하기
                   </button>
                 ) : (
                   <button
                     className="btn btn-primary btn-booking-action"
-                    onClick={() => toggleBooking(cls.id)}
-                    disabled={isFull}
+                    onClick={() => toggleBooking(cls.id, selectedDate)}
+                    disabled={isFull || !canBook}
                   >
-                    {isFull ? '예약 불가 (정원 초과)' : '예약 신청하기'}
+                    {isFull ? '예약 불가 (정원 초과)' : !canBook ? '이미 다른 클래스 예약됨' : '예약 신청하기'}
                   </button>
                 )}
               </div>
