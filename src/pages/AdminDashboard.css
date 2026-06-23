@@ -475,3 +475,17 @@
 .level-select.level-white  { color: #f0f0f0; border-color: #ccc; }
 .level-select.level-rainbow{ color: #00e5ff; border-color: #00e5ff; }
 .level-select.level-beginner{ color: #9999ff; border-color: #9999ff; }
+
+.admin-inline-input {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--accent);
+  color: var(--text-primary);
+  border-radius: 4px;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  width: 100%;
+  min-width: 80px;
+}
+
+.action-btn.text-green { color: #4caf50; }

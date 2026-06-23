@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Users, Calendar, TrendingUp, Plus, Search, Activity, FileText, Bell, Trash2, MessageSquare } from 'lucide-react';
+import { Users, Calendar, TrendingUp, Plus, Search, Activity, FileText, Bell, Trash2, MessageSquare, Pencil, Check, X } from 'lucide-react';
 import './AdminDashboard.css';
 
 const LEVELS = ['Black', 'Red', 'Yellow', 'White', 'Rainbow', 'Beginner'];
@@ -7,13 +7,23 @@ const LEVELS = ['Black', 'Red', 'Yellow', 'White', 'Rainbow', 'Beginner'];
 const AdminDashboard = ({
   addWod,
   classes, addClassSlot, deleteClassSlot,
-  members, setMemberExpiry, setMemberExpiryDate, toggleMemberStatus, setMemberLevel,
+  members, setMemberExpiry, setMemberExpiryDate, toggleMemberStatus, setMemberLevel, updateMemberInfo,
   feed, deleteFeedPost,
   notices, addNotice, toggleNoticeActive, deleteNotice,
 }) => {
   const [activeTab, setActiveTab] = useState('overview');
 
   const [memberSearch, setMemberSearch] = useState('');
+  const [editingId, setEditingId] = useState(null);
+  const [editName, setEditName] = useState('');
+  const [editPhone, setEditPhone] = useState('');
+
+  const startEdit = (m) => { setEditingId(m.id); setEditName(m.name); setEditPhone(m.phone || ''); };
+  const cancelEdit = () => { setEditingId(null); setEditName(''); setEditPhone(''); };
+  const saveEdit = async (id) => {
+    const ok = await updateMemberInfo(id, { name: editName, phone: editPhone });
+    if (ok) cancelEdit();
+  };
 
   const localDateStr = () => {
     const d = new Date();
@@ -228,8 +238,19 @@ const AdminDashboard = ({
               const isSoon = daysLeft !== null && daysLeft >= 0 && daysLeft <= 14;
               return (
               <tr key={m.id}>
-                <td className="font-bold">{m.name}</td>
-                <td>{m.phone}</td>
+                <td className="font-bold">
+                  {editingId === m.id ? (
+                    <input className="admin-inline-input" value={editName} onChange={e => setEditName(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter') saveEdit(m.id); if (e.key === 'Escape') cancelEdit(); }}
+                      autoFocus />
+                  ) : m.name}
+                </td>
+                <td>
+                  {editingId === m.id ? (
+                    <input className="admin-inline-input" value={editPhone} onChange={e => setEditPhone(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter') saveEdit(m.id); if (e.key === 'Escape') cancelEdit(); }} />
+                  ) : m.phone}
+                </td>
                 <td>
                   <select
                     className={`level-select level-${(m.level || 'Beginner').toLowerCase()}`}
@@ -262,9 +283,19 @@ const AdminDashboard = ({
                   </div>
                 </td>
                 <td>
-                  <button className={`status-toggle ${m.status.toLowerCase()}`} onClick={() => toggleMemberStatus(m.id)}>
-                    {m.status}
-                  </button>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <button className={`status-toggle ${m.status.toLowerCase()}`} onClick={() => toggleMemberStatus(m.id)}>
+                      {m.status}
+                    </button>
+                    {editingId === m.id ? (
+                      <>
+                        <button className="action-btn text-green" onClick={() => saveEdit(m.id)} title="저장"><Check size={15} /></button>
+                        <button className="action-btn" onClick={cancelEdit} title="취소"><X size={15} /></button>
+                      </>
+                    ) : (
+                      <button className="action-btn" onClick={() => startEdit(m)} title="편집"><Pencil size={14} /></button>
+                    )}
+                  </div>
                 </td>
               </tr>
               );

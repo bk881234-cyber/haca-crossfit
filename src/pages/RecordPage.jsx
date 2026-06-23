@@ -87,6 +87,9 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
   const [fbText, setFbText]           = useState('');
   const [showLevelDrop, setShowLevelDrop] = useState(false);
 
+  /* ── My history ── */
+  const [expandedHistory, setExpandedHistory] = useState(null);
+
   /* ── Build record value: "12:42 (F, 75LB)" ── */
   const getPrimaryValue = () => {
     if (recordType === 'for_time') {
@@ -180,6 +183,24 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
   });
 
   const currentTypeMeta = RECORD_TYPES.find(r => r.id === recordType);
+
+  /* ── Personal history (내 기록) ── */
+  const myRecords = (workoutRecords || []).filter(r => r.member_name === displayName);
+  const historyByDate = {};
+  myRecords.forEach(r => {
+    if (!historyByDate[r.wod_date]) historyByDate[r.wod_date] = { w1: [], w2: [], ids: [] };
+    if (r.workout_type === 'workout1') historyByDate[r.wod_date].w1.push(r);
+    else if (r.workout_type === 'workout2') historyByDate[r.wod_date].w2.push(r);
+    historyByDate[r.wod_date].ids.push(r.id);
+  });
+  const myHistory = Object.entries(historyByDate)
+    .sort(([a], [b]) => b.localeCompare(a))
+    .map(([date, { w1, w2, ids }]) => ({
+      date,
+      wod: wods?.find(w => w.date === date),
+      w1, w2,
+      feedbacks: (recordFeedback || []).filter(f => ids.includes(f.record_id)),
+    }));
 
   return (
     <div className="record-page fade-in">
@@ -296,6 +317,78 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
             {justSaved ? '✓ 등록 완료!' : submitting ? '저장 중...' : <><Send size={15} /> 기록 등록</>}
           </button>
         </form>
+
+        {/* ── MY RECORD HISTORY ── */}
+        <div className="rp-history-section">
+          <h2 className="rp-title">내 기록</h2>
+          {myHistory.length === 0 ? (
+            <div className="rp-empty glass-card">아직 등록된 기록이 없습니다.</div>
+          ) : (
+            <div className="rp-history-list">
+              {myHistory.map(({ date, wod, w1, w2, feedbacks }) => {
+                const isExp = expandedHistory === date;
+                return (
+                  <div key={date} className="rp-history-card glass-card">
+                    <div className="rp-history-header" onClick={() => setExpandedHistory(isExp ? null : date)}>
+                      <div className="rp-history-meta">
+                        <span className="rp-history-date">{date}</span>
+                        {wod && <span className="rp-history-wod-name">{wod.title}</span>}
+                      </div>
+                      <div className="rp-history-records">
+                        {w1.length > 0 && (
+                          <div className="rp-history-rec-group">
+                            <span className="rp-history-rec-label">01</span>
+                            <span className="rp-history-rec-val">{w1.map(r => abbrev(r)).join(', ')}</span>
+                          </div>
+                        )}
+                        {w2.length > 0 && (
+                          <div className="rp-history-rec-group">
+                            <span className="rp-history-rec-label">02</span>
+                            <span className="rp-history-rec-val accent">{w2.map(r => abbrev(r)).join(', ')}</span>
+                          </div>
+                        )}
+                        {feedbacks.length > 0 && (
+                          <span className="rp-history-fb-badge">{feedbacks.length}</span>
+                        )}
+                      </div>
+                      <ChevronDown size={14} className={`rp-history-chevron ${isExp ? 'open' : ''}`} />
+                    </div>
+
+                    {isExp && (
+                      <div className="rp-history-detail">
+                        {wod && (
+                          <div className="rp-history-wod-info">
+                            <span className="rp-history-wod-type">{wod.type}</span>
+                            {wod.timeLimit && <span className="rp-history-wod-cap">⏱ {wod.timeLimit}</span>}
+                          </div>
+                        )}
+                        {[...w1.map(r => ({ ...r, label: '01 Strength' })), ...w2.map(r => ({ ...r, label: '02 WOD' }))].map(r => (
+                          <div key={r.id} className="rp-history-rec-row">
+                            <span className="rp-history-rec-tag">{r.label}</span>
+                            <span className="rp-history-rec-full">{abbrev(r)}</span>
+                            <button onClick={() => deleteWorkoutRecord(r.id)} className="rp-history-del" title="삭제">
+                              <Trash2 size={12} />
+                            </button>
+                          </div>
+                        ))}
+                        {feedbacks.length > 0 && (
+                          <div className="rp-history-feedbacks">
+                            {feedbacks.map((f, i) => (
+                              <div key={f.id || i} className="rp-fb-item">
+                                <span className="rp-fb-author">{f.author}</span>
+                                <span className="rp-fb-content">{f.content}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </section>
 
       {/* ══ LEADERBOARD ══ */}

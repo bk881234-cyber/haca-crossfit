@@ -363,6 +363,16 @@ function AppShell() {
     setMemberLevelMap(lvlMap);
   };
 
+  const updateMemberInfo = async (memberId, { name, phone }) => {
+    const updates = {};
+    if (name !== undefined) updates.name = name;
+    if (phone !== undefined) updates.phone = phone;
+    const { error } = await supabase.from('members').update(updates).eq('id', memberId);
+    if (error) { console.error('회원 정보 수정 실패:', error.message); alert('저장 실패: ' + error.message); return false; }
+    setMembers(prev => prev.map(m => m.id === memberId ? { ...m, ...(name !== undefined ? { name } : {}), ...(phone !== undefined ? { phone } : {}) } : m));
+    return true;
+  };
+
   const setMemberExpiryDate = async (memberId, dateStr) => {
     if (!dateStr) return;
     const { error } = await supabase.from('members').update({ membership_expiry: dateStr }).eq('id', memberId);
@@ -449,7 +459,7 @@ function AppShell() {
           <AdminDashboard
             addWod={addWod}
             classes={classes} addClassSlot={addClassSlot} deleteClassSlot={deleteClassSlot}
-            members={members} setMemberExpiry={setMemberExpiry} setMemberExpiryDate={setMemberExpiryDate} toggleMemberStatus={toggleMemberStatus} setMemberLevel={setMemberLevel}
+            members={members} setMemberExpiry={setMemberExpiry} setMemberExpiryDate={setMemberExpiryDate} toggleMemberStatus={toggleMemberStatus} setMemberLevel={setMemberLevel} updateMemberInfo={updateMemberInfo}
             feed={feed} deleteFeedPost={deleteFeedPost}
             notices={notices} addNotice={addNotice} toggleNoticeActive={toggleNoticeActive} deleteNotice={deleteNotice}
           />
