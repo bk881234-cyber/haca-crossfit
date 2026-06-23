@@ -1,6 +1,6 @@
 ﻿import { useState, useEffect } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
-import { LogOut, Shield } from 'lucide-react';
+import { LogOut, Shield, UserCircle } from 'lucide-react';
 import { supabase } from './lib/supabase';
 import { useAuth } from './contexts/AuthContext';
 import Navbar from './components/Navbar';
@@ -336,6 +336,7 @@ function AppShell() {
           )}
           {!isAdminRoute && (
             <button className="role-btn user" onClick={() => setCurrentPage('profile')} title="내 정보">
+              <UserCircle size={16} />
               <span className="logout-name-hide">{displayName}</span>
             </button>
           )}
