@@ -14,21 +14,26 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
-      if (session?.user) fetchProfile(session.user.id);
+      if (session?.user) fetchProfile(session.user.id, session.user.email);
       else setLoading(false);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
-      if (session?.user) fetchProfile(session.user.id);
+      if (session?.user) fetchProfile(session.user.id, session.user.email);
       else { setProfile(null); setLoading(false); }
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  const fetchProfile = async (userId) => {
+  const fetchProfile = async (userId, email) => {
     const { data } = await supabase.from('profiles').select('*').eq('id', userId).single();
+    if (data && email?.includes('@haca.local') && !data.phone) {
+      const phone = email.split('@')[0];
+      await supabase.from('profiles').update({ phone }).eq('id', userId);
+      data.phone = phone;
+    }
     setProfile(data);
     setLoading(false);
   };
