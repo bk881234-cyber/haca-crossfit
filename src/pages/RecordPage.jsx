@@ -55,9 +55,6 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
   const myLevel = profile?.level || 'Beginner';
   const today = new Date().toISOString().split('T')[0];
   const todayWod = wods?.find(w => w.date === today) || wods?.[0];
-  const autoType = workoutTab === 'workout1'
-    ? 'weight'
-    : (todayWod?.type ? (WOD_TYPE_MAP[todayWod.type] ?? 'for_time') : 'for_time');
 
   /* ── Form state ── */
   const [workoutTab, setWorkoutTab] = useState('workout2');
@@ -74,6 +71,9 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
 
   /* ── Auto record type detection ── */
   const [manualType, setManualType] = useState(false);
+  const autoType = workoutTab === 'workout1'
+    ? 'weight'
+    : (todayWod?.type ? (WOD_TYPE_MAP[todayWod.type] ?? 'for_time') : 'for_time');
 
   useEffect(() => {
     setManualType(false);
