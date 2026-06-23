@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Send, MessageSquare, ChevronDown, ChevronUp, Trophy } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import WodCard from '../components/WodCard';
 import './RecordPage.css';
 
 const LEVELS = ['Black', 'Red', 'Yellow', 'White', 'Rainbow', 'Beginner'];
@@ -18,7 +19,7 @@ const RECORD_TYPES = [
   { id: 'for_time',  label: 'FOR TIME',    ex: '예) 10:37' },
   { id: 'amrap',     label: 'AMRAP',        ex: '예) 5R + 37' },
   { id: 'fail_done', label: 'FAIL / DONE',  ex: '' },
-  { id: 'weight',    label: 'WEIGHT',       ex: '예) 105 KG' },
+  { id: 'weight',    label: 'WEIGHT',       ex: '예) 105 LB' },
 ];
 
 const parseSeconds = (v) => {
@@ -41,10 +42,11 @@ const sortRecords = (records) =>
     return 0;
   });
 
-export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutRecord, addRecordFeedback, isAdmin }) {
+export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutRecord, addRecordFeedback, isAdmin, wods }) {
   const { displayName, profile } = useAuth();
   const myLevel = profile?.level || 'Beginner';
   const today = new Date().toISOString().split('T')[0];
+  const todayWod = wods?.find(w => w.date === today) || wods?.[0];
 
   /* ── Form state ── */
   const [workoutTab, setWorkoutTab] = useState('workout2');
@@ -67,7 +69,7 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
     if (recordType === 'for_time')  return `${timeMin || '0'}:${(timeSec || '0').padStart(2, '0')}`;
     if (recordType === 'amrap')     return amrapVal.trim();
     if (recordType === 'fail_done') return failDone;
-    if (recordType === 'weight')    return `${weightVal} KG`;
+    if (recordType === 'weight')    return `${weightVal} LB`;
     return '';
   };
 
@@ -110,7 +112,14 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
 
       {/* ══ RECORD UPLOAD ══ */}
       <section className="rp-section">
-        <h2 className="rp-title"><Trophy size={18} /> 기록 입력</h2>
+        <h2 className="rp-title"><Trophy size={18} /> 대시보드</h2>
+
+        {/* 오늘의 WOD 표시 */}
+        {todayWod && (
+          <div style={{ marginBottom: '1.5rem' }}>
+            <WodCard wod={todayWod} />
+          </div>
+        )}
 
         {/* Workout tabs */}
         <div className="rp-workout-tabs">
@@ -199,7 +208,7 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
                   value={weightVal} onChange={e => setWeightVal(e.target.value)}
                   className="rp-weight-input" required
                 />
-                <span className="rp-unit">KG</span>
+                <span className="rp-unit">LB</span>
               </div>
             )}
           </div>
