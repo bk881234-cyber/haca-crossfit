@@ -161,10 +161,11 @@ function AppShell() {
 
   // ── 리더보드 ──
   const addLeaderboardRecord = async (type, recordStr) => {
-    const { data, error } = await supabase.from('leaderboard').insert({ name: `${displayName} (나)`, type, record: recordStr, rank: 0 }).select().single();
+    const { data, error } = await supabase.from('leaderboard').insert({ name: displayName, type, record: recordStr, rank: 0 }).select().single();
     if (error) { console.error(error); return; }
-    const newList = [...leaderboard, { id: data.id, rank: 0, name: `${displayName} (나)`, type, record: recordStr }]
-      .sort((a, b) => a.record.localeCompare(b.record)).map((item, i) => ({ ...item, rank: i + 1 }));
+    const parseRecord = (r) => { const m = r.match(/^(\d+):(\d+)$/); return m ? parseInt(m[1]) * 60 + parseInt(m[2]) : Infinity; };
+    const newList = [...leaderboard, { id: data.id, rank: 0, name: displayName, type, record: recordStr }]
+      .sort((a, b) => parseRecord(a.record) - parseRecord(b.record)).map((item, i) => ({ ...item, rank: i + 1 }));
     setLeaderboard(newList);
   };
 

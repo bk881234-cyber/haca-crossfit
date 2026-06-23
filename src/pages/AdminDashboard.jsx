@@ -11,6 +11,8 @@ const AdminDashboard = ({
 }) => {
   const [activeTab, setActiveTab] = useState('overview');
 
+  const [memberSearch, setMemberSearch] = useState('');
+
   const [newWod, setNewWod] = useState({
     date: new Date().toISOString().split('T')[0], title: '', type: 'For Time',
     timeLimit: '', rxd: '', scaled: '', description: '',
@@ -165,7 +167,7 @@ const AdminDashboard = ({
     <div className="admin-panel">
       <div className="panel-header">
         <h2>회원 및 수강권 관리</h2>
-        <div className="search-bar"><Search size={18} /><input type="text" placeholder="이름 검색..." /></div>
+        <div className="search-bar"><Search size={18} /><input type="text" placeholder="이름 검색..." value={memberSearch} onChange={e => setMemberSearch(e.target.value)} /></div>
       </div>
       <div className="data-table-wrap">
         <table className="data-table">
@@ -173,7 +175,7 @@ const AdminDashboard = ({
             <tr><th>이름</th><th>연락처</th><th>누적 출석</th><th>회원권 만료일</th><th>상태</th></tr>
           </thead>
           <tbody>
-            {members.map(m => {
+            {members.filter(m => !memberSearch || m.name?.includes(memberSearch) || m.phone?.includes(memberSearch)).map(m => {
               const expiry = m.membershipExpiry ? new Date(m.membershipExpiry) : null;
               const today = new Date();
               today.setHours(0,0,0,0);

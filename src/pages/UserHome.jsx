@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, User, Trophy, Activity, Medal, Plus, X, Bell } from 'lucide-react';
 import WodCard from '../components/WodCard';
+import { useAuth } from '../contexts/AuthContext';
 import './UserHome.css';
 
 const UserHome = ({ wods, classes, myReservations, members, setCurrentPage, leaderboard, addLeaderboardRecord, notices }) => {
@@ -32,8 +33,13 @@ const UserHome = ({ wods, classes, myReservations, members, setCurrentPage, lead
     setPopupNotice(null);
   };
 
+  const { displayName, profile } = useAuth();
+
   const todayWod = wods[0];
-  const me = members.find(m => m.name === '홍길동') || members[0];
+  const normalizePhone = (p) => p?.replace(/\D/g, '') || '';
+  const me = members.find(m => normalizePhone(m.phone) === normalizePhone(profile?.phone))
+          || members.find(m => m.name === profile?.name)
+          || {};
 
   const myBookedClasses = classes.filter(cls => myReservations.includes(cls.id));
 
@@ -71,7 +77,7 @@ const UserHome = ({ wods, classes, myReservations, members, setCurrentPage, lead
         <div className="user-greeting">
           <img src="/logo.png" alt="HACA" className="greeting-logo" />
           <div className="greeting-text">
-            <h1>Hello, {me.name}님! <span className="wave">👋</span></h1>
+            <h1>Hello, {displayName}님! <span className="wave">👋</span></h1>
             <p>오늘도 화이팅하세요!</p>
           </div>
         </div>
@@ -84,7 +90,7 @@ const UserHome = ({ wods, classes, myReservations, members, setCurrentPage, lead
             <div className="stat-icon"><Activity size={20} className="text-lime" /></div>
             <div className="stat-info">
               <span className="stat-label">이번 달 출석</span>
-              <span className="stat-value">{me.attendanceCount}회</span>
+              <span className="stat-value">{me?.attendanceCount ?? 0}회</span>
             </div>
           </div>
           <div className="stat-card">
@@ -94,12 +100,12 @@ const UserHome = ({ wods, classes, myReservations, members, setCurrentPage, lead
               <span className="stat-value" style={{
                 fontSize: '0.95rem',
                 color: (() => {
-                  if (!me.membershipExpiry) return 'var(--text-secondary)';
+                  if (!me?.membershipExpiry) return 'var(--text-secondary)';
                   const days = Math.ceil((new Date(me.membershipExpiry) - new Date()) / 86400000);
                   return days < 0 ? '#ff3366' : days <= 14 ? '#ff6b6b' : 'var(--text-primary)';
                 })()
               }}>
-                {me.membershipExpiry
+                {me?.membershipExpiry
                   ? (() => {
                       const days = Math.ceil((new Date(me.membershipExpiry) - new Date()) / 86400000);
                       if (days < 0) return '만료됨';
@@ -166,7 +172,7 @@ const UserHome = ({ wods, classes, myReservations, members, setCurrentPage, lead
                  lb.rank}
               </div>
               <div className="user-info">
-                <span className="name">{lb.name}</span>
+                <span className="name">{lb.name}{lb.name === displayName ? ' (나)' : ''}</span>
                 <span className={`type-badge ${lb.type}`}>{lb.type === 'rxd' ? "Rx'd" : "Scaled"}</span>
               </div>
               <div className="record">{lb.record}</div>
