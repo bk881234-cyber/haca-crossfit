@@ -103,7 +103,8 @@ function AppShell() {
         timeLimit: w.time_limit, rxd: w.rxd, scaled: w.scaled, description: w.description,
       })));
 
-      const todayStr = new Date().toISOString().split('T')[0];
+      const _d = new Date();
+      const todayStr = `${_d.getFullYear()}-${String(_d.getMonth()+1).padStart(2,'0')}-${String(_d.getDate()).padStart(2,'0')}`;
       setAllReservations(reservationsData || []);
       setClasses((classesData || []).map(c => ({
         id: c.id, time: c.time, coach: c.coach, maxCapacity: c.max_capacity,
@@ -223,13 +224,18 @@ function AppShell() {
 
   // ── WOD ──
   const addWod = async (newWod) => {
-    const { data, error } = await supabase.from('wods').insert({
+    // UPSERT: 같은 날짜 WOD가 이미 있으면 UPDATE, 없으면 INSERT
+    const { data, error } = await supabase.from('wods').upsert({
       date: newWod.date, title: newWod.title, type: newWod.type,
       workout1_title: newWod.workout1Title, workout1_description: newWod.workout1Description,
       time_limit: newWod.timeLimit, rxd: newWod.rxd, scaled: newWod.scaled, description: newWod.description
-    }).select().single();
-    if (error) { console.error(error); return; }
-    setWods(prev => [{ ...newWod, id: data.id }, ...prev]);
+    }, { onConflict: 'date' }).select().single();
+    if (error) { console.error('WOD 저장 실패:', error.message); return false; }
+    setWods(prev => {
+      const without = prev.filter(w => w.date !== newWod.date);
+      return [{ ...newWod, id: data.id }, ...without];
+    });
+    return true;
   };
 
   // ── 리더보드 ──

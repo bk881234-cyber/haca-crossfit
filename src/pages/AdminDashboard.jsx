@@ -15,8 +15,13 @@ const AdminDashboard = ({
 
   const [memberSearch, setMemberSearch] = useState('');
 
+  const localDateStr = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  };
+
   const [newWod, setNewWod] = useState({
-    date: new Date().toISOString().split('T')[0],
+    date: localDateStr(),
     workout1Title: '', workout1Description: '',
     title: '', type: 'For Time',
     timeLimit: '', rxd: '', description: '',
@@ -24,11 +29,15 @@ const AdminDashboard = ({
   const [newNotice, setNewNotice] = useState({ title: '', content: '', isPopup: false });
   const [newClass, setNewClass] = useState({ time: '06:30', className: 'CrossFit', coach: '', maxCapacity: 15, dayOfWeek: '' });
 
-  const handleWodSubmit = (e) => {
+  const handleWodSubmit = async (e) => {
     e.preventDefault();
-    addWod(newWod);
-    alert('WOD가 등록되었습니다.');
-    setNewWod({ ...newWod, workout1Title: '', workout1Description: '', title: '', rxd: '', description: '', timeLimit: '' });
+    const ok = await addWod(newWod);
+    if (ok) {
+      alert('WOD가 등록/수정되었습니다.');
+      setNewWod({ ...newWod, workout1Title: '', workout1Description: '', title: '', rxd: '', description: '', timeLimit: '' });
+    } else {
+      alert('저장 실패 — 콘솔을 확인해주세요.');
+    }
   };
 
   const handleNoticeSubmit = (e) => {

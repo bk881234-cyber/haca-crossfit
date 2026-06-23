@@ -52,7 +52,8 @@ const sortRecords = (records) =>
 export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutRecord, deleteWorkoutRecord, addRecordFeedback, isAdmin, wods, memberLevel, levelMap }) {
   const { displayName } = useAuth();
   const myLevel = memberLevel || 'Beginner';
-  const today = new Date().toISOString().split('T')[0];
+  const d = new Date();
+  const today = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   const todayWod = wods?.find(w => w.date === today) || wods?.[0];
 
   /* ── Form state ── */
