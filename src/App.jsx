@@ -46,7 +46,7 @@ function AppLoader() {
 
 // ── Main app shell (member + admin shared) ──
 function AppShell() {
-  const { displayName, profile, isAdmin, signOut } = useAuth();
+  const { user, displayName, profile, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const isAdminRoute = location.pathname === '/admin';
@@ -356,9 +356,10 @@ function AppShell() {
       case 'reservation': return <ReservationPage classes={classes} myReservations={myReservations} toggleBooking={toggleBooking} allReservations={allReservations} />;
       case 'feed': return <CommunityPage feed={feed} addFeedPost={addFeedPost} toggleLikeFeed={toggleLikeFeed} addCommentToFeed={addCommentToFeed} notices={notices} />;
       case 'record': {
-        const normalizePhone = (p) => p?.replace(/\D/g, '') || '';
-        const myMember = members.find(m => normalizePhone(m.phone) === normalizePhone(profile?.phone))
-                      || members.find(m => m.name === displayName);
+        const normalize = (p) => p?.replace(/\D/g, '') || '';
+        // email형식이 '01087288635@haca.local'이므로 전화번호 추출 가능
+        const myPhone = normalize(profile?.phone || user?.email?.split('@')[0]);
+        const myMember = members.find(m => normalize(m.phone) === myPhone);
         const myMemberLevel = myMember?.level || 'Beginner';
         return <RecordPage workoutRecords={workoutRecords} recordFeedback={recordFeedback} addWorkoutRecord={addWorkoutRecord} deleteWorkoutRecord={deleteWorkoutRecord} addRecordFeedback={addRecordFeedback} isAdmin={isAdmin} wods={wods} memberLevel={myMemberLevel} />;
       }

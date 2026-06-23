@@ -133,10 +133,17 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
     setFbText('');
   };
 
+  /* ── 기록값 축약 표시: DONE→D, FAIL→F, 나머지는 그대로 ── */
+  const abbrev = (r) => {
+    if (!r) return '';
+    if (r.record_type === 'fail_done') return r.record_value === 'DONE' ? 'D' : 'F';
+    return r.record_value;
+  };
+
   /* ── Leaderboard filtering ── */
   const todayRecords = (workoutRecords || []).filter(r => r.wod_date === today);
   const filtered = lbLevel === 'all' ? todayRecords : todayRecords.filter(r => r.member_level === lbLevel);
-  
+
   const sorted = sortRecords(filtered);
   const userRecordsMap = {};
   sorted.forEach(r => {
@@ -144,14 +151,14 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
       userRecordsMap[r.member_name] = {
         member_name: r.member_name,
         member_level: r.member_level,
-        workout1: null,
-        workout2: null,
+        workout1Records: [],
+        workout2Records: [],
         feedbacks: []
       };
     }
-    if (r.workout_type === 'workout1') userRecordsMap[r.member_name].workout1 = r;
-    if (r.workout_type === 'workout2') userRecordsMap[r.member_name].workout2 = r;
-    
+    if (r.workout_type === 'workout1') userRecordsMap[r.member_name].workout1Records.push(r);
+    if (r.workout_type === 'workout2') userRecordsMap[r.member_name].workout2Records.push(r);
+
     const fbs = (recordFeedback || []).filter(f => f.record_id === r.id);
     if (fbs.length > 0) {
       userRecordsMap[r.member_name].feedbacks.push(...fbs);
@@ -385,13 +392,14 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
               const s = LEVEL_STYLE[user.member_level] || LEVEL_STYLE.Beginner;
               const fbs = user.feedbacks;
               const isExp = expanded === user.member_name;
-              const primaryRecordId = user.workout2?.id || user.workout1?.id;
+              const primaryRecordId = user.workout2Records[0]?.id || user.workout1Records[0]?.id;
+              const canEdit = isAdmin || user.member_name === displayName;
 
               return (
                 <div key={user.member_name} className="rp-lb-card glass-card">
                   <div className="rp-lb-main">
                     <div className="rp-lb-rank">#{idx + 1}</div>
-                    
+
                     <div className="rp-lb-info" style={{ minWidth: '100px' }}>
                       <div className="rp-lb-name-row">
                         <span className="rp-lb-name">{user.member_name}</span>
@@ -402,29 +410,33 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
                     </div>
 
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', flex: 1, justifyContent: 'flex-end', marginRight: '0.5rem' }}>
-                      {user.workout1 && (
+                      {user.workout1Records.length > 0 && (
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
                           <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 800 }}>WORKOUT 1</span>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                            <span className="rp-lb-value" style={{ color: '#ededed' }}>{user.workout1.record_value}</span>
-                            {(isAdmin || user.member_name === displayName) && (
-                              <button onClick={() => deleteWorkoutRecord(user.workout1.id)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '0 2px' }} title="기록 삭제">
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                            <span className="rp-lb-value" style={{ color: '#ededed' }}>
+                              {user.workout1Records.map(r => abbrev(r)).join(', ')}
+                            </span>
+                            {canEdit && user.workout1Records.map(r => (
+                              <button key={r.id} onClick={() => deleteWorkoutRecord(r.id)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '0 2px' }} title="기록 삭제">
                                 <Trash2 size={12} />
                               </button>
-                            )}
+                            ))}
                           </div>
                         </div>
                       )}
-                      {user.workout2 && (
+                      {user.workout2Records.length > 0 && (
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
                           <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 800 }}>WORKOUT 2</span>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                            <span className="rp-lb-value">{user.workout2.record_value}</span>
-                            {(isAdmin || user.member_name === displayName) && (
-                              <button onClick={() => deleteWorkoutRecord(user.workout2.id)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '0 2px' }} title="기록 삭제">
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                            <span className="rp-lb-value">
+                              {user.workout2Records.map(r => abbrev(r)).join(', ')}
+                            </span>
+                            {canEdit && user.workout2Records.map(r => (
+                              <button key={r.id} onClick={() => deleteWorkoutRecord(r.id)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '0 2px' }} title="기록 삭제">
                                 <Trash2 size={12} />
                               </button>
-                            )}
+                            ))}
                           </div>
                         </div>
                       )}
