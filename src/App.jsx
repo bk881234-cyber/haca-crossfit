@@ -146,7 +146,10 @@ function AppShell() {
       (profilesData || []).forEach(p => {
         const dName = p.nickname || p.name;
         if (!dName) return;
-        const member = (membersData || []).find(m => norm(m.phone) === norm(p.phone));
+        const pPhone = norm(p.phone);
+        // phone 매칭 우선, phone 없으면 실명(name) 매칭 폴백
+        let member = pPhone ? (membersData || []).find(m => norm(m.phone) === pPhone) : null;
+        if (!member && p.name) member = (membersData || []).find(m => m.name === p.name);
         if (member) lvlMap[dName] = member.level || 'Beginner';
       });
       setMemberLevelMap(lvlMap);
@@ -346,7 +349,9 @@ function AppShell() {
     (pData || []).forEach(p => {
       const dName = p.nickname || p.name;
       if (!dName) return;
-      const m = updatedMembers.find(mb => norm(mb.phone) === norm(p.phone));
+      const pPhone = norm(p.phone);
+      let m = pPhone ? updatedMembers.find(mb => norm(mb.phone) === pPhone) : null;
+      if (!m && p.name) m = updatedMembers.find(mb => mb.name === p.name);
       if (m) lvlMap[dName] = m.level || 'Beginner';
     });
     setMemberLevelMap(lvlMap);
