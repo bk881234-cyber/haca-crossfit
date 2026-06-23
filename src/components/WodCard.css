@@ -14,10 +14,10 @@
 /* Date bar — above both blocks */
 .wod-date-top {
   grid-column: 1 / -1;
-  font-size: 0.78rem;
-  color: var(--accent);
-  font-weight: 700;
-  letter-spacing: 1px;
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  font-weight: 800;
+  letter-spacing: 0;
   padding: 0 0.25rem 0.25rem;
 }
 
@@ -71,6 +71,15 @@
 
 .workout1-block .wod-block-type { color: #ededed; }
 .workout2-block .wod-block-type { color: var(--accent); }
+
+.wod-block-num {
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+}
+
+.workout1-block .wod-block-num { color: #ededed; }
+.workout2-block .wod-block-num { color: var(--accent); }
 
 .wod-block-sub {
   font-size: 0.95rem;

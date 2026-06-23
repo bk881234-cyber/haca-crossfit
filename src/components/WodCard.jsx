@@ -9,7 +9,7 @@ const WodCard = ({ wod, large = false }) => {
     <div className="wod-block workout1-block">
       <div className="wod-block-header">
         <div>
-          <div className="wod-block-type">WORKOUT 1</div>
+          <div className="wod-block-num">01</div>
           <div className="wod-block-sub">Strength &amp; Accessory</div>
         </div>
       </div>
@@ -21,7 +21,7 @@ const WodCard = ({ wod, large = false }) => {
     <div className="wod-block workout2-block">
       <div className="wod-block-header">
         <div>
-          <div className="wod-block-type">WORKOUT 2</div>
+          <div className="wod-block-num">02</div>
           <div className="wod-block-sub">WOD</div>
         </div>
       </div>
