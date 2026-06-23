@@ -96,6 +96,7 @@ function AppShell() {
 
       setWods((wodsData || []).map(w => ({
         id: w.id, date: w.date, title: w.title, type: w.type,
+        workout1Title: w.workout1_title, workout1Description: w.workout1_description,
         timeLimit: w.time_limit, rxd: w.rxd, scaled: w.scaled, description: w.description,
       })));
 
@@ -111,7 +112,7 @@ function AppShell() {
       })));
 
       setMembers((membersData || []).map(m => ({
-        id: m.id, name: m.name, phone: m.phone,
+        id: m.id, name: m.name, phone: m.phone, level: m.level,
         attendanceCount: m.attendance_count, membershipExpiry: m.membership_expiry, status: m.status,
       })));
 
@@ -204,7 +205,11 @@ function AppShell() {
 
   // ── WOD ──
   const addWod = async (newWod) => {
-    const { data, error } = await supabase.from('wods').insert({ date: newWod.date, title: newWod.title, type: newWod.type, time_limit: newWod.timeLimit, rxd: newWod.rxd, scaled: newWod.scaled, description: newWod.description }).select().single();
+    const { data, error } = await supabase.from('wods').insert({
+      date: newWod.date, title: newWod.title, type: newWod.type,
+      workout1_title: newWod.workout1Title, workout1_description: newWod.workout1Description,
+      time_limit: newWod.timeLimit, rxd: newWod.rxd, scaled: newWod.scaled, description: newWod.description
+    }).select().single();
     if (error) { console.error(error); return; }
     setWods(prev => [{ ...newWod, id: data.id }, ...prev]);
   };
@@ -307,6 +312,12 @@ function AppShell() {
     setMembers(prev => prev.map(item => item.id === memberId ? { ...item, membershipExpiry: newExpiry } : item));
   };
 
+  const setMemberLevel = async (memberId, level) => {
+    const { error } = await supabase.from('members').update({ level }).eq('id', memberId);
+    if (error) { console.error('레벨 업데이트 실패:', error.message); alert('저장 실패: ' + error.message); return; }
+    setMembers(prev => prev.map(item => item.id === memberId ? { ...item, level } : item));
+  };
+
   const setMemberExpiryDate = async (memberId, dateStr) => {
     if (!dateStr) return;
     const { error } = await supabase.from('members').update({ membership_expiry: dateStr }).eq('id', memberId);
@@ -387,7 +398,7 @@ function AppShell() {
           <AdminDashboard
             addWod={addWod}
             classes={classes} addClassSlot={addClassSlot} deleteClassSlot={deleteClassSlot}
-            members={members} setMemberExpiry={setMemberExpiry} setMemberExpiryDate={setMemberExpiryDate} toggleMemberStatus={toggleMemberStatus}
+            members={members} setMemberExpiry={setMemberExpiry} setMemberExpiryDate={setMemberExpiryDate} toggleMemberStatus={toggleMemberStatus} setMemberLevel={setMemberLevel}
             feed={feed} deleteFeedPost={deleteFeedPost}
             notices={notices} addNotice={addNotice} toggleNoticeActive={toggleNoticeActive} deleteNotice={deleteNotice}
           />

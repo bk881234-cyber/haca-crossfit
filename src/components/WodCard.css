@@ -1,8 +1,14 @@
 .wod-card-container {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
   width: 100%;
+}
+
+@media (min-width: 768px) {
+  .wod-card-container {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 /* ── Block (W1 or W2) ── */
