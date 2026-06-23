@@ -100,10 +100,12 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
 
   /* ── Leaderboard filtering ── */
   const todayRecords = (workoutRecords || []).filter(
-    r => r.wod_date === today && r.workout_type === lbWorkout
+    r => r.wod_date === today
   );
   const filtered = lbLevel === 'all' ? todayRecords : todayRecords.filter(r => r.member_level === lbLevel);
-  const sorted   = sortRecords(filtered);
+  
+  const w1Records = sortRecords(filtered.filter(r => r.workout_type === 'workout1'));
+  const w2Records = sortRecords(filtered.filter(r => r.workout_type === 'workout2'));
 
   const ls = LEVEL_STYLE[myLevel] || LEVEL_STYLE.Beginner;
 
@@ -227,15 +229,6 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
       <section className="rp-section">
         <h2 className="rp-title">오늘의 리더보드</h2>
 
-        {/* Workout filter */}
-        <div className="rp-lb-tabs">
-          {[{id:'workout1',label:'WORKOUT 1'},{id:'workout2',label:'WORKOUT 2'}].map(t => (
-            <button key={t.id} className={`rp-lb-tab ${lbWorkout === t.id ? 'active' : ''}`} onClick={() => setLbWorkout(t.id)}>
-              {t.label}
-            </button>
-          ))}
-        </div>
-
         {/* Level filter pills */}
         <div className="rp-level-pills">
           <button className={`rp-level-pill ${lbLevel === 'all' ? 'active' : ''}`} onClick={() => setLbLevel('all')}>전체</button>
@@ -255,67 +248,127 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
         </div>
 
         {/* Records */}
-        {sorted.length === 0 ? (
-          <div className="rp-empty glass-card">아직 등록된 기록이 없습니다.</div>
-        ) : (
-          <div className="rp-lb-list">
-            {sorted.map((r, idx) => {
-              const s  = LEVEL_STYLE[r.member_level] || LEVEL_STYLE.Beginner;
-              const fbs = (recordFeedback || []).filter(f => f.record_id === r.id);
-              const isExp = expanded === r.id;
-              return (
-                <div key={r.id} className="rp-lb-card glass-card">
-                  <div className="rp-lb-main">
-                    <div className="rp-lb-rank">#{idx + 1}</div>
-                    <div className="rp-lb-info">
-                      <div className="rp-lb-name-row">
-                        <span className="rp-lb-name">{r.member_name}</span>
-                        <span
-                          className="rp-lb-level"
-                          style={{ color: s.color, background: s.bg, border: `1px solid ${s.border}` }}
-                        >
-                          {r.member_level}
-                        </span>
-                      </div>
-                      <span className="rp-lb-type">{r.record_type.replace('_', ' ').toUpperCase()}</span>
-                    </div>
-                    <div className="rp-lb-value">{r.record_value}</div>
-                    <button className="rp-fb-trigger" onClick={() => setExpanded(isExp ? null : r.id)}>
-                      <MessageSquare size={15} />
-                      {fbs.length > 0 && <span className="rp-fb-count">{fbs.length}</span>}
-                      {isExp ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
-                    </button>
-                  </div>
-
-                  {isExp && (
-                    <div className="rp-fb-panel">
-                      {fbs.length === 0 && !isAdmin && <p className="rp-fb-empty">코치 피드백이 없습니다.</p>}
-                      {fbs.map(f => (
-                        <div key={f.id} className="rp-fb-item">
-                          <span className="rp-fb-author">{f.author}</span>
-                          <span className="rp-fb-content">{f.content}</span>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', marginTop: '0.5rem' }}>
+          <div>
+            <h3 style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>WORKOUT 1 (Strength)</h3>
+            {w1Records.length === 0 ? (
+              <div className="rp-empty glass-card">기록이 없습니다.</div>
+            ) : (
+              <div className="rp-lb-list">
+                {w1Records.map((r, idx) => {
+                  const s  = LEVEL_STYLE[r.member_level] || LEVEL_STYLE.Beginner;
+                  const fbs = (recordFeedback || []).filter(f => f.record_id === r.id);
+                  const isExp = expanded === r.id;
+                  return (
+                    <div key={r.id} className="rp-lb-card glass-card">
+                      <div className="rp-lb-main">
+                        <div className="rp-lb-rank">#{idx + 1}</div>
+                        <div className="rp-lb-info">
+                          <div className="rp-lb-name-row">
+                            <span className="rp-lb-name">{r.member_name}</span>
+                            <span className="rp-lb-level" style={{ color: s.color, background: s.bg, border: `1px solid ${s.border}` }}>
+                              {r.member_level}
+                            </span>
+                          </div>
+                          <span className="rp-lb-type">{r.record_type.replace('_', ' ').toUpperCase()}</span>
                         </div>
-                      ))}
-                      {isAdmin && (
-                        <div className="rp-fb-input-row">
-                          <input
-                            type="text"
-                            placeholder="코치 피드백 작성..."
-                            value={fbText}
-                            onChange={e => setFbText(e.target.value)}
-                            onKeyDown={e => e.key === 'Enter' && handleFeedback(r.id)}
-                            className="rp-fb-input"
-                          />
-                          <button type="button" className="rp-fb-send" onClick={() => handleFeedback(r.id)}>전송</button>
+                        <div className="rp-lb-value">{r.record_value}</div>
+                        <button className="rp-fb-trigger" onClick={() => setExpanded(isExp ? null : r.id)}>
+                          <MessageSquare size={15} />
+                          {fbs.length > 0 && <span className="rp-fb-count">{fbs.length}</span>}
+                          {isExp ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+                        </button>
+                      </div>
+
+                      {isExp && (
+                        <div className="rp-fb-panel">
+                          {fbs.length === 0 && !isAdmin && <p className="rp-fb-empty">코치 피드백이 없습니다.</p>}
+                          {fbs.map(f => (
+                            <div key={f.id} className="rp-fb-item">
+                              <span className="rp-fb-author">{f.author}</span>
+                              <span className="rp-fb-content">{f.content}</span>
+                            </div>
+                          ))}
+                          {isAdmin && (
+                            <div className="rp-fb-input-row">
+                              <input
+                                type="text" placeholder="코치 피드백 작성..."
+                                value={fbText} onChange={e => setFbText(e.target.value)}
+                                onKeyDown={e => e.key === 'Enter' && handleFeedback(r.id)}
+                                className="rp-fb-input"
+                              />
+                              <button type="button" className="rp-fb-send" onClick={() => handleFeedback(r.id)}>전송</button>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
-                  )}
-                </div>
-              );
-            })}
+                  );
+                })}
+              </div>
+            )}
           </div>
-        )}
+
+          <div>
+            <h3 style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>WORKOUT 2 (WOD)</h3>
+            {w2Records.length === 0 ? (
+              <div className="rp-empty glass-card">기록이 없습니다.</div>
+            ) : (
+              <div className="rp-lb-list">
+                {w2Records.map((r, idx) => {
+                  const s  = LEVEL_STYLE[r.member_level] || LEVEL_STYLE.Beginner;
+                  const fbs = (recordFeedback || []).filter(f => f.record_id === r.id);
+                  const isExp = expanded === r.id;
+                  return (
+                    <div key={r.id} className="rp-lb-card glass-card">
+                      <div className="rp-lb-main">
+                        <div className="rp-lb-rank">#{idx + 1}</div>
+                        <div className="rp-lb-info">
+                          <div className="rp-lb-name-row">
+                            <span className="rp-lb-name">{r.member_name}</span>
+                            <span className="rp-lb-level" style={{ color: s.color, background: s.bg, border: `1px solid ${s.border}` }}>
+                              {r.member_level}
+                            </span>
+                          </div>
+                          <span className="rp-lb-type">{r.record_type.replace('_', ' ').toUpperCase()}</span>
+                        </div>
+                        <div className="rp-lb-value">{r.record_value}</div>
+                        <button className="rp-fb-trigger" onClick={() => setExpanded(isExp ? null : r.id)}>
+                          <MessageSquare size={15} />
+                          {fbs.length > 0 && <span className="rp-fb-count">{fbs.length}</span>}
+                          {isExp ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+                        </button>
+                      </div>
+
+                      {isExp && (
+                        <div className="rp-fb-panel">
+                          {fbs.length === 0 && !isAdmin && <p className="rp-fb-empty">코치 피드백이 없습니다.</p>}
+                          {fbs.map(f => (
+                            <div key={f.id} className="rp-fb-item">
+                              <span className="rp-fb-author">{f.author}</span>
+                              <span className="rp-fb-content">{f.content}</span>
+                            </div>
+                          ))}
+                          {isAdmin && (
+                            <div className="rp-fb-input-row">
+                              <input
+                                type="text" placeholder="코치 피드백 작성..."
+                                value={fbText} onChange={e => setFbText(e.target.value)}
+                                onKeyDown={e => e.key === 'Enter' && handleFeedback(r.id)}
+                                className="rp-fb-input"
+                              />
+                              <button type="button" className="rp-fb-send" onClick={() => handleFeedback(r.id)}>전송</button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
       </section>
     </div>
   );
