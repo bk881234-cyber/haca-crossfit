@@ -184,7 +184,7 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
     <div className="record-page fade-in">
 
       {/* ══ RECORD UPLOAD ══ */}
-      <section className="rp-section">
+      <section className="rp-section rp-wod-col">
 
         {todayWod && (
           <div style={{ marginBottom: '2rem' }}>
@@ -298,7 +298,7 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
       </section>
 
       {/* ══ LEADERBOARD ══ */}
-      <section className="rp-section">
+      <section className="rp-section rp-lb-col">
         <h2 className="rp-title">오늘의 리더보드</h2>
 
         <div className="rp-level-pills">

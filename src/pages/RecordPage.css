@@ -7,6 +7,36 @@
   gap: 2rem;
 }
 
+/* PC: WOD+폼 왼쪽, 리더보드 오른쪽 고정 */
+@media (min-width: 1024px) {
+  .record-page {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 2rem;
+    padding-bottom: 2rem;
+  }
+
+  .rp-wod-col {
+    flex: 1.35;
+    min-width: 0;
+  }
+
+  .rp-lb-col {
+    flex: 1;
+    min-width: 360px;
+    position: sticky;
+    top: 1rem;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+    padding-right: 0.25rem;
+  }
+
+  /* 스크롤바 스타일 */
+  .rp-lb-col::-webkit-scrollbar { width: 4px; }
+  .rp-lb-col::-webkit-scrollbar-track { background: transparent; }
+  .rp-lb-col::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 2px; }
+}
+
 .rp-section {
   display: flex;
   flex-direction: column;
