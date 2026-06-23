@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Send, MessageSquare, ChevronDown, ChevronUp, Trophy } from 'lucide-react';
+import { Send, MessageSquare, ChevronDown, ChevronUp, Trophy, Trash2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import WodCard from '../components/WodCard';
 import './RecordPage.css';
@@ -42,7 +42,7 @@ const sortRecords = (records) =>
     return 0;
   });
 
-export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutRecord, addRecordFeedback, isAdmin, wods }) {
+export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutRecord, deleteWorkoutRecord, addRecordFeedback, isAdmin, wods }) {
   const { displayName, profile } = useAuth();
   const myLevel = profile?.level || 'Beginner';
   const today = new Date().toISOString().split('T')[0];
@@ -99,13 +99,38 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
   };
 
   /* ── Leaderboard filtering ── */
-  const todayRecords = (workoutRecords || []).filter(
-    r => r.wod_date === today
-  );
+  const todayRecords = (workoutRecords || []).filter(r => r.wod_date === today);
   const filtered = lbLevel === 'all' ? todayRecords : todayRecords.filter(r => r.member_level === lbLevel);
   
-  const w1Records = sortRecords(filtered.filter(r => r.workout_type === 'workout1'));
-  const w2Records = sortRecords(filtered.filter(r => r.workout_type === 'workout2'));
+  const sorted = sortRecords(filtered);
+  const userRecordsMap = {};
+  sorted.forEach(r => {
+    if (!userRecordsMap[r.member_name]) {
+      userRecordsMap[r.member_name] = {
+        member_name: r.member_name,
+        member_level: r.member_level,
+        workout1: null,
+        workout2: null,
+        feedbacks: []
+      };
+    }
+    if (r.workout_type === 'workout1') userRecordsMap[r.member_name].workout1 = r;
+    if (r.workout_type === 'workout2') userRecordsMap[r.member_name].workout2 = r;
+    
+    const fbs = (recordFeedback || []).filter(f => f.record_id === r.id);
+    if (fbs.length > 0) {
+      userRecordsMap[r.member_name].feedbacks.push(...fbs);
+    }
+  });
+
+  const groupedRecords = [];
+  const seenUsers = new Set();
+  sorted.forEach(r => {
+    if (!seenUsers.has(r.member_name)) {
+      seenUsers.add(r.member_name);
+      groupedRecords.push(userRecordsMap[r.member_name]);
+    }
+  });
 
   const ls = LEVEL_STYLE[myLevel] || LEVEL_STYLE.Beginner;
 
@@ -248,127 +273,93 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
         </div>
 
         {/* Records */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', marginTop: '0.5rem' }}>
-          <div>
-            <h3 style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>WORKOUT 1 (Strength)</h3>
-            {w1Records.length === 0 ? (
-              <div className="rp-empty glass-card">기록이 없습니다.</div>
-            ) : (
-              <div className="rp-lb-list">
-                {w1Records.map((r, idx) => {
-                  const s  = LEVEL_STYLE[r.member_level] || LEVEL_STYLE.Beginner;
-                  const fbs = (recordFeedback || []).filter(f => f.record_id === r.id);
-                  const isExp = expanded === r.id;
-                  return (
-                    <div key={r.id} className="rp-lb-card glass-card">
-                      <div className="rp-lb-main">
-                        <div className="rp-lb-rank">#{idx + 1}</div>
-                        <div className="rp-lb-info">
-                          <div className="rp-lb-name-row">
-                            <span className="rp-lb-name">{r.member_name}</span>
-                            <span className="rp-lb-level" style={{ color: s.color, background: s.bg, border: `1px solid ${s.border}` }}>
-                              {r.member_level}
-                            </span>
-                          </div>
-                          <span className="rp-lb-type">{r.record_type.replace('_', ' ').toUpperCase()}</span>
-                        </div>
-                        <div className="rp-lb-value">{r.record_value}</div>
-                        <button className="rp-fb-trigger" onClick={() => setExpanded(isExp ? null : r.id)}>
-                          <MessageSquare size={15} />
-                          {fbs.length > 0 && <span className="rp-fb-count">{fbs.length}</span>}
-                          {isExp ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
-                        </button>
-                      </div>
+        {groupedRecords.length === 0 ? (
+          <div className="rp-empty glass-card">아직 등록된 기록이 없습니다.</div>
+        ) : (
+          <div className="rp-lb-list">
+            {groupedRecords.map((user, idx) => {
+              const s = LEVEL_STYLE[user.member_level] || LEVEL_STYLE.Beginner;
+              const fbs = user.feedbacks;
+              const isExp = expanded === user.member_name;
+              const primaryRecordId = user.workout2?.id || user.workout1?.id;
 
-                      {isExp && (
-                        <div className="rp-fb-panel">
-                          {fbs.length === 0 && !isAdmin && <p className="rp-fb-empty">코치 피드백이 없습니다.</p>}
-                          {fbs.map(f => (
-                            <div key={f.id} className="rp-fb-item">
-                              <span className="rp-fb-author">{f.author}</span>
-                              <span className="rp-fb-content">{f.content}</span>
-                            </div>
-                          ))}
-                          {isAdmin && (
-                            <div className="rp-fb-input-row">
-                              <input
-                                type="text" placeholder="코치 피드백 작성..."
-                                value={fbText} onChange={e => setFbText(e.target.value)}
-                                onKeyDown={e => e.key === 'Enter' && handleFeedback(r.id)}
-                                className="rp-fb-input"
-                              />
-                              <button type="button" className="rp-fb-send" onClick={() => handleFeedback(r.id)}>전송</button>
-                            </div>
-                          )}
+              return (
+                <div key={user.member_name} className="rp-lb-card glass-card">
+                  <div className="rp-lb-main">
+                    <div className="rp-lb-rank">#{idx + 1}</div>
+                    
+                    <div className="rp-lb-info" style={{ minWidth: '100px' }}>
+                      <div className="rp-lb-name-row">
+                        <span className="rp-lb-name">{user.member_name}</span>
+                        <span className="rp-lb-level" style={{ color: s.color, background: s.bg, border: `1px solid ${s.border}` }}>
+                          {user.member_level}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', flex: 1, justifyContent: 'flex-end', marginRight: '0.5rem' }}>
+                      {user.workout1 && (
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                          <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 800 }}>WORKOUT 1</span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                            <span className="rp-lb-value" style={{ color: '#ededed' }}>{user.workout1.record_value}</span>
+                            {(isAdmin || user.member_name === displayName) && (
+                              <button onClick={() => deleteWorkoutRecord(user.workout1.id)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '0 2px' }} title="기록 삭제">
+                                <Trash2 size={12} />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      {user.workout2 && (
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                          <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 800 }}>WORKOUT 2</span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                            <span className="rp-lb-value">{user.workout2.record_value}</span>
+                            {(isAdmin || user.member_name === displayName) && (
+                              <button onClick={() => deleteWorkoutRecord(user.workout2.id)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '0 2px' }} title="기록 삭제">
+                                <Trash2 size={12} />
+                              </button>
+                            )}
+                          </div>
                         </div>
                       )}
                     </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
 
-          <div>
-            <h3 style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>WORKOUT 2 (WOD)</h3>
-            {w2Records.length === 0 ? (
-              <div className="rp-empty glass-card">기록이 없습니다.</div>
-            ) : (
-              <div className="rp-lb-list">
-                {w2Records.map((r, idx) => {
-                  const s  = LEVEL_STYLE[r.member_level] || LEVEL_STYLE.Beginner;
-                  const fbs = (recordFeedback || []).filter(f => f.record_id === r.id);
-                  const isExp = expanded === r.id;
-                  return (
-                    <div key={r.id} className="rp-lb-card glass-card">
-                      <div className="rp-lb-main">
-                        <div className="rp-lb-rank">#{idx + 1}</div>
-                        <div className="rp-lb-info">
-                          <div className="rp-lb-name-row">
-                            <span className="rp-lb-name">{r.member_name}</span>
-                            <span className="rp-lb-level" style={{ color: s.color, background: s.bg, border: `1px solid ${s.border}` }}>
-                              {r.member_level}
-                            </span>
-                          </div>
-                          <span className="rp-lb-type">{r.record_type.replace('_', ' ').toUpperCase()}</span>
+                    <button className="rp-fb-trigger" onClick={() => setExpanded(isExp ? null : user.member_name)}>
+                      <MessageSquare size={15} />
+                      {fbs.length > 0 && <span className="rp-fb-count">{fbs.length}</span>}
+                      {isExp ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+                    </button>
+                  </div>
+
+                  {isExp && (
+                    <div className="rp-fb-panel">
+                      {fbs.length === 0 && !isAdmin && <p className="rp-fb-empty">코치 피드백이 없습니다.</p>}
+                      {fbs.map((f, i) => (
+                        <div key={f.id || i} className="rp-fb-item">
+                          <span className="rp-fb-author">{f.author}</span>
+                          <span className="rp-fb-content">{f.content}</span>
                         </div>
-                        <div className="rp-lb-value">{r.record_value}</div>
-                        <button className="rp-fb-trigger" onClick={() => setExpanded(isExp ? null : r.id)}>
-                          <MessageSquare size={15} />
-                          {fbs.length > 0 && <span className="rp-fb-count">{fbs.length}</span>}
-                          {isExp ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
-                        </button>
-                      </div>
-
-                      {isExp && (
-                        <div className="rp-fb-panel">
-                          {fbs.length === 0 && !isAdmin && <p className="rp-fb-empty">코치 피드백이 없습니다.</p>}
-                          {fbs.map(f => (
-                            <div key={f.id} className="rp-fb-item">
-                              <span className="rp-fb-author">{f.author}</span>
-                              <span className="rp-fb-content">{f.content}</span>
-                            </div>
-                          ))}
-                          {isAdmin && (
-                            <div className="rp-fb-input-row">
-                              <input
-                                type="text" placeholder="코치 피드백 작성..."
-                                value={fbText} onChange={e => setFbText(e.target.value)}
-                                onKeyDown={e => e.key === 'Enter' && handleFeedback(r.id)}
-                                className="rp-fb-input"
-                              />
-                              <button type="button" className="rp-fb-send" onClick={() => handleFeedback(r.id)}>전송</button>
-                            </div>
-                          )}
+                      ))}
+                      {isAdmin && primaryRecordId && (
+                        <div className="rp-fb-input-row">
+                          <input
+                            type="text" placeholder="코치 피드백 작성..."
+                            value={fbText} onChange={e => setFbText(e.target.value)}
+                            onKeyDown={e => e.key === 'Enter' && handleFeedback(primaryRecordId)}
+                            className="rp-fb-input"
+                          />
+                          <button type="button" className="rp-fb-send" onClick={() => handleFeedback(primaryRecordId)}>전송</button>
                         </div>
                       )}
                     </div>
-                  );
-                })}
-              </div>
-            )}
+                  )}
+                </div>
+              );
+            })}
           </div>
-        </div>
+        )}
       </section>
     </div>
   );

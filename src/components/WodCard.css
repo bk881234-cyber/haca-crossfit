@@ -149,15 +149,17 @@
 
 /* ── Large Size for Dashboard ── */
 .wod-card-container.large {
-  transform: scale(1.05);
-  transform-origin: top left;
   margin-bottom: 2rem;
-  width: 95%; /* Adjust width to prevent horizontal overflow */
+  width: 100%;
+}
+
+.wod-card-container.large .wod-block {
+  padding: 1.5rem 2rem;
 }
 
 @media (min-width: 768px) {
-  .wod-card-container.large {
-    transform: scale(1.15);
+  .wod-card-container.large .wod-block {
+    padding: 2rem 2.5rem;
   }
 }
 

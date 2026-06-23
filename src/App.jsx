@@ -253,6 +253,13 @@ function AppShell() {
     setWorkoutRecords(prev => [data, ...prev]);
   };
 
+  const deleteWorkoutRecord = async (id) => {
+    if (!window.confirm('기록을 삭제하시겠습니까?')) return;
+    const { error } = await supabase.from('workout_records').delete().eq('id', id);
+    if (error) { console.error(error); return; }
+    setWorkoutRecords(prev => prev.filter(r => r.id !== id));
+  };
+
   const addRecordFeedback = async (recordId, content) => {
     const { data, error } = await supabase.from('record_feedback').insert({ record_id: recordId, author: displayName, content }).select().single();
     if (error) { console.error(error); return; }
@@ -348,7 +355,7 @@ function AppShell() {
       case 'wod': return <UserHome wods={wods} classes={classes} myReservations={myReservations} members={members} setCurrentPage={setCurrentPage} leaderboard={leaderboard} addLeaderboardRecord={addLeaderboardRecord} notices={notices} monthlyAttendance={monthlyAttendance} workoutRecords={workoutRecords} />;
       case 'reservation': return <ReservationPage classes={classes} myReservations={myReservations} toggleBooking={toggleBooking} allReservations={allReservations} />;
       case 'feed': return <CommunityPage feed={feed} addFeedPost={addFeedPost} toggleLikeFeed={toggleLikeFeed} addCommentToFeed={addCommentToFeed} notices={notices} />;
-      case 'record': return <RecordPage workoutRecords={workoutRecords} recordFeedback={recordFeedback} addWorkoutRecord={addWorkoutRecord} addRecordFeedback={addRecordFeedback} isAdmin={isAdmin} wods={wods} />;
+      case 'record': return <RecordPage workoutRecords={workoutRecords} recordFeedback={recordFeedback} addWorkoutRecord={addWorkoutRecord} deleteWorkoutRecord={deleteWorkoutRecord} addRecordFeedback={addRecordFeedback} isAdmin={isAdmin} wods={wods} />;
       case 'schedule': return <SchedulePage />;
       case 'location': return <LocationPage />;
       case 'profile': return <ProfilePage setCurrentPage={setCurrentPage} />;
