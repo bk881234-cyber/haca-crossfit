@@ -148,3 +148,25 @@
   z-index: 1;
   backdrop-filter: blur(2px);
 }
+
+/* ── Large Size for Dashboard ── */
+.wod-card-container.large {
+  transform: scale(1.05);
+  transform-origin: top left;
+  margin-bottom: 2rem;
+  width: 95%; /* Adjust width to prevent horizontal overflow */
+}
+
+@media (min-width: 768px) {
+  .wod-card-container.large {
+    transform: scale(1.15);
+  }
+}
+
+.wod-card-container.large .wod-title {
+  font-size: 1.8rem;
+}
+
+.wod-card-container.large .wod-pre {
+  font-size: 1.1rem;
+}

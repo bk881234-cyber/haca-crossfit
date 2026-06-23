@@ -116,8 +116,8 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
 
         {/* 오늘의 WOD 표시 */}
         {todayWod && (
-          <div style={{ marginBottom: '1.5rem' }}>
-            <WodCard wod={todayWod} />
+          <div style={{ marginBottom: '2rem' }}>
+            <WodCard wod={todayWod} large={true} />
           </div>
         )}
 
