@@ -355,7 +355,11 @@ function AppShell() {
       case 'wod': return <UserHome wods={wods} classes={classes} myReservations={myReservations} members={members} setCurrentPage={setCurrentPage} leaderboard={leaderboard} addLeaderboardRecord={addLeaderboardRecord} notices={notices} monthlyAttendance={monthlyAttendance} workoutRecords={workoutRecords} />;
       case 'reservation': return <ReservationPage classes={classes} myReservations={myReservations} toggleBooking={toggleBooking} allReservations={allReservations} />;
       case 'feed': return <CommunityPage feed={feed} addFeedPost={addFeedPost} toggleLikeFeed={toggleLikeFeed} addCommentToFeed={addCommentToFeed} notices={notices} />;
-      case 'record': return <RecordPage workoutRecords={workoutRecords} recordFeedback={recordFeedback} addWorkoutRecord={addWorkoutRecord} deleteWorkoutRecord={deleteWorkoutRecord} addRecordFeedback={addRecordFeedback} isAdmin={isAdmin} wods={wods} />;
+      case 'record': {
+        const myMember = members.find(m => m.name === displayName);
+        const myMemberLevel = myMember?.level || 'Beginner';
+        return <RecordPage workoutRecords={workoutRecords} recordFeedback={recordFeedback} addWorkoutRecord={addWorkoutRecord} deleteWorkoutRecord={deleteWorkoutRecord} addRecordFeedback={addRecordFeedback} isAdmin={isAdmin} wods={wods} memberLevel={myMemberLevel} />;
+      }
       case 'schedule': return <SchedulePage />;
       case 'location': return <LocationPage />;
       case 'profile': return <ProfilePage setCurrentPage={setCurrentPage} />;

@@ -50,9 +50,9 @@ const sortRecords = (records) =>
     return 0;
   });
 
-export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutRecord, deleteWorkoutRecord, addRecordFeedback, isAdmin, wods }) {
-  const { displayName, profile } = useAuth();
-  const myLevel = profile?.level || 'Beginner';
+export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutRecord, deleteWorkoutRecord, addRecordFeedback, isAdmin, wods, memberLevel }) {
+  const { displayName } = useAuth();
+  const myLevel = memberLevel || 'Beginner';
   const today = new Date().toISOString().split('T')[0];
   const todayWod = wods?.find(w => w.date === today) || wods?.[0];
 
