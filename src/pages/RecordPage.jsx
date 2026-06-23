@@ -1,10 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Send, MessageSquare, ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import WodCard from '../components/WodCard';
 import './RecordPage.css';
 
 const LEVELS = ['Black', 'Red', 'Yellow', 'White', 'Rainbow', 'Beginner'];
+
+const WOD_TYPE_MAP = {
+  'For Time': 'for_time',
+  'AMRAP':    'amrap',
+  'EMOM':     'reps',
+  'Tabata':   'reps',
+};
 
 const LEVEL_STYLE = {
   Black:    { color: '#ffffff', bg: 'rgba(255,255,255,0.07)', border: '#555' },
@@ -61,6 +68,18 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
   const [weightVal, setWeightVal] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [justSaved, setJustSaved]   = useState(false);
+
+  /* ── Auto record type detection ── */
+  const [manualType, setManualType] = useState(false);
+
+  useEffect(() => {
+    setManualType(false);
+    if (workoutTab === 'workout1') {
+      setRecordType('weight');
+    } else {
+      setRecordType(todayWod?.type ? (WOD_TYPE_MAP[todayWod.type] ?? 'for_time') : 'for_time');
+    }
+  }, [workoutTab, todayWod?.type]);
 
   /* ── Leaderboard state ── */
   const [lbLevel, setLbLevel] = useState('all');
@@ -196,20 +215,48 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
             </div>
           </div>
 
-          {/* Record type grid */}
-          <div className="rp-type-grid">
-            {RECORD_TYPES.map(rt => (
-              <button
-                key={rt.id}
-                type="button"
-                className={`rp-type-btn ${recordType === rt.id ? 'active' : ''}`}
-                onClick={() => setRecordType(rt.id)}
-              >
-                <span className="rp-type-label">{rt.label}</span>
-                {rt.ex && <span className="rp-type-ex">{rt.ex}</span>}
+          {/* Record type — auto-detected or manual */}
+          {manualType ? (
+            <div>
+              <div className="rp-type-grid">
+                {RECORD_TYPES.map(rt => (
+                  <button
+                    key={rt.id}
+                    type="button"
+                    className={`rp-type-btn ${recordType === rt.id ? 'active' : ''}`}
+                    onClick={() => setRecordType(rt.id)}
+                  >
+                    <span className="rp-type-label">{rt.label}</span>
+                    {rt.ex && <span className="rp-type-ex">{rt.ex}</span>}
+                  </button>
+                ))}
+              </div>
+              <button type="button" className="rp-cancel-manual" onClick={() => {
+                setManualType(false);
+                if (workoutTab === 'workout1') setRecordType('weight');
+                else setRecordType(todayWod?.type ? (WOD_TYPE_MAP[todayWod.type] ?? 'for_time') : 'for_time');
+              }}>↩ 자동 감지로 되돌리기</button>
+            </div>
+          ) : (
+            <div className="rp-auto-type-row">
+              <div className="rp-auto-badge">
+                <span className="rp-auto-icon">⚡</span>
+                <div>
+                  <span className="rp-auto-label">{RECORD_TYPES.find(r => r.id === recordType)?.label}</span>
+                  <span className="rp-auto-source">
+                    {workoutTab === 'workout1'
+                      ? '스트렝스 — 무게 자동 선택'
+                      : todayWod?.type
+                        ? `WOD 타입: ${todayWod.type}`
+                        : '기본값'}
+                  </span>
+                </div>
+              </div>
+              <button type="button" className="rp-override-btn" onClick={() => setManualType(true)}>
+                직접 변경
               </button>
-            ))}
-          </div>
+            </div>
+          )}
 
           {/* Dynamic input */}
           <div className="rp-input-area">
