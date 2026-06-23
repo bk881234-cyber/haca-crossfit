@@ -8,9 +8,9 @@ const WodCard = ({ wod, large = false }) => {
     {wod?.workout1Title && (
     <div className="wod-block workout1-block">
       <div className="wod-block-header">
-        <div>
-          <div className="wod-block-num">01</div>
-          <div className="wod-block-sub">Strength &amp; Accessory</div>
+        <div className="wod-block-label-row">
+          <span className="wod-block-num">01</span>
+          <span className="wod-block-sub">Strength &amp; Accessory</span>
         </div>
       </div>
       <h3 className="wod-title">{wod.workout1Title}</h3>
@@ -20,9 +20,9 @@ const WodCard = ({ wod, large = false }) => {
 
     <div className="wod-block workout2-block">
       <div className="wod-block-header">
-        <div>
-          <div className="wod-block-num">02</div>
-          <div className="wod-block-sub">WOD</div>
+        <div className="wod-block-label-row">
+          <span className="wod-block-num">02</span>
+          <span className="wod-block-sub">WOD</span>
         </div>
       </div>
       <h3 className="wod-title">{wod.title}</h3>
