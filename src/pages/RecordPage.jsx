@@ -18,6 +18,7 @@ const LEVEL_STYLE = {
 const RECORD_TYPES = [
   { id: 'for_time',  label: 'FOR TIME',    ex: '예) 10:37' },
   { id: 'amrap',     label: 'AMRAP',        ex: '예) 5R + 37' },
+  { id: 'reps',      label: 'REPS',         ex: '예) 154 REPS' },
   { id: 'fail_done', label: 'FAIL / DONE',  ex: '' },
   { id: 'weight',    label: 'WEIGHT',       ex: '예) 105 LB' },
 ];
@@ -55,6 +56,7 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
   const [timeSec, setTimeSec]   = useState('');
   const [amrapRounds, setAmrapRounds] = useState('');
   const [amrapReps, setAmrapReps] = useState('');
+  const [onlyReps, setOnlyReps]   = useState('');
   const [failDone, setFailDone] = useState('DONE');
   const [weightVal, setWeightVal] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -72,9 +74,13 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
       const rounds = parseInt(amrapRounds) || 0;
       const reps = parseInt(amrapReps) || 0;
       if (rounds === 0 && reps === 0) return '';
-      if (rounds > 0 && reps > 0) return `${rounds}R + ${reps}`;
-      if (rounds > 0 && reps === 0) return `${rounds}R`;
-      if (rounds === 0 && reps > 0) return `${reps} REPS`;
+      if (reps > 0) return `${rounds}R + ${reps}`;
+      return `${rounds}R`;
+    }
+    if (recordType === 'reps') {
+      const reps = parseInt(onlyReps) || 0;
+      if (reps === 0) return '';
+      return `${reps} REPS`;
     }
     if (recordType === 'fail_done') return failDone;
     if (recordType === 'weight')    return `${weightVal} LB`;
@@ -96,7 +102,7 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
     });
     setSubmitting(false);
     setJustSaved(true);
-    setTimeMin(''); setTimeSec(''); setAmrapRounds(''); setAmrapReps(''); setWeightVal('');
+    setTimeMin(''); setTimeSec(''); setAmrapRounds(''); setAmrapReps(''); setOnlyReps(''); setWeightVal('');
     setTimeout(() => setJustSaved(false), 2500);
   };
 
@@ -236,6 +242,16 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
                   value={amrapReps} onChange={e => setAmrapReps(e.target.value)}
                   className="rp-time-input" style={{ width: '100px' }}
                 />
+              </div>
+            )}
+            {recordType === 'reps' && (
+              <div className="rp-weight-row">
+                <input
+                  type="number" min="0" placeholder="총 랩스"
+                  value={onlyReps} onChange={e => setOnlyReps(e.target.value)}
+                  className="rp-weight-input" style={{ width: '120px' }}
+                />
+                <span className="rp-unit">REPS</span>
               </div>
             )}
             {recordType === 'fail_done' && (
