@@ -3,11 +3,11 @@ import './WodCard.css';
 const WodCard = ({ wod, large = false }) => {
   return (
   <div className={`wod-card-container ${large ? 'large' : ''}`}>
-    {wod?.date && <div className="wod-date-top">{wod.date}</div>}
+    {wod?.date && <div className="wod-date-top">WORKOUT ({wod.date})</div>}
+
     {wod?.workout1Title && (
     <div className="wod-block workout1-block">
       <div className="wod-block-header">
-        <span className="wod-block-num">01</span>
         <div>
           <div className="wod-block-type">WORKOUT 1</div>
           <div className="wod-block-sub">Strength &amp; Accessory</div>
@@ -20,7 +20,6 @@ const WodCard = ({ wod, large = false }) => {
 
     <div className="wod-block workout2-block">
       <div className="wod-block-header">
-        <span className="wod-block-num">02</span>
         <div>
           <div className="wod-block-type">WORKOUT 2</div>
           <div className="wod-block-sub">WOD</div>
