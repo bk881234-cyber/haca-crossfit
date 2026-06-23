@@ -1,4 +1,4 @@
-import { Home, Calendar, Users, LayoutGrid, MapPin } from 'lucide-react';
+import { Home, Calendar, Users, LayoutGrid, MapPin, Trophy } from 'lucide-react';
 import './Navbar.css';
 
 const Navbar = ({ currentPage, setCurrentPage }) => {
