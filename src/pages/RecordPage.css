@@ -1,10 +1,10 @@
 .record-page {
-  padding: 1rem;
+  padding: 1.5rem;
   padding-bottom: 5rem;
   color: var(--text-primary);
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.5rem;
 }
 
 /* PC: WOD+폼 왼쪽 70%, 리더보드 오른쪽 30%, 날짜히스토리 전체너비 */
@@ -13,7 +13,7 @@
     flex-direction: row;
     flex-wrap: wrap;
     align-items: flex-start;
-    gap: 2rem;
+    gap: 1.5rem;
     padding-bottom: 2rem;
   }
 
@@ -30,8 +30,6 @@
     max-height: calc(100vh - 2rem);
     overflow-y: auto;
     padding-right: 0.25rem;
-    /* WOD date 텍스트 높이만큼 내려서 카드 상단 라인 맞춤 */
-    padding-top: 1.6rem;
   }
 
   .rp-lb-col::-webkit-scrollbar { width: 4px; }
@@ -42,7 +40,7 @@
 .rp-section {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
 .rp-title {

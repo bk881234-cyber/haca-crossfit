@@ -207,7 +207,7 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
 
       {/* ══ LEFT: WOD + form + 날짜별 기록 ══ */}
       <section className="rp-section rp-wod-col">
-        {todayWod && <div style={{ marginBottom: '2rem' }}><WodCard wod={todayWod} large={true} /></div>}
+        {todayWod && <WodCard wod={todayWod} large={true} />}
 
         <form className="rp-form glass-card" onSubmit={handleSubmit}>
           <div className="rp-workout-tabs">
