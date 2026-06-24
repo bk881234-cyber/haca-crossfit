@@ -17,11 +17,6 @@
     padding-bottom: 2rem;
   }
 
-  .rp-dh-wrapper {
-    flex: 0 0 100%;
-    width: 100%;
-  }
-
   .rp-wod-col {
     flex: 7;
     min-width: 0;
