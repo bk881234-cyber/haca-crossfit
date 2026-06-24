@@ -1,14 +1,16 @@
 import { useState } from 'react';
-import { User, Save, ArrowLeft, Check, Phone, Calendar } from 'lucide-react';
+import { User, Save, ArrowLeft, Check, Phone, Calendar, Camera, Loader2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 import './ProfilePage.css';
 
 export default function ProfilePage({ setCurrentPage }) {
-  const { profile, displayName, updateProfile } = useAuth();
+  const { user, profile, displayName, updateProfile } = useAuth();
   const [nickname, setNickname] = useState(profile?.nickname || '');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
+  const [uploading, setUploading] = useState(false);
 
   const handleSave = async () => {
     if (!nickname.trim()) { setError('닉네임을 입력해주세요.'); return; }
@@ -19,6 +21,34 @@ export default function ProfilePage({ setCurrentPage }) {
     if (error) { setError('저장 실패: ' + error.message); return; }
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
+  };
+
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { setError('이미지 파일만 업로드 가능합니다.'); return; }
+    if (file.size > 3 * 1024 * 1024) { setError('3MB 이하 이미지만 업로드 가능합니다.'); return; }
+
+    setUploading(true);
+    setError('');
+
+    const ext = file.name.split('.').pop().toLowerCase() || 'jpg';
+    const path = `${user.id}/avatar.${ext}`;
+
+    const { error: upErr } = await supabase.storage
+      .from('avatars')
+      .upload(path, file, { upsert: true, contentType: file.type });
+
+    if (upErr) { setError('업로드 실패: ' + upErr.message); setUploading(false); return; }
+
+    const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path);
+    const avatarUrl = `${publicUrl}?t=${Date.now()}`;
+
+    const { error: profileErr } = await updateProfile({ avatar_url: avatarUrl });
+    if (profileErr) setError('프로필 저장 실패: ' + profileErr.message);
+
+    setUploading(false);
+    e.target.value = '';
   };
 
   const initials = (profile?.name || displayName || '?').slice(0, 2);
@@ -35,11 +65,29 @@ export default function ProfilePage({ setCurrentPage }) {
 
       <div className="profile-avatar-section">
         <div className="profile-avatar-circle">
-          <span>{initials}</span>
+          {profile?.avatar_url ? (
+            <img src={profile.avatar_url} className="profile-avatar-img" alt="프로필" />
+          ) : (
+            <span>{initials}</span>
+          )}
+          <label className="profile-avatar-overlay" title="사진 변경">
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              style={{ display: 'none' }}
+              onChange={handleAvatarUpload}
+              disabled={uploading}
+            />
+            {uploading
+              ? <Loader2 size={16} className="profile-avatar-spin" />
+              : <Camera size={16} />}
+          </label>
         </div>
         <div className="profile-display-name">{displayName}</div>
         <div className="profile-role-badge">{profile?.role === 'admin' ? '관리자' : '회원'}</div>
       </div>
+
+      {error && <p className="profile-error" style={{ marginBottom: '1rem' }}>{error}</p>}
 
       <div className="profile-card glass-card">
         <h2 className="profile-section-title">기본 정보</h2>
@@ -85,8 +133,6 @@ export default function ProfilePage({ setCurrentPage }) {
             maxLength={20}
           />
         </div>
-
-        {error && <p className="profile-error">{error}</p>}
 
         <button
           className={`profile-save-btn ${saved ? 'saved' : ''}`}

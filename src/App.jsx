@@ -479,7 +479,9 @@ function AppShell() {
           )}
           {!isAdminRoute && (
             <button className="role-btn user" onClick={() => setCurrentPage('profile')} title="내 정보">
-              <UserCircle size={16} />
+              {profile?.avatar_url
+                ? <img src={profile.avatar_url} style={{ width: 20, height: 20, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} alt="" />
+                : <UserCircle size={16} />}
               <span className="logout-name-hide">{displayName}</span>
             </button>
           )}
