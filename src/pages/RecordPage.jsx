@@ -87,30 +87,36 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
   const [fbText, setFbText]           = useState('');
   const [showLevelDrop, setShowLevelDrop] = useState(false);
 
-  /* ── Date history ── */
+  /* ── Date history calendar ── */
   const [selectedHistoryDate, setSelectedHistoryDate] = useState(today);
-  const todayDateRef = useRef(null);
-  useEffect(() => {
-    todayDateRef.current?.scrollIntoView({ behavior: 'instant', block: 'nearest', inline: 'center' });
-  }, []);
+  const [calYear, setCalYear]   = useState(new Date().getFullYear());
+  const [calMonth, setCalMonth] = useState(new Date().getMonth()); // 0-based
 
   const DAY_NAMES = ['일', '월', '화', '수', '목', '금', '토'];
-  const historyDates = Array.from({ length: 380 }, (_, i) => {
-    const offset = i - 365;
-    const d = new Date();
-    d.setDate(d.getDate() + offset);
-    const dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-    return {
-      dateStr,
-      dayName: DAY_NAMES[d.getDay()],
-      dayNum: d.getDate(),
-      month: d.getMonth() + 1,
-      year: d.getFullYear(),
-      isToday: offset === 0,
-      isSunday: d.getDay() === 0,
-      isMonthStart: d.getDate() === 1,
-    };
-  });
+
+  const calDays = (() => {
+    const firstDay = new Date(calYear, calMonth, 1).getDay();
+    const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+    const daysInPrev  = new Date(calYear, calMonth, 0).getDate();
+    const cells = [];
+    for (let i = firstDay - 1; i >= 0; i--)
+      cells.push({ day: daysInPrev - i, cur: false });
+    for (let d = 1; d <= daysInMonth; d++)
+      cells.push({ day: d, cur: true });
+    while (cells.length % 7 !== 0)
+      cells.push({ day: cells.length - firstDay - daysInMonth + 1, cur: false });
+    return cells;
+  })();
+
+  const moveMonth = (dir) => {
+    let m = calMonth + dir, y = calYear;
+    if (m < 0) { m = 11; y--; }
+    if (m > 11) { m = 0; y++; }
+    setCalMonth(m); setCalYear(y);
+  };
+
+  const toDateStr = (y, m, d) =>
+    `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
 
   /* ── Build record value: "12:42 (F, 75LB)" ── */
   const getPrimaryValue = () => {
@@ -451,27 +457,53 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
       <div className="rp-dh-wrapper">
         <h2 className="rp-title" style={{ marginBottom: '1rem' }}>날짜별 기록</h2>
 
-        {/* Date strip */}
-        <div className="rp-dh-strip">
-          {historyDates.map((d, i) => (
-            <div key={d.dateStr} className="rp-dh-strip-item">
-              {(d.isMonthStart || i === 0) && (
-                <div className="rp-dh-month-label">{d.year}.{String(d.month).padStart(2,'0')}</div>
-              )}
-              <button
-                ref={d.isToday ? todayDateRef : null}
-                className={`rp-dh-date-btn ${selectedHistoryDate === d.dateStr ? 'active' : ''} ${d.isToday ? 'today' : ''} ${d.isSunday ? 'sunday' : ''}`}
-                onClick={() => setSelectedHistoryDate(d.dateStr)}
-              >
-                <span className="rp-dh-day">{d.dayName}</span>
-                <span className="rp-dh-num">{d.dayNum}</span>
-                <span className="rp-dh-dots">
-                  {wodDates.has(d.dateStr) && <span className="rp-dh-dot wod" />}
-                  {recordDates.has(d.dateStr) && <span className="rp-dh-dot rec" />}
-                </span>
-              </button>
-            </div>
-          ))}
+        <div className="rp-dh-body">
+        {/* Calendar */}
+        <div className="rp-cal">
+          {/* Header */}
+          <div className="rp-cal-header">
+            <button className="rp-cal-nav" onClick={() => moveMonth(-1)}>&#8593;</button>
+            <span className="rp-cal-title">{calYear}년 {calMonth + 1}월</span>
+            <button className="rp-cal-nav" onClick={() => moveMonth(1)}>&#8595;</button>
+            <button className="rp-cal-today-btn" onClick={() => {
+              setCalYear(new Date().getFullYear());
+              setCalMonth(new Date().getMonth());
+              setSelectedHistoryDate(today);
+            }}>오늘</button>
+          </div>
+          {/* Day labels */}
+          <div className="rp-cal-grid">
+            {DAY_NAMES.map(n => (
+              <div key={n} className={`rp-cal-day-label ${n === '일' ? 'sun' : ''}`}>{n}</div>
+            ))}
+            {calDays.map((cell, i) => {
+              const ds = cell.cur ? toDateStr(calYear, calMonth, cell.day) : null;
+              const hasWod = ds && wodDates.has(ds);
+              const hasRec = ds && recordDates.has(ds);
+              const isSelected = ds === selectedHistoryDate;
+              const isTod = ds === today;
+              const isSun = i % 7 === 0;
+              return (
+                <button
+                  key={i}
+                  disabled={!cell.cur}
+                  onClick={() => ds && setSelectedHistoryDate(ds)}
+                  className={`rp-cal-cell ${!cell.cur ? 'other' : ''} ${isSelected ? 'active' : ''} ${isTod ? 'today' : ''} ${isSun ? 'sun' : ''}`}
+                >
+                  <span className="rp-cal-cell-num">{cell.day}</span>
+                  <span className="rp-cal-dots">
+                    {hasWod && <span className="rp-dh-dot wod" />}
+                    {hasRec && <span className="rp-dh-dot rec" />}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          {/* Legend */}
+          <div className="rp-cal-legend">
+            <span><span className="rp-dh-dot wod" /> WOD</span>
+            <span><span className="rp-dh-dot rec" /> 기록</span>
+          </div>
         </div>
 
         {/* Selected date content */}
@@ -546,7 +578,8 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
             <div className="rp-empty glass-card">이 날짜에 등록된 기록이 없습니다.</div>
           )}
         </div>
-      </div>
+        </div>{/* rp-dh-body */}
+      </div>{/* rp-dh-wrapper */}
     </div>
   );
 }
