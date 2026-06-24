@@ -7,16 +7,23 @@
 .notif-panel {
   position: fixed;
   right: 1rem;
-  top: 56px;
+  top: 78px; /* mobile: 52px logo + 24px padding + 1px border + 1px gap */
   width: 320px;
   max-height: 420px;
   display: flex;
   flex-direction: column;
   z-index: 199;
+  background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+@media (min-width: 768px) {
+  .notif-panel {
+    top: 82px; /* desktop: 56px logo + 24px padding + 1px border + 1px gap */
+  }
 }
 
 .notif-panel-header {

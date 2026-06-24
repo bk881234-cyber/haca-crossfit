@@ -18,7 +18,7 @@ export default function NotificationPanel({ notifications, onMarkAllRead, onClos
   return (
     <>
       <div className="notif-overlay" onClick={onClose} />
-      <div className="notif-panel glass-card">
+      <div className="notif-panel">
         <div className="notif-panel-header">
           <span className="notif-panel-title">알림</span>
           {unreadCount > 0 && (
