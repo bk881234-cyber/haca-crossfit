@@ -215,6 +215,7 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
   const recordDates = new Set((workoutRecords || []).map(r => r.wod_date));
 
   return (
+    <>
     <div className="record-page fade-in">
 
       {/* ══ LEFT: WOD + form + 날짜별 기록 ══ */}
@@ -488,8 +489,10 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
         )}
       </section>
 
-      {/* ══ 전체보기 풀스크린 ══ */}
-      {showFullscreen && (
+    </div>
+
+    {/* ══ 전체보기 풀스크린 ══ */}
+    {showFullscreen && (
         <div className="rp-fs-overlay">
           <div className="rp-fs-header">
             <div>
@@ -581,6 +584,6 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
         </div>
       )}
 
-    </div>
+    </>
   );
 }
