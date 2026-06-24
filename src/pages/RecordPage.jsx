@@ -83,10 +83,11 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
   }, [workoutTab, todayWod?.type]);
 
   /* ── Leaderboard ── */
-  const [lbLevel,        setLbLevel]        = useState('all');
   const [expanded,       setExpanded]       = useState(null);
   const [fbText,         setFbText]         = useState('');
-  const [showLevelDrop,  setShowLevelDrop]  = useState(false);
+  const [showFullscreen, setShowFullscreen] = useState(false);
+  const [expandedFs,     setExpandedFs]     = useState(null);
+  const [fbTextFs,       setFbTextFs]       = useState('');
 
   /* ── Date history calendar ── */
   const [selectedDate, setSelectedDate] = useState(yesterday);
@@ -170,10 +171,7 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
 
   /* ── Leaderboard grouping ── */
   const todayRecords = (workoutRecords || []).filter(r => r.wod_date === today);
-  const filtered = lbLevel === 'all'
-    ? todayRecords
-    : todayRecords.filter(r => { const lvl = (levelMap && levelMap[r.member_name]) || r.member_level || 'Beginner'; return lvl === lbLevel; });
-  const sorted = sortRecords(filtered);
+  const sorted = sortRecords(todayRecords);
 
   const userRecordsMap = {};
   sorted.forEach(r => {
@@ -188,6 +186,20 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
   sorted.forEach(r => { if (!seenUsers.has(r.member_name)) { seenUsers.add(r.member_name); groupedRecords.push(userRecordsMap[r.member_name]); } });
 
   const currentTypeMeta = RECORD_TYPES.find(r => r.id === recordType);
+
+  /* ── 전체보기: 레벨별 그룹핑 ── */
+  const recordsByLevel = {};
+  LEVELS.forEach(l => { recordsByLevel[l] = []; });
+  groupedRecords.forEach(u => {
+    const lvl = (levelMap && levelMap[u.member_name]) || u.member_level || 'Beginner';
+    (recordsByLevel[lvl] || (recordsByLevel['Beginner'] = recordsByLevel['Beginner'] || [])).push(u);
+  });
+
+  const handleFeedbackFs = async (recordId) => {
+    if (!fbTextFs.trim()) return;
+    await addRecordFeedback(recordId, fbTextFs.trim());
+    setFbTextFs('');
+  };
 
   /* ── Date history data ── */
   const historyWod = wods?.find(w => w.date === selectedDate);
@@ -400,21 +412,7 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
       <section className="rp-lb-col">
         <div className="rp-lb-header">
           <h2 className="rp-title">오늘의 리더보드</h2>
-          <div className="rp-level-dropdown">
-            <button className="rp-level-drop-btn" onClick={() => setShowLevelDrop(s => !s)}>
-              <span style={lbLevel !== 'all' ? { color: LEVEL_STYLE[lbLevel]?.color } : {}}>{lbLevel === 'all' ? '전체' : lbLevel}</span>
-              <ChevronDown size={13} style={{ transition: '0.2s', transform: showLevelDrop ? 'rotate(180deg)' : 'none' }} />
-            </button>
-            {showLevelDrop && (
-              <div className="rp-level-drop-menu">
-                <button className={`rp-level-drop-item ${lbLevel === 'all' ? 'active' : ''}`} onClick={() => { setLbLevel('all'); setShowLevelDrop(false); }}>전체</button>
-                {LEVELS.map(l => (
-                  <button key={l} className={`rp-level-drop-item ${lbLevel === l ? 'active' : ''}`} style={{ color: LEVEL_STYLE[l]?.color }}
-                    onClick={() => { setLbLevel(l); setShowLevelDrop(false); }}>{l}</button>
-                ))}
-              </div>
-            )}
-          </div>
+          <button className="rp-fullscreen-btn" onClick={() => setShowFullscreen(true)}>전체보기</button>
         </div>
 
         {groupedRecords.length === 0 ? (
@@ -489,6 +487,99 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
           </div>
         )}
       </section>
+
+      {/* ══ 전체보기 풀스크린 ══ */}
+      {showFullscreen && (
+        <div className="rp-fs-overlay">
+          <div className="rp-fs-header">
+            <div>
+              <h2 className="rp-fs-title">오늘의 리더보드</h2>
+              <span className="rp-fs-date">{today}</span>
+            </div>
+            <button className="rp-fs-close" onClick={() => { setShowFullscreen(false); setExpandedFs(null); }}>✕</button>
+          </div>
+          <div className="rp-fs-body">
+            {LEVELS.map(level => {
+              const users = recordsByLevel[level] || [];
+              const s = LEVEL_STYLE[level] || LEVEL_STYLE.Beginner;
+              return (
+                <div key={level} className="rp-fs-col">
+                  <div className="rp-fs-col-header" style={{ color: s.color }}>
+                    {level}
+                    {users.length > 0 && <span className="rp-fs-col-count">{users.length}</span>}
+                  </div>
+                  <div className="rp-fs-col-cards">
+                    {users.length === 0 ? (
+                      <div className="rp-fs-empty">—</div>
+                    ) : users.map(u => {
+                      const canEdit = isAdmin || u.member_name === displayName;
+                      const primaryId = u.workout2Records[0]?.id || u.workout1Records[0]?.id;
+                      const fbs = u.feedbacks;
+                      const isExpFs = expandedFs === u.member_name;
+                      return (
+                        <div key={u.member_name} className={`rp-fs-card ${u.member_name === displayName ? 'mine' : ''}`}>
+                          <div className="rp-fs-card-main">
+                            <span className="rp-fs-name">{u.member_name}</span>
+                            <div className="rp-fs-records">
+                              {u.workout2Records.length > 0 && (
+                                <div className="rp-fs-rec-group">
+                                  <span className="rp-fs-rec-lbl">WORKOUT 2</span>
+                                  <div className="rp-fs-rec-row">
+                                    <span className="rp-fs-val">{u.workout2Records.map(r => abbrev(r)).join(', ')}</span>
+                                    {canEdit && u.workout2Records.map(r => (
+                                      <button key={r.id} onClick={() => deleteWorkoutRecord(r.id)} className="rp-history-del"><Trash2 size={11} /></button>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                              {u.workout1Records.length > 0 && (
+                                <div className="rp-fs-rec-group">
+                                  <span className="rp-fs-rec-lbl">WORKOUT 1</span>
+                                  <div className="rp-fs-rec-row">
+                                    <span className="rp-fs-val w1">{u.workout1Records.map(r => abbrev(r)).join(', ')}</span>
+                                    {canEdit && u.workout1Records.map(r => (
+                                      <button key={r.id} onClick={() => deleteWorkoutRecord(r.id)} className="rp-history-del"><Trash2 size={11} /></button>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                            <button className="rp-fb-trigger" onClick={() => setExpandedFs(isExpFs ? null : u.member_name)}>
+                              <MessageSquare size={13} />
+                              {fbs.length > 0 && <span className="rp-fb-count">{fbs.length}</span>}
+                              {isExpFs ? <ChevronUp size={11} /> : <ChevronDown size={11} />}
+                            </button>
+                          </div>
+                          {isExpFs && (
+                            <div className="rp-fb-panel">
+                              {fbs.length === 0 && <p className="rp-fb-empty">댓글이 없습니다.</p>}
+                              {fbs.map((f, i) => (
+                                <div key={f.id || i} className="rp-fb-item">
+                                  <span className="rp-fb-author">{f.author}</span>
+                                  <span className="rp-fb-content">{f.content}</span>
+                                </div>
+                              ))}
+                              {primaryId && (
+                                <div className="rp-fb-input-row">
+                                  <input type="text" placeholder="댓글 작성..." value={fbTextFs}
+                                    onChange={e => setFbTextFs(e.target.value)}
+                                    onKeyDown={e => e.key === 'Enter' && handleFeedbackFs(primaryId)}
+                                    className="rp-fb-input" />
+                                  <button type="button" className="rp-fb-send" onClick={() => handleFeedbackFs(primaryId)}>전송</button>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
     </div>
   );
