@@ -295,7 +295,7 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
 
         {/* ══ 날짜별 기록 ══ */}
         <div className="rp-dh-wrapper">
-          <h2 className="rp-title" style={{ marginBottom: '1rem' }}>날짜별 기록</h2>
+          <h2 className="rp-title">날짜별 기록</h2>
           <div className="rp-dh-body">
             <div className="rp-cal">
               <div className="rp-cal-header">
@@ -397,9 +397,9 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
       </section>
 
       {/* ══ RIGHT: Leaderboard ══ */}
-      <section className="rp-section rp-lb-col">
+      <section className="rp-lb-col">
         <div className="rp-lb-header">
-          <h2 className="rp-title" style={{ margin: 0 }}>오늘의 리더보드</h2>
+          <h2 className="rp-title">오늘의 리더보드</h2>
           <div className="rp-level-dropdown">
             <button className="rp-level-drop-btn" onClick={() => setShowLevelDrop(s => !s)}>
               <span style={lbLevel !== 'all' ? { color: LEVEL_STYLE[lbLevel]?.color } : {}}>{lbLevel === 'all' ? '전체' : lbLevel}</span>
