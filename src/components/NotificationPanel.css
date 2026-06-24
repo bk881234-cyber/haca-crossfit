@@ -1,0 +1,137 @@
+.notif-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 198;
+}
+
+.notif-panel {
+  position: fixed;
+  right: 1rem;
+  top: 56px;
+  width: 320px;
+  max-height: 420px;
+  display: flex;
+  flex-direction: column;
+  z-index: 199;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.notif-panel-header {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.notif-panel-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.notif-mark-all {
+  font-size: 0.75rem;
+  color: var(--accent);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  border-radius: var(--radius-sm);
+  transition: background 0.15s;
+}
+.notif-mark-all:hover { background: rgba(0, 229, 255, 0.08); }
+
+.notif-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.2rem;
+  display: flex;
+  align-items: center;
+  border-radius: var(--radius-sm);
+  transition: color 0.15s;
+}
+.notif-close:hover { color: var(--text-primary); }
+
+.notif-panel-list {
+  overflow-y: auto;
+  flex: 1;
+}
+
+.notif-empty {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.notif-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  transition: background 0.15s;
+}
+
+.notif-item.unread {
+  background: rgba(0, 229, 255, 0.05);
+}
+
+.notif-item.unread .notif-icon {
+  color: var(--accent);
+}
+
+.notif-icon {
+  color: var(--text-muted);
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.notif-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.notif-msg {
+  margin: 0 0 0.2rem;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  line-height: 1.45;
+}
+
+.notif-time {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+/* Badge on the bell button (in role-btn) */
+.notif-btn-wrap {
+  position: relative;
+}
+
+.notif-badge {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  background: var(--accent);
+  color: #000;
+  font-size: 0.6rem;
+  font-weight: 900;
+  border-radius: 50%;
+  min-width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 2px;
+  line-height: 1;
+  pointer-events: none;
+}

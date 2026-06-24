@@ -467,16 +467,16 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
                   </div>
                   {isExp && (
                     <div className="rp-fb-panel">
-                      {fbs.length === 0 && !isAdmin && <p className="rp-fb-empty">코치 피드백이 없습니다.</p>}
+                      {fbs.length === 0 && <p className="rp-fb-empty">댓글이 없습니다.</p>}
                       {fbs.map((f, i) => (
                         <div key={f.id || i} className="rp-fb-item">
                           <span className="rp-fb-author">{f.author}</span>
                           <span className="rp-fb-content">{f.content}</span>
                         </div>
                       ))}
-                      {isAdmin && primaryRecordId && (
+                      {primaryRecordId && (
                         <div className="rp-fb-input-row">
-                          <input type="text" placeholder="코치 피드백 작성..." value={fbText} onChange={e => setFbText(e.target.value)}
+                          <input type="text" placeholder="댓글 작성..." value={fbText} onChange={e => setFbText(e.target.value)}
                             onKeyDown={e => e.key === 'Enter' && handleFeedback(primaryRecordId)} className="rp-fb-input" />
                           <button type="button" className="rp-fb-send" onClick={() => handleFeedback(primaryRecordId)}>전송</button>
                         </div>

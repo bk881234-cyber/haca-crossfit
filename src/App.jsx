@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
-import { LogOut, Shield, UserCircle } from 'lucide-react';
+import { LogOut, Shield, UserCircle, Bell } from 'lucide-react';
 import { supabase } from './lib/supabase';
 import { useAuth } from './contexts/AuthContext';
 import Navbar from './components/Navbar';
@@ -14,6 +14,7 @@ import LocationPage from './pages/LocationPage';
 import SchedulePage from './pages/SchedulePage';
 import ProfilePage from './pages/ProfilePage';
 import RecordPage from './pages/RecordPage';
+import NotificationPanel from './components/NotificationPanel';
 import './App.css';
 
 const formatTimestamp = (ts) => {
@@ -68,7 +69,27 @@ function AppShell() {
   const [recordFeedback, setRecordFeedback] = useState([]);
   const [memberLevelMap, setMemberLevelMap] = useState({});
 
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifPanel, setShowNotifPanel] = useState(false);
+
+  const fetchNotifications = async () => {
+    if (!displayName) return;
+    const { data } = await supabase.from('notifications')
+      .select('*')
+      .or(`recipient_name.eq.all,recipient_name.eq.${displayName}`)
+      .order('created_at', { ascending: false })
+      .limit(50);
+    setNotifications(data || []);
+  };
+
   useEffect(() => { loadAllData(); }, [displayName]);
+
+  useEffect(() => {
+    fetchNotifications();
+    const onFocus = () => fetchNotifications();
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [displayName]);
 
   const loadAllData = async () => {
     setLoading(true);
@@ -224,7 +245,6 @@ function AppShell() {
 
   // ── WOD ──
   const addWod = async (newWod) => {
-    // UPSERT: 같은 날짜 WOD가 이미 있으면 UPDATE, 없으면 INSERT
     const { data, error } = await supabase.from('wods').upsert({
       date: newWod.date, title: newWod.title, type: newWod.type,
       workout1_title: newWod.workout1Title, workout1_description: newWod.workout1Description,
@@ -235,6 +255,12 @@ function AppShell() {
       const without = prev.filter(w => w.date !== newWod.date);
       return [{ ...newWod, id: data.id }, ...without];
     });
+    await supabase.from('notifications').insert({
+      type: 'new_wod',
+      message: `새로운 WOD가 등록되었습니다 (${newWod.date})`,
+      recipient_name: 'all',
+    });
+    fetchNotifications();
     return true;
   };
 
@@ -288,6 +314,16 @@ function AppShell() {
     const { data, error } = await supabase.from('record_feedback').insert({ record_id: recordId, author: displayName, content }).select().single();
     if (error) { console.error(error); return; }
     setRecordFeedback(prev => [...prev, data]);
+    const record = workoutRecords.find(r => r.id === recordId);
+    if (record && record.member_name !== displayName) {
+      await supabase.from('notifications').insert({
+        type: 'comment',
+        message: `${displayName}님이 회원님의 기록에 댓글을 달았습니다.`,
+        recipient_name: record.member_name,
+        record_id: recordId,
+      });
+      fetchNotifications();
+    }
   };
 
   // ── 관리자 ──
@@ -447,10 +483,30 @@ function AppShell() {
               <span className="logout-name-hide">{displayName}</span>
             </button>
           )}
+          <div className="notif-btn-wrap">
+            <button className="role-btn" onClick={() => setShowNotifPanel(s => !s)} title="알림" style={{ padding: '8px 10px' }}>
+              <Bell size={16} />
+            </button>
+            {notifications.filter(n => !n.is_read).length > 0 && (
+              <span className="notif-badge">{notifications.filter(n => !n.is_read).length > 9 ? '9+' : notifications.filter(n => !n.is_read).length}</span>
+            )}
+          </div>
           <button className="role-btn" onClick={handleSignOut} title="로그아웃" style={{ padding: '8px 10px' }}>
             <LogOut size={16} />
           </button>
         </div>
+        {showNotifPanel && (
+          <NotificationPanel
+            notifications={notifications}
+            onMarkAllRead={async () => {
+              await supabase.from('notifications').update({ is_read: true })
+                .or(`recipient_name.eq.all,recipient_name.eq.${displayName}`)
+                .eq('is_read', false);
+              setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+            }}
+            onClose={() => setShowNotifPanel(false)}
+          />
+        )}
       </div>
 
       {/* Page content */}
