@@ -164,7 +164,7 @@
 
 /* ── Large Size for Dashboard ── */
 .wod-card-container.large {
-  margin-bottom: 2rem;
+  margin-bottom: 0;
   width: 100%;
 }
 
