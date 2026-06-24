@@ -297,10 +297,42 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
         <div className="rp-dh-wrapper">
           <h2 className="rp-title" style={{ marginBottom: '1rem' }}>날짜별 기록</h2>
           <div className="rp-dh-body">
-            <div className="rp-dh-content">
-              <div className="rp-dh-selected-label">
-                {selectedDate === today ? '오늘' : selectedDate === yesterday ? '어제' : selectedDate}
+            <div className="rp-cal">
+              <div className="rp-cal-header">
+                <button className="rp-cal-nav" onClick={() => moveMonth(-1)}>&#8593;</button>
+                <span className="rp-cal-title">{calYear}년 {calMonth + 1}월</span>
+                <button className="rp-cal-nav" onClick={() => moveMonth(1)}>&#8595;</button>
+                <button className="rp-cal-today-btn" onClick={() => {
+                  setCalYear(new Date().getFullYear());
+                  setCalMonth(new Date().getMonth());
+                  setSelectedDate(yesterday);
+                }}>오늘</button>
               </div>
+              <div className="rp-cal-grid">
+                {DAY_NAMES.map(n => <div key={n} className={`rp-cal-day-label ${n === '일' ? 'sun' : ''}`}>{n}</div>)}
+                {calDays.map((cell, i) => {
+                  const ds = cell.cur ? toDateStr(calYear, calMonth, cell.day) : null;
+                  const isSun = i % 7 === 0;
+                  return (
+                    <button key={i} disabled={!cell.cur}
+                      onClick={() => ds && setSelectedDate(ds)}
+                      className={`rp-cal-cell ${!cell.cur ? 'other' : ''} ${ds === selectedDate ? 'active' : ''} ${ds === today ? 'today' : ''} ${isSun ? 'sun' : ''}`}
+                    >
+                      <span className="rp-cal-cell-num">{cell.day}</span>
+                      <span className="rp-cal-dots">
+                        {ds && wodDates.has(ds)    && <span className="rp-dh-dot wod" />}
+                        {ds && recordDates.has(ds) && <span className="rp-dh-dot rec" />}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="rp-cal-legend">
+                <span><span className="rp-dh-dot wod" /> WOD</span>
+                <span><span className="rp-dh-dot rec" /> 기록</span>
+              </div>
+            </div>
+            <div className="rp-dh-content">
               {historyWod ? (
                 <div className="rp-dh-wod glass-card">
                   <div className="rp-dh-wod-label">WORKOUT ({selectedDate})</div>
@@ -359,41 +391,6 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
               ) : (
                 <div className="rp-empty glass-card">이 날짜에 등록된 기록이 없습니다.</div>
               )}
-            </div>
-            <div className="rp-cal">
-              <div className="rp-cal-header">
-                <button className="rp-cal-nav" onClick={() => moveMonth(-1)}>&#8593;</button>
-                <span className="rp-cal-title">{calYear}년 {calMonth + 1}월</span>
-                <button className="rp-cal-nav" onClick={() => moveMonth(1)}>&#8595;</button>
-                <button className="rp-cal-today-btn" onClick={() => {
-                  setCalYear(new Date().getFullYear());
-                  setCalMonth(new Date().getMonth());
-                  setSelectedDate(yesterday);
-                }}>오늘</button>
-              </div>
-              <div className="rp-cal-grid">
-                {DAY_NAMES.map(n => <div key={n} className={`rp-cal-day-label ${n === '일' ? 'sun' : ''}`}>{n}</div>)}
-                {calDays.map((cell, i) => {
-                  const ds = cell.cur ? toDateStr(calYear, calMonth, cell.day) : null;
-                  const isSun = i % 7 === 0;
-                  return (
-                    <button key={i} disabled={!cell.cur}
-                      onClick={() => ds && setSelectedDate(ds)}
-                      className={`rp-cal-cell ${!cell.cur ? 'other' : ''} ${ds === selectedDate ? 'active' : ''} ${ds === today ? 'today' : ''} ${isSun ? 'sun' : ''}`}
-                    >
-                      <span className="rp-cal-cell-num">{cell.day}</span>
-                      <span className="rp-cal-dots">
-                        {ds && wodDates.has(ds)    && <span className="rp-dh-dot wod" />}
-                        {ds && recordDates.has(ds) && <span className="rp-dh-dot rec" />}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-              <div className="rp-cal-legend">
-                <span><span className="rp-dh-dot wod" /> WOD</span>
-                <span><span className="rp-dh-dot rec" /> 기록</span>
-              </div>
             </div>
           </div>
         </div>
