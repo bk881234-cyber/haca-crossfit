@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Send, MessageSquare, ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import WodCard from '../components/WodCard';
@@ -29,49 +29,50 @@ const RECORD_TYPES = [
   { id: 'weight',   label: 'WEIGHT',   ex: '예) 105 LB' },
 ];
 
-const parseSeconds = (v) => {
-  const m = v?.match(/^(\d+):(\d+)/);
-  return m ? parseInt(m[1]) * 60 + parseInt(m[2]) : Infinity;
-};
-const parseAmrap = (v) => {
-  const round = v?.match(/(\d+)\s*R\s*\+\s*(\d+)/i);
-  if (round) return parseInt(round[1]) * 10000 + parseInt(round[2]);
-  return parseFloat(v) || 0;
-};
-const parseWeight = (v) => parseFloat(v) || 0;
+const parseSeconds = (v) => { const m = v?.match(/^(\d+):(\d+)/); return m ? parseInt(m[1])*60+parseInt(m[2]) : Infinity; };
+const parseAmrap   = (v) => { const r = v?.match(/(\d+)\s*R\s*\+\s*(\d+)/i); if (r) return parseInt(r[1])*10000+parseInt(r[2]); return parseFloat(v)||0; };
+const parseWeight  = (v) => parseFloat(v) || 0;
 
 const sortRecords = (records) =>
   [...records].sort((a, b) => {
     if (a.record_type !== b.record_type) return 0;
     if (a.record_type === 'for_time') return parseSeconds(a.record_value) - parseSeconds(b.record_value);
-    if (a.record_type === 'amrap')    return parseAmrap(b.record_value) - parseAmrap(a.record_value);
-    if (a.record_type === 'weight')   return parseWeight(b.record_value) - parseWeight(a.record_value);
+    if (a.record_type === 'amrap')    return parseAmrap(b.record_value)   - parseAmrap(a.record_value);
+    if (a.record_type === 'weight')   return parseWeight(b.record_value)  - parseWeight(a.record_value);
     return 0;
   });
+
+const localToday = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+};
+const localYesterday = () => {
+  const d = new Date(); d.setDate(d.getDate() - 1);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+};
 
 export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutRecord, deleteWorkoutRecord, addRecordFeedback, isAdmin, wods, memberLevel, levelMap }) {
   const { displayName } = useAuth();
   const myLevel = memberLevel || 'Beginner';
-  const d = new Date();
-  const today = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-  const todayWod = wods?.find(w => w.date === today) || wods?.[0];
+  const today     = localToday();
+  const yesterday = localYesterday();
+  const todayWod  = wods?.find(w => w.date === today) || wods?.[0];
 
-  /* ── Form state ── */
-  const [workoutTab, setWorkoutTab] = useState('workout2');
-  const [recordType, setRecordType]  = useState('for_time');
-  const [timeMin, setTimeMin]        = useState('');
-  const [timeSec, setTimeSec]        = useState('');
-  const [amrapRounds, setAmrapRounds] = useState('');
-  const [amrapReps, setAmrapReps]     = useState('');
-  const [onlyReps, setOnlyReps]       = useState('');
-  const [weightVal, setWeightVal]     = useState('');
-  const [doneFailStatus, setDoneFailStatus] = useState(null); // null | 'D' | 'F'
-  const [extraWeightVal, setExtraWeightVal] = useState('');   // extra weight annotation
-  const [manualType, setManualType]   = useState(false);
-  const [submitting, setSubmitting]   = useState(false);
-  const [justSaved, setJustSaved]     = useState(false);
+  /* ── Form ── */
+  const [workoutTab,      setWorkoutTab]      = useState('workout2');
+  const [recordType,      setRecordType]      = useState('for_time');
+  const [timeMin,         setTimeMin]         = useState('');
+  const [timeSec,         setTimeSec]         = useState('');
+  const [amrapRounds,     setAmrapRounds]     = useState('');
+  const [amrapReps,       setAmrapReps]       = useState('');
+  const [onlyReps,        setOnlyReps]        = useState('');
+  const [weightVal,       setWeightVal]       = useState('');
+  const [doneFailStatus,  setDoneFailStatus]  = useState(null);
+  const [extraWeightVal,  setExtraWeightVal]  = useState('');
+  const [manualType,      setManualType]      = useState(false);
+  const [submitting,      setSubmitting]      = useState(false);
+  const [justSaved,       setJustSaved]       = useState(false);
 
-  /* ── Auto record type detection ── */
   const autoType = workoutTab === 'workout1'
     ? 'weight'
     : (todayWod?.type ? (WOD_TYPE_MAP[todayWod.type] ?? 'for_time') : 'for_time');
@@ -81,44 +82,41 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
     setRecordType(workoutTab === 'workout1' ? 'weight' : (todayWod?.type ? (WOD_TYPE_MAP[todayWod.type] ?? 'for_time') : 'for_time'));
   }, [workoutTab, todayWod?.type]);
 
-  /* ── Leaderboard state ── */
-  const [lbLevel, setLbLevel] = useState('all');
-  const [expanded, setExpanded]       = useState(null);
-  const [fbText, setFbText]           = useState('');
-  const [showLevelDrop, setShowLevelDrop] = useState(false);
+  /* ── Leaderboard ── */
+  const [lbLevel,        setLbLevel]        = useState('all');
+  const [expanded,       setExpanded]       = useState(null);
+  const [fbText,         setFbText]         = useState('');
+  const [showLevelDrop,  setShowLevelDrop]  = useState(false);
 
   /* ── Date history calendar ── */
-  const [selectedHistoryDate, setSelectedHistoryDate] = useState(today);
-  const [calYear, setCalYear]   = useState(new Date().getFullYear());
-  const [calMonth, setCalMonth] = useState(new Date().getMonth()); // 0-based
+  const [selectedDate, setSelectedDate] = useState(yesterday);
+  const [calYear,  setCalYear]  = useState(new Date().getFullYear());
+  const [calMonth, setCalMonth] = useState(new Date().getMonth());
 
   const DAY_NAMES = ['일', '월', '화', '수', '목', '금', '토'];
 
   const calDays = (() => {
-    const firstDay = new Date(calYear, calMonth, 1).getDay();
+    const firstDay    = new Date(calYear, calMonth, 1).getDay();
     const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
     const daysInPrev  = new Date(calYear, calMonth, 0).getDate();
     const cells = [];
-    for (let i = firstDay - 1; i >= 0; i--)
-      cells.push({ day: daysInPrev - i, cur: false });
-    for (let d = 1; d <= daysInMonth; d++)
-      cells.push({ day: d, cur: true });
-    while (cells.length % 7 !== 0)
-      cells.push({ day: cells.length - firstDay - daysInMonth + 1, cur: false });
+    for (let i = firstDay - 1; i >= 0; i--) cells.push({ day: daysInPrev - i, cur: false });
+    for (let d = 1; d <= daysInMonth; d++)  cells.push({ day: d, cur: true });
+    while (cells.length % 7 !== 0)          cells.push({ day: cells.length - firstDay - daysInMonth + 1, cur: false });
     return cells;
   })();
 
   const moveMonth = (dir) => {
     let m = calMonth + dir, y = calYear;
-    if (m < 0) { m = 11; y--; }
-    if (m > 11) { m = 0; y++; }
+    if (m < 0)  { m = 11; y--; }
+    if (m > 11) { m = 0;  y++; }
     setCalMonth(m); setCalYear(y);
   };
 
   const toDateStr = (y, m, d) =>
     `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
 
-  /* ── Build record value: "12:42 (F, 75LB)" ── */
+  /* ── Record value builder ── */
   const getPrimaryValue = () => {
     if (recordType === 'for_time') {
       const m = timeMin || '0';
@@ -127,18 +125,12 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
       return `${m}:${s}`;
     }
     if (recordType === 'amrap') {
-      const r = parseInt(amrapRounds) || 0;
-      const rp = parseInt(amrapReps) || 0;
+      const r = parseInt(amrapRounds) || 0, rp = parseInt(amrapReps) || 0;
       if (r === 0 && rp === 0) return '';
       return rp > 0 ? `${r}R + ${rp}` : `${r}R`;
     }
-    if (recordType === 'reps') {
-      const rp = parseInt(onlyReps) || 0;
-      return rp ? `${rp} REPS` : '';
-    }
-    if (recordType === 'weight') {
-      return weightVal ? `${weightVal} LB` : '';
-    }
+    if (recordType === 'reps')   { const rp = parseInt(onlyReps)||0; return rp ? `${rp} REPS` : ''; }
+    if (recordType === 'weight') { return weightVal ? `${weightVal} LB` : ''; }
     return '';
   };
 
@@ -156,14 +148,7 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
     const value = getRecordValue();
     if (!value) return;
     setSubmitting(true);
-    await addWorkoutRecord({
-      member_name:  displayName,
-      member_level: myLevel,
-      workout_type: workoutTab,
-      wod_date:     today,
-      record_type:  recordType,
-      record_value: value,
-    });
+    await addWorkoutRecord({ member_name: displayName, member_level: myLevel, workout_type: workoutTab, wod_date: today, record_type: recordType, record_value: value });
     setSubmitting(false);
     setJustSaved(true);
     setTimeMin(''); setTimeSec(''); setAmrapRounds(''); setAmrapReps('');
@@ -177,7 +162,6 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
     setFbText('');
   };
 
-  /* record_value를 그대로 표시 (구형 fail_done 타입 호환) */
   const abbrev = (r) => {
     if (!r) return '';
     if (r.record_type === 'fail_done') return r.record_value === 'DONE' ? 'D' : 'F';
@@ -188,33 +172,26 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
   const todayRecords = (workoutRecords || []).filter(r => r.wod_date === today);
   const filtered = lbLevel === 'all'
     ? todayRecords
-    : todayRecords.filter(r => {
-        const lvl = (levelMap && levelMap[r.member_name]) || r.member_level || 'Beginner';
-        return lvl === lbLevel;
-      });
+    : todayRecords.filter(r => { const lvl = (levelMap && levelMap[r.member_name]) || r.member_level || 'Beginner'; return lvl === lbLevel; });
   const sorted = sortRecords(filtered);
 
   const userRecordsMap = {};
   sorted.forEach(r => {
-    if (!userRecordsMap[r.member_name]) {
+    if (!userRecordsMap[r.member_name])
       userRecordsMap[r.member_name] = { member_name: r.member_name, member_level: r.member_level, workout1Records: [], workout2Records: [], feedbacks: [] };
-    }
     if (r.workout_type === 'workout1') userRecordsMap[r.member_name].workout1Records.push(r);
     if (r.workout_type === 'workout2') userRecordsMap[r.member_name].workout2Records.push(r);
     (recordFeedback || []).filter(f => f.record_id === r.id).forEach(f => userRecordsMap[r.member_name].feedbacks.push(f));
   });
-
   const groupedRecords = [];
   const seenUsers = new Set();
-  sorted.forEach(r => {
-    if (!seenUsers.has(r.member_name)) { seenUsers.add(r.member_name); groupedRecords.push(userRecordsMap[r.member_name]); }
-  });
+  sorted.forEach(r => { if (!seenUsers.has(r.member_name)) { seenUsers.add(r.member_name); groupedRecords.push(userRecordsMap[r.member_name]); } });
 
   const currentTypeMeta = RECORD_TYPES.find(r => r.id === recordType);
 
-  /* ── Date history ── */
-  const historyWod = wods?.find(w => w.date === selectedHistoryDate);
-  const historyRecords = (workoutRecords || []).filter(r => r.wod_date === selectedHistoryDate);
+  /* ── Date history data ── */
+  const historyWod = wods?.find(w => w.date === selectedDate);
+  const historyRecords = (workoutRecords || []).filter(r => r.wod_date === selectedDate);
   const historyUserMap = {};
   historyRecords.forEach(r => {
     if (!historyUserMap[r.member_name]) historyUserMap[r.member_name] = { name: r.member_name, level: r.member_level, w1: [], w2: [] };
@@ -222,28 +199,19 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
     else historyUserMap[r.member_name].w2.push(r);
   });
   const historyUsers = Object.values(historyUserMap);
-  const wodDates = new Set((wods || []).map(w => w.date));
+  const wodDates    = new Set((wods || []).map(w => w.date));
   const recordDates = new Set((workoutRecords || []).map(r => r.wod_date));
 
   return (
     <div className="record-page fade-in">
 
-      {/* ══ RECORD UPLOAD ══ */}
+      {/* ══ LEFT: WOD + form ══ */}
       <section className="rp-section rp-wod-col">
-
-        {todayWod && (
-          <div style={{ marginBottom: '2rem' }}>
-            <WodCard wod={todayWod} large={true} />
-          </div>
-        )}
+        {todayWod && <div style={{ marginBottom: '2rem' }}><WodCard wod={todayWod} large={true} /></div>}
 
         <form className="rp-form glass-card" onSubmit={handleSubmit}>
-          {/* Workout tabs */}
           <div className="rp-workout-tabs">
-            {[
-              { id: 'workout1', label: 'WORKOUT 1', sub: 'Strength' },
-              { id: 'workout2', label: 'WORKOUT 2', sub: 'WOD' },
-            ].map(t => (
+            {[{ id: 'workout1', label: 'WORKOUT 1', sub: 'Strength' }, { id: 'workout2', label: 'WORKOUT 2', sub: 'WOD' }].map(t => (
               <button type="button" key={t.id} className={`rp-workout-tab ${workoutTab === t.id ? 'active' : ''}`} onClick={() => setWorkoutTab(t.id)}>
                 <span className="rp-tab-main">{t.label}</span>
                 <span className="rp-tab-sub">{t.sub}</span>
@@ -251,7 +219,6 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
             ))}
           </div>
 
-          {/* ── 타입 선택 모드 (설정값 변경 클릭 시) ── */}
           {manualType ? (
             <div>
               <div className="rp-type-grid">
@@ -263,29 +230,21 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
                   </button>
                 ))}
               </div>
-              <button type="button" className="rp-cancel-manual" onClick={() => { setManualType(false); setRecordType(autoType); }}>
-                ↩ 자동 감지로 되돌리기
-              </button>
+              <button type="button" className="rp-cancel-manual" onClick={() => { setManualType(false); setRecordType(autoType); }}>↩ 자동 감지로 되돌리기</button>
             </div>
           ) : (
             <>
-              {/* 설정값 변경 — 최상단 */}
               <div className="rp-settings-bar">
                 <button type="button" className="rp-override-btn" onClick={() => setManualType(true)}>설정값 변경</button>
               </div>
-
-              {/* 타입 배지 + 기본 입력 — 같은 행 */}
               <div className="rp-primary-row">
                 <div className="rp-auto-badge">
                   <span className="rp-auto-icon">⚡</span>
                   <div>
                     <span className="rp-auto-label">{currentTypeMeta?.label}</span>
-                    <span className="rp-auto-source">
-                      {workoutTab === 'workout1' ? '스트렝스 — 무게' : todayWod?.type ? `WOD 타입: ${todayWod.type}` : '기본값'}
-                    </span>
+                    <span className="rp-auto-source">{workoutTab === 'workout1' ? '스트렝스 — 무게' : todayWod?.type ? `WOD 타입: ${todayWod.type}` : '기본값'}</span>
                   </div>
                 </div>
-
                 <div className="rp-primary-input-slot">
                   {recordType === 'for_time' && (
                     <div className="rp-time-row">
@@ -315,21 +274,14 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
                   )}
                 </div>
               </div>
-
-              {/* DONE / FAIL 선택 (선택사항 — 다시 클릭하면 해제) */}
               <div className="rp-df-btns">
-                <button type="button" className={`rp-df-btn done ${doneFailStatus === 'D' ? 'active' : ''}`}
-                  onClick={() => setDoneFailStatus(s => s === 'D' ? null : 'D')}>DONE</button>
-                <button type="button" className={`rp-df-btn fail ${doneFailStatus === 'F' ? 'active' : ''}`}
-                  onClick={() => setDoneFailStatus(s => s === 'F' ? null : 'F')}>FAIL</button>
+                <button type="button" className={`rp-df-btn done ${doneFailStatus === 'D' ? 'active' : ''}`} onClick={() => setDoneFailStatus(s => s === 'D' ? null : 'D')}>DONE</button>
+                <button type="button" className={`rp-df-btn fail ${doneFailStatus === 'F' ? 'active' : ''}`} onClick={() => setDoneFailStatus(s => s === 'F' ? null : 'F')}>FAIL</button>
               </div>
-
-              {/* 추가 무게 (선택사항, weight 기본타입 아닐 때) */}
               {recordType !== 'weight' && (
                 <div className="rp-center-weight">
                   <span className="rp-weight-label">무게</span>
-                  <input type="number" min="0" step="0.5" placeholder="0" value={extraWeightVal}
-                    onChange={e => setExtraWeightVal(e.target.value)} className="rp-time-input" style={{ width: '90px' }} />
+                  <input type="number" min="0" step="0.5" placeholder="0" value={extraWeightVal} onChange={e => setExtraWeightVal(e.target.value)} className="rp-time-input" style={{ width: '90px' }} />
                   <span className="rp-unit">LB</span>
                 </div>
               )}
@@ -340,31 +292,22 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
             {justSaved ? '✓ 등록 완료!' : submitting ? '저장 중...' : <><Send size={15} /> 기록 등록</>}
           </button>
         </form>
-
       </section>
 
-      {/* ══ LEADERBOARD ══ */}
+      {/* ══ RIGHT: Leaderboard ══ */}
       <section className="rp-section rp-lb-col">
         <div className="rp-lb-header">
           <h2 className="rp-title" style={{ margin: 0 }}>오늘의 리더보드</h2>
           <div className="rp-level-dropdown">
-            <button
-              className="rp-level-drop-btn"
-              onClick={() => setShowLevelDrop(s => !s)}
-            >
-              <span style={lbLevel !== 'all' ? { color: LEVEL_STYLE[lbLevel]?.color } : {}}>
-                {lbLevel === 'all' ? '전체' : lbLevel}
-              </span>
+            <button className="rp-level-drop-btn" onClick={() => setShowLevelDrop(s => !s)}>
+              <span style={lbLevel !== 'all' ? { color: LEVEL_STYLE[lbLevel]?.color } : {}}>{lbLevel === 'all' ? '전체' : lbLevel}</span>
               <ChevronDown size={13} style={{ transition: '0.2s', transform: showLevelDrop ? 'rotate(180deg)' : 'none' }} />
             </button>
             {showLevelDrop && (
               <div className="rp-level-drop-menu">
-                <button className={`rp-level-drop-item ${lbLevel === 'all' ? 'active' : ''}`}
-                  onClick={() => { setLbLevel('all'); setShowLevelDrop(false); }}>전체</button>
+                <button className={`rp-level-drop-item ${lbLevel === 'all' ? 'active' : ''}`} onClick={() => { setLbLevel('all'); setShowLevelDrop(false); }}>전체</button>
                 {LEVELS.map(l => (
-                  <button key={l}
-                    className={`rp-level-drop-item ${lbLevel === l ? 'active' : ''}`}
-                    style={{ color: LEVEL_STYLE[l]?.color }}
+                  <button key={l} className={`rp-level-drop-item ${lbLevel === l ? 'active' : ''}`} style={{ color: LEVEL_STYLE[l]?.color }}
                     onClick={() => { setLbLevel(l); setShowLevelDrop(false); }}>{l}</button>
                 ))}
               </div>
@@ -383,7 +326,6 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
               const isExp = expanded === user.member_name;
               const primaryRecordId = user.workout2Records[0]?.id || user.workout1Records[0]?.id;
               const canEdit = isAdmin || user.member_name === displayName;
-
               return (
                 <div key={user.member_name} className="rp-lb-card glass-card">
                   <div className="rp-lb-main">
@@ -391,15 +333,12 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
                       <span className="rp-lb-name">{user.member_name}</span>
                       <span className="rp-lb-level" style={{ color: s.color, background: s.bg, border: `1px solid ${s.border}` }}>{currentLevel}</span>
                     </div>
-
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', flex: 1, justifyContent: 'flex-end', marginRight: '0.5rem' }}>
                       {user.workout1Records.length > 0 && (
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
                           <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 800 }}>WORKOUT 1</span>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                            <span className="rp-lb-value" style={{ color: '#ededed' }}>
-                              {user.workout1Records.map(r => abbrev(r)).join(', ')}
-                            </span>
+                            <span className="rp-lb-value" style={{ color: '#ededed' }}>{user.workout1Records.map(r => abbrev(r)).join(', ')}</span>
                             {canEdit && user.workout1Records.map(r => (
                               <button key={r.id} onClick={() => deleteWorkoutRecord(r.id)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '0 2px' }} title="기록 삭제"><Trash2 size={12} /></button>
                             ))}
@@ -410,9 +349,7 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
                           <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 800 }}>WORKOUT 2</span>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                            <span className="rp-lb-value">
-                              {user.workout2Records.map(r => abbrev(r)).join(', ')}
-                            </span>
+                            <span className="rp-lb-value">{user.workout2Records.map(r => abbrev(r)).join(', ')}</span>
                             {canEdit && user.workout2Records.map(r => (
                               <button key={r.id} onClick={() => deleteWorkoutRecord(r.id)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '0 2px' }} title="기록 삭제"><Trash2 size={12} /></button>
                             ))}
@@ -420,14 +357,12 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
                         </div>
                       )}
                     </div>
-
                     <button className="rp-fb-trigger" onClick={() => setExpanded(isExp ? null : user.member_name)}>
                       <MessageSquare size={15} />
                       {fbs.length > 0 && <span className="rp-fb-count">{fbs.length}</span>}
                       {isExp ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
                     </button>
                   </div>
-
                   {isExp && (
                     <div className="rp-fb-panel">
                       {fbs.length === 0 && !isAdmin && <p className="rp-fb-empty">코치 피드백이 없습니다.</p>}
@@ -453,133 +388,119 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
         )}
       </section>
 
-      {/* ══ DATE HISTORY ══ */}
+      {/* ══ BOTTOM: Date history ══ */}
       <div className="rp-dh-wrapper">
         <h2 className="rp-title" style={{ marginBottom: '1rem' }}>날짜별 기록</h2>
 
         <div className="rp-dh-body">
-        {/* Calendar */}
-        <div className="rp-cal">
-          {/* Header */}
-          <div className="rp-cal-header">
-            <button className="rp-cal-nav" onClick={() => moveMonth(-1)}>&#8593;</button>
-            <span className="rp-cal-title">{calYear}년 {calMonth + 1}월</span>
-            <button className="rp-cal-nav" onClick={() => moveMonth(1)}>&#8595;</button>
-            <button className="rp-cal-today-btn" onClick={() => {
-              setCalYear(new Date().getFullYear());
-              setCalMonth(new Date().getMonth());
-              setSelectedHistoryDate(today);
-            }}>오늘</button>
-          </div>
-          {/* Day labels */}
-          <div className="rp-cal-grid">
-            {DAY_NAMES.map(n => (
-              <div key={n} className={`rp-cal-day-label ${n === '일' ? 'sun' : ''}`}>{n}</div>
-            ))}
-            {calDays.map((cell, i) => {
-              const ds = cell.cur ? toDateStr(calYear, calMonth, cell.day) : null;
-              const hasWod = ds && wodDates.has(ds);
-              const hasRec = ds && recordDates.has(ds);
-              const isSelected = ds === selectedHistoryDate;
-              const isTod = ds === today;
-              const isSun = i % 7 === 0;
-              return (
-                <button
-                  key={i}
-                  disabled={!cell.cur}
-                  onClick={() => ds && setSelectedHistoryDate(ds)}
-                  className={`rp-cal-cell ${!cell.cur ? 'other' : ''} ${isSelected ? 'active' : ''} ${isTod ? 'today' : ''} ${isSun ? 'sun' : ''}`}
-                >
-                  <span className="rp-cal-cell-num">{cell.day}</span>
-                  <span className="rp-cal-dots">
-                    {hasWod && <span className="rp-dh-dot wod" />}
-                    {hasRec && <span className="rp-dh-dot rec" />}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-          {/* Legend */}
-          <div className="rp-cal-legend">
-            <span><span className="rp-dh-dot wod" /> WOD</span>
-            <span><span className="rp-dh-dot rec" /> 기록</span>
-          </div>
-        </div>
 
-        {/* Selected date content */}
-        <div className="rp-dh-content">
-          {/* WOD */}
-          {historyWod ? (
-            <div className="rp-dh-wod glass-card">
-              <div className="rp-dh-wod-label">WORKOUT ({selectedHistoryDate})</div>
-              {historyWod.workout1Title && (
-                <div className="rp-dh-wod-block">
-                  <span className="rp-dh-wod-num">01</span>
-                  <span className="rp-dh-wod-sub">Strength &amp; Accessory</span>
-                  <span className="rp-dh-wod-title">{historyWod.workout1Title}</span>
-                  {historyWod.workout1Description && <pre className="rp-dh-wod-pre">{historyWod.workout1Description}</pre>}
-                </div>
-              )}
-              <div className="rp-dh-wod-block">
-                <span className="rp-dh-wod-num accent">02</span>
-                <span className="rp-dh-wod-sub accent">WOD</span>
-                <span className="rp-dh-wod-title">{historyWod.title}</span>
-                <div className="rp-dh-wod-meta">
-                  <span className="rp-dh-wod-type">{historyWod.type}</span>
-                  {historyWod.timeLimit && <span className="rp-dh-wod-cap">⏱ {historyWod.timeLimit}</span>}
-                </div>
-                {historyWod.rxd && <pre className="rp-dh-wod-pre">{historyWod.rxd}</pre>}
-              </div>
+          {/* LEFT (70%): WOD + records for selected date */}
+          <div className="rp-dh-content">
+            <div className="rp-dh-selected-label">
+              {selectedDate === today ? '오늘' : selectedDate === yesterday ? '어제' : selectedDate}
             </div>
-          ) : (
-            <div className="rp-empty glass-card" style={{ marginBottom: '1rem' }}>
-              {selectedHistoryDate === today ? '오늘 WOD가 등록되지 않았습니다.' : `${selectedHistoryDate} WOD 없음`}
-            </div>
-          )}
 
-          {/* Records */}
-          {historyUsers.length > 0 ? (
-            <div className="rp-dh-records">
-              {historyUsers.map(u => {
-                const lvl = (levelMap && levelMap[u.name]) || u.level || 'Beginner';
-                const s = LEVEL_STYLE[lvl] || LEVEL_STYLE.Beginner;
-                const myRecord = u.name === displayName;
-                return (
-                  <div key={u.name} className={`rp-dh-rec-card glass-card ${myRecord ? 'mine' : ''}`}>
-                    <div className="rp-dh-rec-who">
-                      <span className="rp-dh-rec-name">{u.name}</span>
-                      <span className="rp-dh-rec-level" style={{ color: s.color, background: s.bg, border: `1px solid ${s.border}` }}>{lvl}</span>
-                    </div>
-                    <div className="rp-dh-rec-vals">
-                      {u.w1.length > 0 && (
-                        <div className="rp-dh-rec-group">
-                          <span className="rp-dh-rec-lbl">01</span>
-                          <span className="rp-dh-rec-val">{u.w1.map(r => abbrev(r)).join(', ')}</span>
-                          {(isAdmin || myRecord) && u.w1.map(r => (
-                            <button key={r.id} onClick={() => deleteWorkoutRecord(r.id)} className="rp-history-del"><Trash2 size={11} /></button>
-                          ))}
-                        </div>
-                      )}
-                      {u.w2.length > 0 && (
-                        <div className="rp-dh-rec-group">
-                          <span className="rp-dh-rec-lbl">02</span>
-                          <span className="rp-dh-rec-val accent">{u.w2.map(r => abbrev(r)).join(', ')}</span>
-                          {(isAdmin || myRecord) && u.w2.map(r => (
-                            <button key={r.id} onClick={() => deleteWorkoutRecord(r.id)} className="rp-history-del"><Trash2 size={11} /></button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+            {historyWod ? (
+              <div className="rp-dh-wod glass-card">
+                <div className="rp-dh-wod-label">WORKOUT ({selectedDate})</div>
+                {historyWod.workout1Title && (
+                  <div className="rp-dh-wod-block">
+                    <div className="rp-dh-wod-num-row"><span className="rp-dh-wod-num">01</span><span className="rp-dh-wod-sub">Strength &amp; Accessory</span></div>
+                    <span className="rp-dh-wod-title">{historyWod.workout1Title}</span>
+                    {historyWod.workout1Description && <pre className="rp-dh-wod-pre">{historyWod.workout1Description}</pre>}
                   </div>
+                )}
+                <div className="rp-dh-wod-block">
+                  <div className="rp-dh-wod-num-row"><span className="rp-dh-wod-num accent">02</span><span className="rp-dh-wod-sub accent">WOD</span></div>
+                  <span className="rp-dh-wod-title">{historyWod.title}</span>
+                  <div className="rp-dh-wod-meta">
+                    <span className="rp-dh-wod-type">{historyWod.type}</span>
+                    {historyWod.timeLimit && <span className="rp-dh-wod-cap">⏱ {historyWod.timeLimit}</span>}
+                  </div>
+                  {historyWod.rxd && <pre className="rp-dh-wod-pre">{historyWod.rxd}</pre>}
+                </div>
+              </div>
+            ) : (
+              <div className="rp-empty glass-card">{selectedDate} WOD 없음</div>
+            )}
+
+            {historyUsers.length > 0 ? (
+              <div className="rp-dh-records">
+                {historyUsers.map(u => {
+                  const lvl = (levelMap && levelMap[u.name]) || u.level || 'Beginner';
+                  const s = LEVEL_STYLE[lvl] || LEVEL_STYLE.Beginner;
+                  const mine = u.name === displayName;
+                  return (
+                    <div key={u.name} className={`rp-dh-rec-card glass-card ${mine ? 'mine' : ''}`}>
+                      <div className="rp-dh-rec-who">
+                        <span className="rp-dh-rec-name">{u.name}</span>
+                        <span className="rp-dh-rec-level" style={{ color: s.color, background: s.bg, border: `1px solid ${s.border}` }}>{lvl}</span>
+                      </div>
+                      <div className="rp-dh-rec-vals">
+                        {u.w1.length > 0 && (
+                          <div className="rp-dh-rec-group">
+                            <span className="rp-dh-rec-lbl">01</span>
+                            <span className="rp-dh-rec-val">{u.w1.map(r => abbrev(r)).join(', ')}</span>
+                            {(isAdmin || mine) && u.w1.map(r => <button key={r.id} onClick={() => deleteWorkoutRecord(r.id)} className="rp-history-del"><Trash2 size={11} /></button>)}
+                          </div>
+                        )}
+                        {u.w2.length > 0 && (
+                          <div className="rp-dh-rec-group">
+                            <span className="rp-dh-rec-lbl">02</span>
+                            <span className="rp-dh-rec-val accent">{u.w2.map(r => abbrev(r)).join(', ')}</span>
+                            {(isAdmin || mine) && u.w2.map(r => <button key={r.id} onClick={() => deleteWorkoutRecord(r.id)} className="rp-history-del"><Trash2 size={11} /></button>)}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="rp-empty glass-card">이 날짜에 등록된 기록이 없습니다.</div>
+            )}
+          </div>
+
+          {/* RIGHT (30%): Calendar picker */}
+          <div className="rp-cal">
+            <div className="rp-cal-header">
+              <button className="rp-cal-nav" onClick={() => moveMonth(-1)}>&#8593;</button>
+              <span className="rp-cal-title">{calYear}년 {calMonth + 1}월</span>
+              <button className="rp-cal-nav" onClick={() => moveMonth(1)}>&#8595;</button>
+              <button className="rp-cal-today-btn" onClick={() => {
+                setCalYear(new Date().getFullYear());
+                setCalMonth(new Date().getMonth());
+                setSelectedDate(yesterday);
+              }}>오늘</button>
+            </div>
+            <div className="rp-cal-grid">
+              {DAY_NAMES.map(n => <div key={n} className={`rp-cal-day-label ${n === '일' ? 'sun' : ''}`}>{n}</div>)}
+              {calDays.map((cell, i) => {
+                const ds = cell.cur ? toDateStr(calYear, calMonth, cell.day) : null;
+                const isSun = i % 7 === 0;
+                return (
+                  <button key={i} disabled={!cell.cur}
+                    onClick={() => ds && setSelectedDate(ds)}
+                    className={`rp-cal-cell ${!cell.cur ? 'other' : ''} ${ds === selectedDate ? 'active' : ''} ${ds === today ? 'today' : ''} ${isSun ? 'sun' : ''}`}
+                  >
+                    <span className="rp-cal-cell-num">{cell.day}</span>
+                    <span className="rp-cal-dots">
+                      {ds && wodDates.has(ds)    && <span className="rp-dh-dot wod" />}
+                      {ds && recordDates.has(ds) && <span className="rp-dh-dot rec" />}
+                    </span>
+                  </button>
                 );
               })}
             </div>
-          ) : (
-            <div className="rp-empty glass-card">이 날짜에 등록된 기록이 없습니다.</div>
-          )}
+            <div className="rp-cal-legend">
+              <span><span className="rp-dh-dot wod" /> WOD</span>
+              <span><span className="rp-dh-dot rec" /> 기록</span>
+            </div>
+          </div>
+
         </div>
-        </div>{/* rp-dh-body */}
-      </div>{/* rp-dh-wrapper */}
+      </div>
+
     </div>
   );
 }

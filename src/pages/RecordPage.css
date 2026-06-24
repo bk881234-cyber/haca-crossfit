@@ -934,11 +934,18 @@
   .rp-dh-body {
     flex-direction: row;
     align-items: flex-start;
-    gap: 1.5rem;
+    gap: 2rem;
   }
   .rp-dh-content {
-    flex: 1;
+    flex: 7;
     min-width: 0;
+  }
+  .rp-dh-body .rp-cal {
+    flex: 3;
+    min-width: 0;
+    max-width: none;
+    position: sticky;
+    top: 1rem;
   }
 }
 
@@ -1097,3 +1104,24 @@
 }
 
 .rp-dh-rec-val.accent { color: var(--neon-lime); }
+
+.rp-dh-selected-label {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--accent);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.rp-dh-wod-num-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+.rp-cal-dots {
+  display: flex;
+  gap: 2px;
+  height: 5px;
+  align-items: center;
+}
