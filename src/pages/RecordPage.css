@@ -7,13 +7,19 @@
   gap: 2rem;
 }
 
-/* PC: WOD+폼 왼쪽 70%, 리더보드 오른쪽 30% */
+/* PC: WOD+폼 왼쪽 70%, 리더보드 오른쪽 30%, 날짜히스토리 전체너비 */
 @media (min-width: 1024px) {
   .record-page {
     flex-direction: row;
+    flex-wrap: wrap;
     align-items: flex-start;
     gap: 2rem;
     padding-bottom: 2rem;
+  }
+
+  .rp-dh-wrapper {
+    flex: 0 0 100%;
+    width: 100%;
   }
 
   .rp-wod-col {
@@ -793,3 +799,272 @@
   flex-direction: column;
   gap: 0.4rem;
 }
+
+/* ══ Date History ══ */
+.rp-dh-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding-top: 0.5rem;
+}
+
+/* Date strip scroll container */
+.rp-dh-strip {
+  display: flex;
+  align-items: flex-end;
+  gap: 0;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+}
+.rp-dh-strip::-webkit-scrollbar { height: 4px; }
+.rp-dh-strip::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 2px; }
+
+.rp-dh-strip-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.rp-dh-month-label {
+  font-size: 0.55rem;
+  font-weight: 800;
+  color: var(--accent);
+  letter-spacing: 0.05em;
+  padding: 0.1rem 0.3rem 0.25rem;
+  white-space: nowrap;
+  align-self: flex-start;
+}
+
+.rp-dh-date-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.5rem 0.4rem;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  min-width: 44px;
+  transition: all 0.15s ease;
+  color: var(--text-secondary);
+}
+
+.rp-dh-date-btn:hover {
+  background: var(--bg-tertiary);
+}
+
+.rp-dh-date-btn.active {
+  background: var(--bg-card);
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
+
+.rp-dh-date-btn.today {
+  border-color: var(--neon-lime);
+  color: var(--neon-lime);
+}
+
+.rp-dh-date-btn.today.active {
+  background: rgba(204,255,0,0.08);
+  border-color: var(--neon-lime);
+}
+
+.rp-dh-date-btn.sunday { color: #ff6b6b; }
+.rp-dh-date-btn.sunday.active { color: #ff6b6b; }
+
+.rp-dh-day {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.rp-dh-num {
+  font-size: 1rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.rp-dh-dots {
+  display: flex;
+  gap: 2px;
+  height: 5px;
+  align-items: center;
+}
+
+.rp-dh-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+}
+
+.rp-dh-dot.wod { background: var(--accent); }
+.rp-dh-dot.rec { background: var(--neon-lime); }
+
+/* Selected date content */
+.rp-dh-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .rp-dh-content {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+  .rp-dh-wod { flex: 1; }
+  .rp-dh-records { flex: 1; }
+}
+
+/* WOD card */
+.rp-dh-wod {
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.rp-dh-wod-label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--accent);
+  letter-spacing: 0.08em;
+}
+
+.rp-dh-wod-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.rp-dh-wod-num {
+  font-size: 0.6rem;
+  font-weight: 900;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+}
+.rp-dh-wod-num.accent { color: var(--accent); }
+
+.rp-dh-wod-sub {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+.rp-dh-wod-sub.accent { color: var(--accent); }
+
+.rp-dh-wod-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.rp-dh-wod-meta {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.rp-dh-wod-type {
+  font-size: 0.72rem;
+  font-weight: 800;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: var(--text-primary);
+  padding: 0.15rem 0.55rem;
+  border-radius: var(--radius-sm);
+}
+
+.rp-dh-wod-cap {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.rp-dh-wod-pre {
+  margin: 0.25rem 0 0;
+  font-family: inherit;
+  font-size: 0.82rem;
+  line-height: 1.7;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  font-weight: 500;
+  background: rgba(25,30,36,0.5);
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+/* Record list */
+.rp-dh-records {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.rp-dh-rec-card {
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.rp-dh-rec-card.mine {
+  border-color: rgba(204,255,0,0.25);
+  box-shadow: 0 0 0 1px rgba(204,255,0,0.06);
+}
+
+.rp-dh-rec-who {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 70px;
+}
+
+.rp-dh-rec-name {
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+
+.rp-dh-rec-level {
+  font-size: 0.58rem;
+  font-weight: 800;
+  padding: 0.12rem 0.45rem;
+  border-radius: 4px;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.rp-dh-rec-vals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.rp-dh-rec-group {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+}
+
+.rp-dh-rec-lbl {
+  font-size: 0.6rem;
+  font-weight: 900;
+  color: var(--text-muted);
+}
+
+.rp-dh-rec-val {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #ededed;
+  white-space: nowrap;
+}
+
+.rp-dh-rec-val.accent { color: var(--neon-lime); }
