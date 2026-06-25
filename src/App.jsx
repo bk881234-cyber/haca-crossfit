@@ -91,18 +91,42 @@ function AppShell() {
     return () => window.removeEventListener('focus', onFocus);
   }, [displayName]);
 
-  // 실시간 기록 구독 — 다른 회원이 기록 등록/삭제해도 즉시 반영
+  // 실시간 기록 구독 — 탭이 백그라운드면 연결 해제, 포그라운드 복귀 시 재연결
   useEffect(() => {
     if (!user) return;
-    const ch = supabase.channel('rt-workout-records')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'workout_records' }, ({ new: rec }) => {
-        setWorkoutRecords(prev => prev.find(r => r.id === rec.id) ? prev : [rec, ...prev]);
-      })
-      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'workout_records' }, ({ old: rec }) => {
-        setWorkoutRecords(prev => prev.filter(r => r.id !== rec.id));
-      })
-      .subscribe();
-    return () => supabase.removeChannel(ch);
+    let ch = null;
+
+    const subscribe = () => {
+      if (ch) return;
+      ch = supabase.channel('rt-workout-records')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'workout_records' }, ({ new: rec }) => {
+          setWorkoutRecords(prev => prev.find(r => r.id === rec.id) ? prev : [rec, ...prev]);
+        })
+        .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'workout_records' }, ({ old: rec }) => {
+          setWorkoutRecords(prev => prev.filter(r => r.id !== rec.id));
+        })
+        .subscribe();
+    };
+
+    const unsubscribe = () => {
+      if (!ch) return;
+      supabase.removeChannel(ch);
+      ch = null;
+    };
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') unsubscribe();
+      else subscribe();
+    };
+
+    // 처음엔 탭이 보이는 경우에만 연결
+    if (document.visibilityState === 'visible') subscribe();
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+      unsubscribe();
+    };
   }, [user]);
 
   const loadAllData = async () => {
