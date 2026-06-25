@@ -890,16 +890,15 @@
 .rp-history-del {
   background: none;
   border: none;
-  color: var(--text-muted);
+  color: #ff4444;
   cursor: pointer;
   padding: 2px 4px;
-  opacity: 0.5;
+  opacity: 0.7;
   transition: opacity 0.15s;
 }
 
 .rp-history-del:hover {
   opacity: 1;
-  color: #ff4444;
 }
 
 /* ══ Date History ══ */

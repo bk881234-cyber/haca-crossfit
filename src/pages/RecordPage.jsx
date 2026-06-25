@@ -7,6 +7,9 @@ import './RecordPage.css';
 
 const LEVELS = ["Rx'd", 'Advanced', 'Scaled', 'Beginner'];
 
+const LEGACY_LEVEL = { Black: "Rx'd", Red: 'Advanced', Yellow: 'Scaled', White: 'Scaled', Rainbow: 'Beginner' };
+const normalizeLevel = (lvl) => LEGACY_LEVEL[lvl] || lvl || 'Beginner';
+
 const WOD_TYPE_MAP = {
   'For Time': 'for_time',
   'AMRAP':    'amrap',
@@ -215,8 +218,8 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
   const recordsByLevel = {};
   LEVELS.forEach(l => { recordsByLevel[l] = []; });
   groupedRecords.forEach(u => {
-    const lvl = (levelMap && levelMap[u.member_name]) || u.member_level || 'Beginner';
-    (recordsByLevel[lvl] || (recordsByLevel['Beginner'] = recordsByLevel['Beginner'] || [])).push(u);
+    const lvl = normalizeLevel((levelMap && levelMap[u.member_name]) || u.member_level);
+    (recordsByLevel[lvl] || recordsByLevel['Beginner']).push(u);
   });
 
   const handleFeedbackFs = async (recordId) => {
@@ -375,7 +378,7 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
         ) : (
           <div className="rp-lb-list">
             {groupedRecords.map((user) => {
-              const currentLevel = (levelMap && levelMap[user.member_name]) || user.member_level || 'Beginner';
+              const currentLevel = normalizeLevel((levelMap && levelMap[user.member_name]) || user.member_level);
               const s = LEVEL_STYLE[currentLevel] || LEVEL_STYLE.Beginner;
               const fbs = user.feedbacks;
               const isExp = expanded === user.member_name;
@@ -395,7 +398,7 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                             <span className="rp-lb-value" style={{ color: '#ededed' }}>{user.workout1Records.map(r => abbrev(r)).join(', ')}</span>
                             {canEdit && user.workout1Records.map(r => (
-                              <button key={r.id} onClick={() => deleteWorkoutRecord(r.id)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '0 2px' }} title="기록 삭제"><Trash2 size={12} /></button>
+                              <button key={r.id} onClick={() => deleteWorkoutRecord(r.id)} style={{ background: 'none', border: 'none', color: '#ff4444', cursor: 'pointer', padding: '0 2px' }} title="기록 삭제"><Trash2 size={12} /></button>
                             ))}
                           </div>
                         </div>
@@ -406,7 +409,7 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                             <span className="rp-lb-value">{user.workout2Records.map(r => abbrev(r)).join(', ')}</span>
                             {canEdit && user.workout2Records.map(r => (
-                              <button key={r.id} onClick={() => deleteWorkoutRecord(r.id)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '0 2px' }} title="기록 삭제"><Trash2 size={12} /></button>
+                              <button key={r.id} onClick={() => deleteWorkoutRecord(r.id)} style={{ background: 'none', border: 'none', color: '#ff4444', cursor: 'pointer', padding: '0 2px' }} title="기록 삭제"><Trash2 size={12} /></button>
                             ))}
                           </div>
                         </div>
@@ -509,7 +512,7 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
               {historyUsers.length > 0 ? (
                 <div className="rp-dh-records">
                   {historyUsers.map(u => {
-                    const lvl = (levelMap && levelMap[u.name]) || u.level || 'Beginner';
+                    const lvl = normalizeLevel((levelMap && levelMap[u.name]) || u.level);
                     const s = LEVEL_STYLE[lvl] || LEVEL_STYLE.Beginner;
                     const mine = u.name === displayName;
                     return (
