@@ -247,12 +247,22 @@ function AppShell() {
   // ── WOD ──
   const addWod = async (newWod) => {
     const classType = newWod.classType || 'crossfit';
-    const { data, error } = await supabase.from('wods').upsert({
-      date: newWod.date, class_type: classType,
+    const payload = {
       title: newWod.title, type: newWod.type,
       workout1_title: newWod.workout1Title, workout1_description: newWod.workout1Description,
       time_limit: newWod.timeLimit, rxd: newWod.rxd, scaled: newWod.scaled, description: newWod.description
-    }, { onConflict: 'date,class_type' }).select().single();
+    };
+
+    const { data: existing } = await supabase.from('wods').select('id')
+      .eq('date', newWod.date).eq('class_type', classType).maybeSingle();
+
+    let data, error;
+    if (existing) {
+      ({ data, error } = await supabase.from('wods').update(payload).eq('id', existing.id).select().single());
+    } else {
+      ({ data, error } = await supabase.from('wods').insert({ date: newWod.date, class_type: classType, ...payload }).select().single());
+    }
+
     if (error) { console.error('WOD 저장 실패:', error.message); return false; }
     setWods(prev => {
       const without = prev.filter(w => !(w.date === newWod.date && w.classType === classType));

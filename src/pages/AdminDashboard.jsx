@@ -30,25 +30,26 @@ const AdminDashboard = ({
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   };
 
-  const [newWod, setNewWod] = useState({
-    date: localDateStr(),
-    classType: 'crossfit',
-    workout1Title: '', workout1Description: '',
-    title: '', type: 'For Time',
-    timeLimit: '', rxd: '', description: '',
-  });
+  const emptyWodFields = () => ({ workout1Title: '', workout1Description: '', title: '', type: 'For Time', timeLimit: '', rxd: '', description: '' });
+  const [wodDate, setWodDate] = useState(localDateStr());
+  const [cfWod, setCfWod] = useState(emptyWodFields());
+  const [hxWod, setHxWod] = useState(emptyWodFields());
+
   const [newNotice, setNewNotice] = useState({ title: '', content: '', isPopup: false });
   const [newClass, setNewClass] = useState({ time: '06:30', className: 'CrossFit', coach: '', maxCapacity: 15, dayOfWeek: '' });
 
-  const handleWodSubmit = async (e) => {
+  const handleCfSubmit = async (e) => {
     e.preventDefault();
-    const ok = await addWod(newWod);
-    if (ok) {
-      alert('WOD가 등록/수정되었습니다.');
-      setNewWod({ ...newWod, classType: 'crossfit', workout1Title: '', workout1Description: '', title: '', rxd: '', description: '', timeLimit: '' });
-    } else {
-      alert('저장 실패 — 콘솔을 확인해주세요.');
-    }
+    const ok = await addWod({ date: wodDate, classType: 'crossfit', ...cfWod });
+    if (ok) { alert('CrossFit WOD가 등록되었습니다.'); setCfWod(emptyWodFields()); }
+    else alert('저장 실패 — Supabase에서 SQL 마이그레이션을 실행해주세요.');
+  };
+
+  const handleHxSubmit = async (e) => {
+    e.preventDefault();
+    const ok = await addWod({ date: wodDate, classType: 'hyrox', ...hxWod });
+    if (ok) { alert('HYROX WOD가 등록되었습니다.'); setHxWod(emptyWodFields()); }
+    else alert('저장 실패 — Supabase에서 SQL 마이그레이션을 실행해주세요.');
   };
 
   const handleNoticeSubmit = (e) => {
@@ -95,71 +96,70 @@ const AdminDashboard = ({
     </div>
   );
 
+  const renderWodFields = (wod, setWod, color) => (
+    <>
+      <div className="wod-section-label-admin" style={{ color, borderLeftColor: color }}>WORKOUT 1 — Strength &amp; Accessory</div>
+      <div className="form-group">
+        <label>WORKOUT 1 이름</label>
+        <input type="text" value={wod.workout1Title} onChange={e => setWod({ ...wod, workout1Title: e.target.value })} placeholder="예: Back Squat 5×5 @ 80%" />
+      </div>
+      <div className="form-group">
+        <label>WORKOUT 1 내용</label>
+        <textarea value={wod.workout1Description} onChange={e => setWod({ ...wod, workout1Description: e.target.value })} placeholder="운동 내용 입력" rows={3} />
+      </div>
+      <div className="wod-section-label-admin" style={{ color, borderLeftColor: color }}>WORKOUT 2 — WOD</div>
+      <div className="form-row">
+        <div className="form-group">
+          <label>WOD 이름</label>
+          <input type="text" value={wod.title} onChange={e => setWod({ ...wod, title: e.target.value })} placeholder="예: DT, Cindy" required />
+        </div>
+        <div className="form-group">
+          <label>타입</label>
+          <select value={wod.type} onChange={e => setWod({ ...wod, type: e.target.value })}>
+            <option value="For Time">For Time</option>
+            <option value="AMRAP">AMRAP</option>
+            <option value="EMOM">EMOM</option>
+            <option value="Tabata">Tabata</option>
+          </select>
+        </div>
+        <div className="form-group">
+          <label>Time Cap</label>
+          <input type="text" value={wod.timeLimit} onChange={e => setWod({ ...wod, timeLimit: e.target.value })} placeholder="예: 20 Min" />
+        </div>
+      </div>
+      <div className="form-group">
+        <label>WOD 내용</label>
+        <textarea value={wod.rxd} onChange={e => setWod({ ...wod, rxd: e.target.value })} placeholder="운동 내용 입력" rows={5} required />
+      </div>
+    </>
+  );
+
   const renderWodManager = () => (
     <div className="admin-panel">
       <div className="panel-header"><h2>WOD 등록</h2></div>
-      <form className="admin-form" onSubmit={handleWodSubmit}>
-        <div className="form-row">
-          <div className="form-group">
-            <label>날짜</label>
-            <input type="date" value={newWod.date} onChange={e => setNewWod({ ...newWod, date: e.target.value })} required />
-          </div>
-          <div className="form-group">
-            <label>클래스 타입</label>
-            <div className="wod-type-toggle">
-              <button type="button"
-                className={`wod-type-btn ${newWod.classType === 'crossfit' ? 'active crossfit' : ''}`}
-                onClick={() => setNewWod({ ...newWod, classType: 'crossfit' })}>
-                CrossFit
-              </button>
-              <button type="button"
-                className={`wod-type-btn ${newWod.classType === 'hyrox' ? 'active hyrox' : ''}`}
-                onClick={() => setNewWod({ ...newWod, classType: 'hyrox' })}>
-                HYROX
-              </button>
-            </div>
-          </div>
-        </div>
 
-        {/* WORKOUT 1 */}
-        <div className="wod-section-label-admin">WORKOUT 1 — Strength &amp; Accessory</div>
-        <div className="form-group">
-          <label>WORKOUT 1 이름</label>
-          <input type="text" value={newWod.workout1Title} onChange={e => setNewWod({ ...newWod, workout1Title: e.target.value })} placeholder="예: Back Squat 5×5 @ 80%" />
+      <div className="wod-date-shared">
+        <div className="form-group" style={{ maxWidth: 220 }}>
+          <label>날짜 (공통)</label>
+          <input type="date" value={wodDate} onChange={e => setWodDate(e.target.value)} required />
         </div>
-        <div className="form-group">
-          <label>WORKOUT 1 내용</label>
-          <textarea value={newWod.workout1Description} onChange={e => setNewWod({ ...newWod, workout1Description: e.target.value })} placeholder="운동 내용 입력" rows={3} />
-        </div>
+      </div>
 
-        {/* WORKOUT 2 */}
-        <div className="wod-section-label-admin">WORKOUT 2 — WOD</div>
-        <div className="form-row">
-          <div className="form-group">
-            <label>WOD 이름</label>
-            <input type="text" value={newWod.title} onChange={e => setNewWod({ ...newWod, title: e.target.value })} placeholder="예: DT, Cindy" required />
-          </div>
-          <div className="form-group">
-            <label>타입</label>
-            <select value={newWod.type} onChange={e => setNewWod({ ...newWod, type: e.target.value })}>
-              <option value="For Time">For Time</option>
-              <option value="AMRAP">AMRAP</option>
-              <option value="EMOM">EMOM</option>
-              <option value="Tabata">Tabata</option>
-            </select>
-          </div>
-          <div className="form-group">
-            <label>Time Cap</label>
-            <input type="text" value={newWod.timeLimit} onChange={e => setNewWod({ ...newWod, timeLimit: e.target.value })} placeholder="예: 20 Min" />
-          </div>
-        </div>
-        <div className="form-group">
-          <label>WOD 내용</label>
-          <textarea value={newWod.rxd} onChange={e => setNewWod({ ...newWod, rxd: e.target.value })} placeholder="운동 내용 입력" rows={5} required />
-        </div>
+      <div className="wod-class-block">
+        <div className="wod-class-block-header cf">CrossFit WOD</div>
+        <form className="admin-form" onSubmit={handleCfSubmit}>
+          {renderWodFields(cfWod, setCfWod, 'var(--accent)')}
+          <button type="submit" className="admin-submit-btn wod-submit-cf"><Plus size={18} /> CrossFit WOD 등록</button>
+        </form>
+      </div>
 
-        <button type="submit" className="admin-submit-btn"><Plus size={18} /> 새 WOD 등록</button>
-      </form>
+      <div className="wod-class-block">
+        <div className="wod-class-block-header hx">HYROX WOD</div>
+        <form className="admin-form" onSubmit={handleHxSubmit}>
+          {renderWodFields(hxWod, setHxWod, '#ffc800')}
+          <button type="submit" className="admin-submit-btn wod-submit-hx"><Plus size={18} /> HYROX WOD 등록</button>
+        </form>
+      </div>
     </div>
   );
 

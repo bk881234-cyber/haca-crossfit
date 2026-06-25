@@ -446,39 +446,6 @@
   border-color: var(--neon-lime);
 }
 
-/* WOD 클래스 타입 토글 */
-.wod-type-toggle {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 0.25rem;
-}
-
-.wod-type-btn {
-  flex: 1;
-  padding: 0.55rem 0.75rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-color);
-  background: var(--bg-tertiary);
-  color: var(--text-secondary);
-  font-size: 0.85rem;
-  font-weight: 800;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  letter-spacing: 0.04em;
-}
-
-.wod-type-btn.active.crossfit {
-  background: rgba(0, 229, 255, 0.12);
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-.wod-type-btn.active.hyrox {
-  background: rgba(255, 200, 0, 0.12);
-  border-color: #ffc800;
-  color: #ffc800;
-}
-
 /* WOD section divider label */
 .wod-section-label-admin {
   font-size: 0.72rem;
@@ -489,6 +456,66 @@
   border-left: 3px solid var(--accent);
   padding-left: 0.6rem;
   margin: 1.25rem 0 0.75rem;
+}
+
+/* WOD 날짜 공통 영역 */
+.wod-date-shared {
+  margin-bottom: 2rem;
+}
+
+/* CrossFit / HYROX 섹션 블록 */
+.wod-class-block {
+  margin-bottom: 2.5rem;
+}
+
+.wod-class-block-header {
+  font-size: 0.8rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.55rem 1rem;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  margin-bottom: 0;
+}
+
+.wod-class-block-header.cf {
+  background: rgba(0, 229, 255, 0.08);
+  color: var(--accent);
+  border: 1px solid rgba(0, 229, 255, 0.25);
+  border-bottom: none;
+}
+
+.wod-class-block-header.hx {
+  background: rgba(255, 200, 0, 0.08);
+  color: #ffc800;
+  border: 1px solid rgba(255, 200, 0, 0.25);
+  border-bottom: none;
+}
+
+.wod-class-block .admin-form {
+  border-radius: 0 var(--radius-lg) var(--radius-lg) var(--radius-lg);
+}
+
+/* CrossFit 등록 버튼 */
+.admin-submit-btn.wod-submit-cf {
+  background: rgba(0, 229, 255, 0.15);
+  color: var(--accent);
+  border: 1px solid rgba(0, 229, 255, 0.4);
+}
+
+.admin-submit-btn.wod-submit-cf:hover {
+  background: rgba(0, 229, 255, 0.25);
+}
+
+/* HYROX 등록 버튼 */
+.admin-submit-btn.wod-submit-hx {
+  background: rgba(255, 200, 0, 0.12);
+  color: #ffc800;
+  border: 1px solid rgba(255, 200, 0, 0.35);
+}
+
+.admin-submit-btn.wod-submit-hx:hover {
+  background: rgba(255, 200, 0, 0.22);
 }
 
 /* Level select in member table */
