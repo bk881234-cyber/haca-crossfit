@@ -120,6 +120,7 @@ function AppShell() {
 
       setWods((wodsData || []).map(w => ({
         id: w.id, date: w.date, title: w.title, type: w.type,
+        classType: w.class_type || 'crossfit',
         workout1Title: w.workout1_title, workout1Description: w.workout1_description,
         timeLimit: w.time_limit, rxd: w.rxd, scaled: w.scaled, description: w.description,
       })));
@@ -245,19 +246,21 @@ function AppShell() {
 
   // ── WOD ──
   const addWod = async (newWod) => {
+    const classType = newWod.classType || 'crossfit';
     const { data, error } = await supabase.from('wods').upsert({
-      date: newWod.date, title: newWod.title, type: newWod.type,
+      date: newWod.date, class_type: classType,
+      title: newWod.title, type: newWod.type,
       workout1_title: newWod.workout1Title, workout1_description: newWod.workout1Description,
       time_limit: newWod.timeLimit, rxd: newWod.rxd, scaled: newWod.scaled, description: newWod.description
-    }, { onConflict: 'date' }).select().single();
+    }, { onConflict: 'date,class_type' }).select().single();
     if (error) { console.error('WOD 저장 실패:', error.message); return false; }
     setWods(prev => {
-      const without = prev.filter(w => w.date !== newWod.date);
-      return [{ ...newWod, id: data.id }, ...without];
+      const without = prev.filter(w => !(w.date === newWod.date && w.classType === classType));
+      return [{ ...newWod, classType, id: data.id }, ...without];
     });
     await supabase.from('notifications').insert({
       type: 'new_wod',
-      message: `새로운 WOD가 등록되었습니다 (${newWod.date})`,
+      message: `새로운 WOD가 등록되었습니다 (${newWod.date} · ${classType === 'hyrox' ? 'HYROX' : 'CrossFit'})`,
       recipient_name: 'all',
     });
     fetchNotifications();

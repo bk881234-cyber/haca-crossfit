@@ -446,6 +446,39 @@
   border-color: var(--neon-lime);
 }
 
+/* WOD 클래스 타입 토글 */
+.wod-type-toggle {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.wod-type-btn {
+  flex: 1;
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  letter-spacing: 0.04em;
+}
+
+.wod-type-btn.active.crossfit {
+  background: rgba(0, 229, 255, 0.12);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.wod-type-btn.active.hyrox {
+  background: rgba(255, 200, 0, 0.12);
+  border-color: #ffc800;
+  color: #ffc800;
+}
+
 /* WOD section divider label */
 .wod-section-label-admin {
   font-size: 0.72rem;

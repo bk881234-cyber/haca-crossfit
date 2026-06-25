@@ -32,6 +32,7 @@ const AdminDashboard = ({
 
   const [newWod, setNewWod] = useState({
     date: localDateStr(),
+    classType: 'crossfit',
     workout1Title: '', workout1Description: '',
     title: '', type: 'For Time',
     timeLimit: '', rxd: '', description: '',
@@ -44,7 +45,7 @@ const AdminDashboard = ({
     const ok = await addWod(newWod);
     if (ok) {
       alert('WOD가 등록/수정되었습니다.');
-      setNewWod({ ...newWod, workout1Title: '', workout1Description: '', title: '', rxd: '', description: '', timeLimit: '' });
+      setNewWod({ ...newWod, classType: 'crossfit', workout1Title: '', workout1Description: '', title: '', rxd: '', description: '', timeLimit: '' });
     } else {
       alert('저장 실패 — 콘솔을 확인해주세요.');
     }
@@ -102,6 +103,21 @@ const AdminDashboard = ({
           <div className="form-group">
             <label>날짜</label>
             <input type="date" value={newWod.date} onChange={e => setNewWod({ ...newWod, date: e.target.value })} required />
+          </div>
+          <div className="form-group">
+            <label>클래스 타입</label>
+            <div className="wod-type-toggle">
+              <button type="button"
+                className={`wod-type-btn ${newWod.classType === 'crossfit' ? 'active crossfit' : ''}`}
+                onClick={() => setNewWod({ ...newWod, classType: 'crossfit' })}>
+                CrossFit
+              </button>
+              <button type="button"
+                className={`wod-type-btn ${newWod.classType === 'hyrox' ? 'active hyrox' : ''}`}
+                onClick={() => setNewWod({ ...newWod, classType: 'hyrox' })}>
+                HYROX
+              </button>
+            </div>
           </div>
         </div>
 

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Send, MessageSquare, ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import WodCard from '../components/WodCard';
+import { detectClassType, CLASS_TYPE_LABEL, CLASS_TYPE_COLOR } from '../utils/classSchedule';
 import './RecordPage.css';
 
 const LEVELS = ['Black', 'Red', 'Yellow', 'White', 'Rainbow', 'Beginner'];
@@ -56,7 +57,19 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
   const myLevel = memberLevel || 'Beginner';
   const today     = localToday();
   const yesterday = localYesterday();
-  const todayWod    = wods?.find(w => w.date === today) || wods?.[0];
+  /* ── 실시간 클래스 타입 감지 (1분 주기) ── */
+  const [activeClassType, setActiveClassType] = useState(() => detectClassType() || 'crossfit');
+  useEffect(() => {
+    const tick = () => {
+      const t = detectClassType();
+      if (t) setActiveClassType(t);
+    };
+    const id = setInterval(tick, 60000);
+    return () => clearInterval(id);
+  }, []);
+
+  const todayWods   = wods?.filter(w => w.date === today) || [];
+  const todayWod    = todayWods.find(w => w.classType === activeClassType) ?? todayWods[0];
   const hasWorkout1 = !!todayWod?.workout1Title;
 
   /* ── Form ── */
@@ -154,7 +167,7 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
     const value = getRecordValue();
     if (!value) return;
     setSubmitting(true);
-    await addWorkoutRecord({ member_name: displayName, member_level: myLevel, workout_type: workoutTab, wod_date: today, record_type: recordType, record_value: value });
+    await addWorkoutRecord({ member_name: displayName, member_level: myLevel, workout_type: workoutTab, wod_date: today, record_type: recordType, record_value: value, class_type: activeClassType });
     setSubmitting(false);
     setJustSaved(true);
     setTimeMin(''); setTimeSec(''); setAmrapRounds(''); setAmrapReps('');
@@ -175,7 +188,9 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
   };
 
   /* ── Leaderboard grouping ── */
-  const todayRecords = (workoutRecords || []).filter(r => r.wod_date === today);
+  const todayRecords = (workoutRecords || []).filter(r =>
+    r.wod_date === today && (r.class_type === activeClassType || !r.class_type)
+  );
   const sorted = sortRecords(todayRecords);
 
   const userRecordsMap = {};
@@ -225,7 +240,25 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
 
       {/* ══ WOD + 기록 폼 ══ */}
       <div className="rp-wod-top">
-        {todayWod && <WodCard wod={todayWod} large={true} />}
+        {/* 클래스 타입 선택 뱃지 */}
+        <div className="rp-class-type-bar">
+          {['crossfit', 'hyrox'].map(ct => (
+            <button
+              key={ct}
+              className={`rp-ct-btn ${activeClassType === ct ? 'active' : ''}`}
+              style={activeClassType === ct ? { borderColor: CLASS_TYPE_COLOR[ct], color: CLASS_TYPE_COLOR[ct], background: `${CLASS_TYPE_COLOR[ct]}18` } : {}}
+              onClick={() => setActiveClassType(ct)}
+            >
+              {CLASS_TYPE_LABEL[ct]}
+            </button>
+          ))}
+          <span className="rp-ct-auto">⏱ 시간대 자동감지</span>
+        </div>
+
+        {todayWod
+          ? <WodCard wod={todayWod} large={true} />
+          : <div className="rp-empty glass-card">오늘 {CLASS_TYPE_LABEL[activeClassType]} WOD가 없습니다.</div>
+        }
 
         <form className="rp-form glass-card" onSubmit={handleSubmit}>
           <div className="rp-workout-tabs">
@@ -324,7 +357,12 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
       {/* ══ RIGHT: Leaderboard (모바일: WOD 다음, 날짜별 기록 위) ══ */}
       <section className="rp-lb-col">
         <div className="rp-lb-header">
-          <h2 className="rp-title">오늘의 리더보드</h2>
+          <h2 className="rp-title">
+            오늘의 리더보드
+            <span className="rp-lb-ct-badge" style={{ color: CLASS_TYPE_COLOR[activeClassType] }}>
+              {CLASS_TYPE_LABEL[activeClassType]}
+            </span>
+          </h2>
           <button className="rp-fullscreen-btn" onClick={() => setShowFullscreen(true)}>전체보기</button>
         </div>
 
