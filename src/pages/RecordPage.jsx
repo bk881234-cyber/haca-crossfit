@@ -18,16 +18,10 @@ const WOD_TYPE_MAP = {
 };
 
 const LEVEL_STYLE = {
-  "Rx'd":    { color: '#00e5ff', bg: 'rgba(0,229,255,0.10)',   border: '#00e5ff' },
-  Advanced:  { color: '#ff4444', bg: 'rgba(255,68,68,0.10)',   border: '#ff4444' },
-  Scaled:    { color: '#ffc800', bg: 'rgba(255,200,0,0.10)',   border: '#ffc800' },
-  Beginner:  { color: '#9999ff', bg: 'rgba(150,150,255,0.10)', border: '#9999ff' },
-  // 구 레벨 → 가장 가까운 새 레벨 스타일로 fallback
-  Black:    { color: '#00e5ff', bg: 'rgba(0,229,255,0.10)',   border: '#00e5ff' },
-  Red:      { color: '#ff4444', bg: 'rgba(255,68,68,0.10)',   border: '#ff4444' },
-  Yellow:   { color: '#ffc800', bg: 'rgba(255,200,0,0.10)',   border: '#ffc800' },
-  White:    { color: '#ffc800', bg: 'rgba(255,200,0,0.10)',   border: '#ffc800' },
-  Rainbow:  { color: '#9999ff', bg: 'rgba(150,150,255,0.10)', border: '#9999ff' },
+  "Rx'd":   { color: '#00e5ff', bg: 'rgba(0,229,255,0.10)',   border: '#00e5ff' },
+  Advanced: { color: '#ff4444', bg: 'rgba(255,68,68,0.10)',   border: '#ff4444' },
+  Scaled:   { color: '#ffc800', bg: 'rgba(255,200,0,0.10)',   border: '#ffc800' },
+  Beginner: { color: '#9999ff', bg: 'rgba(150,150,255,0.10)', border: '#9999ff' },
 };
 
 const RECORD_TYPES = [

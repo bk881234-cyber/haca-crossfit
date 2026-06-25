@@ -102,6 +102,9 @@ function AppShell() {
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'workout_records' }, ({ new: rec }) => {
           setWorkoutRecords(prev => prev.find(r => r.id === rec.id) ? prev : [rec, ...prev]);
         })
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'workout_records' }, ({ new: rec }) => {
+          setWorkoutRecords(prev => prev.map(r => r.id === rec.id ? rec : r));
+        })
         .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'workout_records' }, ({ old: rec }) => {
           setWorkoutRecords(prev => prev.filter(r => r.id !== rec.id));
         })
@@ -349,9 +352,24 @@ function AppShell() {
 
   // ── 기록 업로드 & 피드백 ──
   const addWorkoutRecord = async (record) => {
-    const { data, error } = await supabase.from('workout_records').insert(record).select().single();
-    if (error) { console.error(error); return; }
-    setWorkoutRecords(prev => [data, ...prev]);
+    // 같은 날 / 같은 워크아웃 / 같은 클래스 타입 기록이 있으면 UPDATE, 없으면 INSERT
+    const existing = workoutRecords.find(r =>
+      r.member_name === record.member_name &&
+      r.workout_type === record.workout_type &&
+      r.wod_date    === record.wod_date &&
+      (r.class_type === record.class_type || (!r.class_type && record.class_type === 'crossfit'))
+    );
+    if (existing) {
+      const { data, error } = await supabase.from('workout_records')
+        .update({ record_type: record.record_type, record_value: record.record_value, member_level: record.member_level })
+        .eq('id', existing.id).select().single();
+      if (error) { console.error(error); return; }
+      setWorkoutRecords(prev => prev.map(r => r.id === existing.id ? data : r));
+    } else {
+      const { data, error } = await supabase.from('workout_records').insert(record).select().single();
+      if (error) { console.error(error); return; }
+      setWorkoutRecords(prev => [data, ...prev]);
+    }
   };
 
   const deleteWorkoutRecord = async (id) => {
