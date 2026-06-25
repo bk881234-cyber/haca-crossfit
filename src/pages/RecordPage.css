@@ -105,6 +105,11 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
+.rp-workout-tab.disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
 .rp-tab-main {
   font-weight: 700;
   font-size: 0.6rem;

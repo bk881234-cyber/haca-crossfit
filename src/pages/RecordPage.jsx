@@ -56,7 +56,8 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
   const myLevel = memberLevel || 'Beginner';
   const today     = localToday();
   const yesterday = localYesterday();
-  const todayWod  = wods?.find(w => w.date === today) || wods?.[0];
+  const todayWod    = wods?.find(w => w.date === today) || wods?.[0];
+  const hasWorkout1 = !!todayWod?.workout1Title;
 
   /* ── Form ── */
   const [workoutTab,      setWorkoutTab]      = useState('workout2');
@@ -76,6 +77,10 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
   const autoType = workoutTab === 'workout1'
     ? 'weight'
     : (todayWod?.type ? (WOD_TYPE_MAP[todayWod.type] ?? 'for_time') : 'for_time');
+
+  useEffect(() => {
+    if (!hasWorkout1) setWorkoutTab('workout2');
+  }, [hasWorkout1]);
 
   useEffect(() => {
     setManualType(false);
@@ -224,12 +229,21 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
 
         <form className="rp-form glass-card" onSubmit={handleSubmit}>
           <div className="rp-workout-tabs">
-            {[{ id: 'workout1', label: 'WORKOUT 1', sub: 'Strength' }, { id: 'workout2', label: 'WORKOUT 2', sub: 'WOD' }].map(t => (
-              <button type="button" key={t.id} className={`rp-workout-tab ${workoutTab === t.id ? 'active' : ''}`} onClick={() => setWorkoutTab(t.id)}>
-                <span className="rp-tab-main">{t.label}</span>
-                <span className="rp-tab-sub">{t.sub}</span>
-              </button>
-            ))}
+            {[{ id: 'workout1', label: 'WORKOUT 1', sub: 'Strength' }, { id: 'workout2', label: 'WORKOUT 2', sub: 'WOD' }].map(t => {
+              const disabled = t.id === 'workout1' && !hasWorkout1;
+              return (
+                <button
+                  type="button"
+                  key={t.id}
+                  disabled={disabled}
+                  className={`rp-workout-tab ${workoutTab === t.id ? 'active' : ''} ${disabled ? 'disabled' : ''}`}
+                  onClick={() => !disabled && setWorkoutTab(t.id)}
+                >
+                  <span className="rp-tab-main">{t.label}</span>
+                  <span className="rp-tab-sub">{disabled ? '없음' : t.sub}</span>
+                </button>
+              );
+            })}
           </div>
 
           {manualType ? (
