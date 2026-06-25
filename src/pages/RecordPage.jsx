@@ -39,16 +39,8 @@ const RECORD_TYPES = [
 
 const parseSeconds = (v) => { const m = v?.match(/^(\d+):(\d+)/); return m ? parseInt(m[1])*60+parseInt(m[2]) : Infinity; };
 const parseAmrap   = (v) => { const r = v?.match(/(\d+)\s*R\s*\+\s*(\d+)/i); if (r) return parseInt(r[1])*10000+parseInt(r[2]); return parseFloat(v)||0; };
-const parseWeight  = (v) => parseFloat(v) || 0;
 
-const sortRecords = (records) =>
-  [...records].sort((a, b) => {
-    if (a.record_type !== b.record_type) return 0;
-    if (a.record_type === 'for_time') return parseSeconds(a.record_value) - parseSeconds(b.record_value);
-    if (a.record_type === 'amrap')    return parseAmrap(b.record_value)   - parseAmrap(a.record_value);
-    if (a.record_type === 'weight')   return parseWeight(b.record_value)  - parseWeight(a.record_value);
-    return 0;
-  });
+
 
 const localToday = () => {
   const d = new Date();
@@ -198,19 +190,28 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
   const todayRecords = (workoutRecords || []).filter(r =>
     r.wod_date === today && (r.class_type === activeClassType || !r.class_type)
   );
-  const sorted = sortRecords(todayRecords);
 
   const userRecordsMap = {};
-  sorted.forEach(r => {
+  todayRecords.forEach(r => {
     if (!userRecordsMap[r.member_name])
       userRecordsMap[r.member_name] = { member_name: r.member_name, member_level: r.member_level, workout1Records: [], workout2Records: [], feedbacks: [] };
     if (r.workout_type === 'workout1') userRecordsMap[r.member_name].workout1Records.push(r);
     if (r.workout_type === 'workout2') userRecordsMap[r.member_name].workout2Records.push(r);
     (recordFeedback || []).filter(f => f.record_id === r.id).forEach(f => userRecordsMap[r.member_name].feedbacks.push(f));
   });
-  const groupedRecords = [];
-  const seenUsers = new Set();
-  sorted.forEach(r => { if (!seenUsers.has(r.member_name)) { seenUsers.add(r.member_name); groupedRecords.push(userRecordsMap[r.member_name]); } });
+
+  // 워크아웃 2 기준 성적순 정렬 (AMRAP: 라운드 많은 순 / For Time: 시간 짧은 순)
+  const wodType = todayWod?.type;
+  const groupedRecords = Object.values(userRecordsMap).sort((a, b) => {
+    const ar = a.workout2Records[0];
+    const br = b.workout2Records[0];
+    if (!ar && !br) return 0;
+    if (!ar) return 1;
+    if (!br) return -1;
+    if (wodType === 'AMRAP')    return parseAmrap(br.record_value)   - parseAmrap(ar.record_value);
+    if (wodType === 'For Time') return parseSeconds(ar.record_value) - parseSeconds(br.record_value);
+    return 0;
+  });
 
   const currentTypeMeta = RECORD_TYPES.find(r => r.id === recordType);
 

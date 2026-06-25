@@ -91,6 +91,20 @@ function AppShell() {
     return () => window.removeEventListener('focus', onFocus);
   }, [displayName]);
 
+  // 실시간 기록 구독 — 다른 회원이 기록 등록/삭제해도 즉시 반영
+  useEffect(() => {
+    if (!user) return;
+    const ch = supabase.channel('rt-workout-records')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'workout_records' }, ({ new: rec }) => {
+        setWorkoutRecords(prev => prev.find(r => r.id === rec.id) ? prev : [rec, ...prev]);
+      })
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'workout_records' }, ({ old: rec }) => {
+        setWorkoutRecords(prev => prev.filter(r => r.id !== rec.id));
+      })
+      .subscribe();
+    return () => supabase.removeChannel(ch);
+  }, [user]);
+
   const loadAllData = async () => {
     setLoading(true);
     try {
