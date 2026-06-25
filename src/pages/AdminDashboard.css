@@ -529,12 +529,10 @@
   padding: 0.25rem 0.5rem;
   cursor: pointer;
 }
-.level-select.level-black  { color: #fff;    border-color: #555; }
-.level-select.level-red    { color: #ff4444; border-color: #ff4444; }
-.level-select.level-yellow { color: #ffc800; border-color: #ffc800; }
-.level-select.level-white  { color: #f0f0f0; border-color: #ccc; }
-.level-select.level-rainbow{ color: #00e5ff; border-color: #00e5ff; }
-.level-select.level-beginner{ color: #9999ff; border-color: #9999ff; }
+.level-select.level-rxd      { color: #00e5ff; border-color: #00e5ff; }
+.level-select.level-advanced { color: #ff4444; border-color: #ff4444; }
+.level-select.level-scaled   { color: #ffc800; border-color: #ffc800; }
+.level-select.level-beginner { color: #9999ff; border-color: #9999ff; }
 
 .admin-inline-input {
   background: var(--bg-tertiary);

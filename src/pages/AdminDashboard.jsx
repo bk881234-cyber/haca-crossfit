@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Users, Calendar, TrendingUp, Plus, Search, Activity, FileText, Bell, Trash2, MessageSquare, Pencil, Check, X } from 'lucide-react';
 import './AdminDashboard.css';
 
-const LEVELS = ['Black', 'Red', 'Yellow', 'White', 'Rainbow', 'Beginner'];
+const LEVELS = ["Rx'd", 'Advanced', 'Scaled', 'Beginner'];
+const LEVEL_CSS = { "Rx'd": 'rxd', 'Advanced': 'advanced', 'Scaled': 'scaled', 'Beginner': 'beginner' };
 
 const AdminDashboard = ({
   addWod,
@@ -269,7 +270,7 @@ const AdminDashboard = ({
                 </td>
                 <td>
                   <select
-                    className={`level-select level-${(m.level || 'Beginner').toLowerCase()}`}
+                    className={`level-select level-${LEVEL_CSS[m.level] || 'beginner'}`}
                     value={m.level || 'Beginner'}
                     onChange={e => setMemberLevel(m.id, e.target.value)}
                   >

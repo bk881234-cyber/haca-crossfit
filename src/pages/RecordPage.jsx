@@ -5,7 +5,7 @@ import WodCard from '../components/WodCard';
 import { detectClassType, CLASS_TYPE_LABEL, CLASS_TYPE_COLOR } from '../utils/classSchedule';
 import './RecordPage.css';
 
-const LEVELS = ['Black', 'Red', 'Yellow', 'White', 'Rainbow', 'Beginner'];
+const LEVELS = ["Rx'd", 'Advanced', 'Scaled', 'Beginner'];
 
 const WOD_TYPE_MAP = {
   'For Time': 'for_time',
@@ -15,12 +15,16 @@ const WOD_TYPE_MAP = {
 };
 
 const LEVEL_STYLE = {
-  Black:    { color: '#ffffff', bg: 'rgba(255,255,255,0.07)', border: '#555' },
+  "Rx'd":    { color: '#00e5ff', bg: 'rgba(0,229,255,0.10)',   border: '#00e5ff' },
+  Advanced:  { color: '#ff4444', bg: 'rgba(255,68,68,0.10)',   border: '#ff4444' },
+  Scaled:    { color: '#ffc800', bg: 'rgba(255,200,0,0.10)',   border: '#ffc800' },
+  Beginner:  { color: '#9999ff', bg: 'rgba(150,150,255,0.10)', border: '#9999ff' },
+  // 구 레벨 → 가장 가까운 새 레벨 스타일로 fallback
+  Black:    { color: '#00e5ff', bg: 'rgba(0,229,255,0.10)',   border: '#00e5ff' },
   Red:      { color: '#ff4444', bg: 'rgba(255,68,68,0.10)',   border: '#ff4444' },
   Yellow:   { color: '#ffc800', bg: 'rgba(255,200,0,0.10)',   border: '#ffc800' },
-  White:    { color: '#eeeeee', bg: 'rgba(240,240,240,0.07)', border: '#aaa' },
-  Rainbow:  { color: '#00e5ff', bg: 'rgba(0,229,255,0.08)',   border: '#00e5ff' },
-  Beginner: { color: '#9999ff', bg: 'rgba(150,150,255,0.10)', border: '#9999ff' },
+  White:    { color: '#ffc800', bg: 'rgba(255,200,0,0.10)',   border: '#ffc800' },
+  Rainbow:  { color: '#9999ff', bg: 'rgba(150,150,255,0.10)', border: '#9999ff' },
 };
 
 const RECORD_TYPES = [
