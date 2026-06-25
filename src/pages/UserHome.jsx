@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, User, Trophy, Activity, Medal, Plus, X, Bell } from 'lucide-react';
+import { Trophy, Activity, Bell } from 'lucide-react';
 import WodCard from '../components/WodCard';
 import { useAuth } from '../contexts/AuthContext';
 import './UserHome.css';
 
-const UserHome = ({ wods, classes, myReservations, members, setCurrentPage, leaderboard, addLeaderboardRecord, notices, monthlyAttendance }) => {
+const UserHome = ({ wods, members, notices, monthlyAttendance }) => {
   const [popupNotice, setPopupNotice] = useState(null);
 
   useEffect(() => {
@@ -44,7 +44,6 @@ const UserHome = ({ wods, classes, myReservations, members, setCurrentPage, lead
   const me = members.find(m => normalizePhone(m.phone) === normalizePhone(profile?.phone))
           || members.find(m => m.name === profile?.name)
           || {};
-  const myBookedClasses = classes.filter(cls => myReservations.some(r => r.classId === cls.id && r.date === todayStr));
 
 
 
@@ -116,33 +115,6 @@ const UserHome = ({ wods, classes, myReservations, members, setCurrentPage, lead
         </div>
       </section>
 
-      {/* 예약 현황 퀵뷰 */}
-      <section className="booking-quickview">
-        <div className="section-header">
-          <h2>오늘의 예약</h2>
-          <button className="view-all-btn" onClick={() => setCurrentPage('reservation')}>전체보기</button>
-        </div>
-        {myBookedClasses.length > 0 ? (
-          myBookedClasses.map(cls => (
-            <div key={cls.id} className="quick-booking-card">
-              <div className="booking-time-chip">{cls.time}</div>
-              <div className="class-info">
-                <h3>크로스핏 클래스</h3>
-                <p>with {cls.coach}</p>
-              </div>
-              <div className="status-badge confirmed">예약완료</div>
-            </div>
-          ))
-        ) : (
-          <div className="empty-booking-card">
-            <p>오늘 예약된 클래스가 없습니다.</p>
-            <button className="go-reservation-btn" onClick={() => setCurrentPage('reservation')}>
-              <Calendar size={18} /> 예약하러 가기
-            </button>
-          </div>
-        )}
-      </section>
-
       {/* 오늘/내일 와드 */}
       <section className="wod-section">
         <div className="section-header">
@@ -171,20 +143,6 @@ const UserHome = ({ wods, classes, myReservations, members, setCurrentPage, lead
             ? <WodCard wod={tomorrowWod} />
             : <div className="empty-state">내일 WOD가 아직 등록되지 않았습니다.</div>
         )}
-      </section>
-
-      {/* 실시간 리더보드 안내 */}
-      <section className="leaderboard-section">
-        <div className="section-header">
-          <h2>오늘의 리더보드</h2>
-        </div>
-        <div className="empty-state" style={{marginTop: '1rem', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center'}}>
-          <Trophy size={40} className="text-lime" />
-          <p style={{margin: 0, fontWeight: 700}}>새로워진 기록 페이지에서 오늘의 성적을 확인하세요!</p>
-          <button className="add-record-btn" onClick={() => setCurrentPage('record')} style={{width: 'auto', padding: '0.75rem 1.5rem', marginTop: '0.5rem'}}>
-            기록 보기 및 입력
-          </button>
-        </div>
       </section>
 
     </div>

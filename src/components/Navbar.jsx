@@ -1,12 +1,11 @@
-import { Home, Calendar, Users, LayoutGrid, MapPin, Trophy } from 'lucide-react';
+import { Home, Users, MapPin, Trophy } from 'lucide-react';
 import './Navbar.css';
 
 const Navbar = ({ currentPage, setCurrentPage }) => {
   const navItems = [
     { id: 'wod', label: '오늘의 WOD', icon: Home },
-    { id: 'reservation', label: '예약', icon: Calendar },
-    { id: 'feed', label: '커뮤니티', icon: Users },
     { id: 'record', label: '대시보드', icon: Trophy },
+    { id: 'feed', label: '커뮤니티', icon: Users },
     { id: 'location', label: '오시는길', icon: MapPin }
   ];
 
