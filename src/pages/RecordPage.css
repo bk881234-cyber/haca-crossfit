@@ -239,10 +239,11 @@
   justify-content: flex-end;
 }
 
-/* 타입 배지 + 기본 입력 — 같은 행 */
+/* 타입 배지 + 기본 입력 — 같은 행 (모바일에서 줄바꿈) */
 .rp-primary-row {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.75rem;
   background: rgba(0, 229, 255, 0.04);
   border: 1px solid rgba(0, 229, 255, 0.18);
@@ -255,7 +256,7 @@
   align-items: center;
   gap: 0.6rem;
   flex: 1;
-  min-width: 0;
+  min-width: 120px;
 }
 
 .rp-auto-icon {
@@ -281,6 +282,8 @@
 
 .rp-primary-input-slot {
   flex-shrink: 0;
+  display: flex;
+  justify-content: center;
 }
 
 /* 무게 중앙 정렬 섹션 */
@@ -578,6 +581,30 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   width: 100%;
+}
+
+.rp-lb-records {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+  flex: 1;
+  min-width: 0;
+  margin-right: 0.5rem;
+}
+
+.rp-lb-rec-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+}
+
+.rp-lb-rec-num {
+  font-size: 0.6rem;
+  font-weight: 900;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
 }
 
 .rp-lb-level {

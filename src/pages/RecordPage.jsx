@@ -386,27 +386,23 @@ export default function RecordPage({ workoutRecords, recordFeedback, addWorkoutR
                       <span className="rp-lb-name">{user.member_name}</span>
                       <span className="rp-lb-level" style={{ color: s.color, background: s.bg, border: `1px solid ${s.border}` }}>{currentLevel}</span>
                     </div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', flex: 1, justifyContent: 'flex-end', marginRight: '0.5rem', minWidth: 0 }}>
+                    <div className="rp-lb-records">
                       {user.workout1Records.length > 0 && (
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                          <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 800 }}>WORKOUT 1</span>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                            <span className="rp-lb-value" style={{ color: '#ededed' }}>{user.workout1Records.map(r => abbrev(r)).join(', ')}</span>
-                            {canEdit && user.workout1Records.map(r => (
-                              <button key={r.id} onClick={() => deleteWorkoutRecord(r.id)} style={{ background: 'none', border: 'none', color: '#ff4444', cursor: 'pointer', padding: '0 2px' }} title="기록 삭제"><Trash2 size={12} /></button>
-                            ))}
-                          </div>
+                        <div className="rp-lb-rec-row">
+                          <span className="rp-lb-rec-num">01</span>
+                          <span className="rp-lb-value" style={{ color: '#ededed' }}>{user.workout1Records.map(r => abbrev(r)).join(', ')}</span>
+                          {canEdit && user.workout1Records.map(r => (
+                            <button key={r.id} onClick={() => deleteWorkoutRecord(r.id)} style={{ background: 'none', border: 'none', color: '#ff4444', cursor: 'pointer', padding: '0 2px' }} title="기록 삭제"><Trash2 size={12} /></button>
+                          ))}
                         </div>
                       )}
                       {user.workout2Records.length > 0 && (
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                          <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 800 }}>WORKOUT 2</span>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                            <span className="rp-lb-value">{user.workout2Records.map(r => abbrev(r)).join(', ')}</span>
-                            {canEdit && user.workout2Records.map(r => (
-                              <button key={r.id} onClick={() => deleteWorkoutRecord(r.id)} style={{ background: 'none', border: 'none', color: '#ff4444', cursor: 'pointer', padding: '0 2px' }} title="기록 삭제"><Trash2 size={12} /></button>
-                            ))}
-                          </div>
+                        <div className="rp-lb-rec-row">
+                          <span className="rp-lb-rec-num">02</span>
+                          <span className="rp-lb-value">{user.workout2Records.map(r => abbrev(r)).join(', ')}</span>
+                          {canEdit && user.workout2Records.map(r => (
+                            <button key={r.id} onClick={() => deleteWorkoutRecord(r.id)} style={{ background: 'none', border: 'none', color: '#ff4444', cursor: 'pointer', padding: '0 2px' }} title="기록 삭제"><Trash2 size={12} /></button>
+                          ))}
                         </div>
                       )}
                     </div>
