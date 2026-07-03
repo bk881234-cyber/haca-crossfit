@@ -1,4 +1,3 @@
-import React from 'react';
 import { MapPin, Phone, Clock, Navigation } from 'lucide-react';
 import './LocationPage.css';
 
@@ -71,9 +70,9 @@ const LocationPage = () => {
             </div>
             <div className="info-text">
               <h3>운영시간</h3>
-              <p>평일: 06:30 ~ 21:30</p>
-              <p>토요일: 10:00 ~ 12:30</p>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>일요일·공휴일 휴무</p>
+              <p>월–금: 06:30 ~ 21:30</p>
+              <p>토요일: 10:00 ~ 14:00</p>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>일요일 정기휴무 (매주)</p>
             </div>
           </div>
         </div>
