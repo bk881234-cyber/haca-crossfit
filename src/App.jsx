@@ -52,7 +52,7 @@ function AppShell() {
   const location = useLocation();
   const isAdminRoute = location.pathname === '/admin';
 
-  const [currentPage, setCurrentPage] = useState('record');
+  const [currentPage, setCurrentPage] = useState('wod');
   const [loading, setLoading] = useState(true);
 
   const [wods, setWods] = useState([]);
@@ -527,7 +527,7 @@ function AppShell() {
       {/* Header */}
       <div className="role-switcher-bar">
         <div className="role-info">
-          <button className="logo-btn" onClick={() => { navigate('/'); setCurrentPage('record'); }} aria-label="홈으로">
+          <button className="logo-btn" onClick={() => { navigate('/'); setCurrentPage('wod'); }} aria-label="홈으로">
             <img src="/logo.png" alt="HACA Training Club" className="header-logo" />
           </button>
         </div>
