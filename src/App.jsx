@@ -507,7 +507,7 @@ function AppShell() {
     switch (currentPage) {
       case 'wod': return <UserHome wods={wods} classes={classes} myReservations={myReservations} members={members} setCurrentPage={setCurrentPage} leaderboard={leaderboard} addLeaderboardRecord={addLeaderboardRecord} notices={notices} monthlyAttendance={monthlyAttendance} workoutRecords={workoutRecords} />;
       case 'reservation': return <ReservationPage classes={classes} myReservations={myReservations} toggleBooking={toggleBooking} allReservations={allReservations} />;
-      case 'feed': return <CommunityPage feed={feed} addFeedPost={addFeedPost} toggleLikeFeed={toggleLikeFeed} addCommentToFeed={addCommentToFeed} notices={notices} />;
+      case 'feed': return <CommunityPage feed={feed} addFeedPost={addFeedPost} toggleLikeFeed={toggleLikeFeed} addCommentToFeed={addCommentToFeed} deleteFeedPost={deleteFeedPost} notices={notices} />;
       case 'record': {
         const normalize = (p) => p?.replace(/\D/g, '') || '';
         const myPhone = normalize(profile?.phone || user?.email?.split('@')[0]);

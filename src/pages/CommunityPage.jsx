@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { MessageCircle, Heart, Send, Award, Bell, ChevronDown, ChevronUp } from 'lucide-react';
+import { MessageCircle, Heart, Send, Award, Bell, ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 import './CommunityPage.css';
 
-function CommunityPage({ feed, addFeedPost, toggleLikeFeed, addCommentToFeed, notices = [] }) {
+function CommunityPage({ feed, addFeedPost, toggleLikeFeed, addCommentToFeed, deleteFeedPost, notices = [] }) {
+  const { displayName, isAdmin } = useAuth();
   const [postContent, setPostContent] = useState('');
   const [commentInputs, setCommentInputs] = useState({});
   const [expandedNotice, setExpandedNotice] = useState(null);
@@ -108,6 +110,15 @@ function CommunityPage({ feed, addFeedPost, toggleLikeFeed, addCommentToFeed, no
                   <span className="feed-author-name">{post.author}</span>
                   <span className="feed-timestamp">{post.timestamp}</span>
                 </div>
+                {(isAdmin || post.author === displayName) && (
+                  <button
+                    className="feed-delete-btn"
+                    onClick={() => deleteFeedPost(post.id)}
+                    title="게시글 삭제"
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                )}
               </div>
 
               {/* Card Content */}
