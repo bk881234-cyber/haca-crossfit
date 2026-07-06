@@ -1,9 +1,8 @@
-import { Home, Users, MapPin, Trophy, CalendarDays } from 'lucide-react';
+import { Users, MapPin, Trophy, CalendarDays } from 'lucide-react';
 import './Navbar.css';
 
 const Navbar = ({ currentPage, setCurrentPage }) => {
   const navItems = [
-    { id: 'wod',      label: '오늘의 WOD', icon: Home },
     { id: 'record',   label: '대시보드',   icon: Trophy },
     { id: 'feed',     label: '커뮤니티',   icon: Users },
     { id: 'schedule', label: '스케줄',     icon: CalendarDays },

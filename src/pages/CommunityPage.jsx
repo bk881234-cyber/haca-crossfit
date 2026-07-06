@@ -1,18 +1,9 @@
 import { useState } from 'react';
-import { MessageCircle, Heart, Send, Image, Award, Smile, Bell, ChevronDown, ChevronUp } from 'lucide-react';
+import { MessageCircle, Heart, Send, Award, Bell, ChevronDown, ChevronUp } from 'lucide-react';
 import './CommunityPage.css';
-
-// Unsplash Workout Image Presets for Easy Mocking
-const imagePresets = [
-  'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1571731979149-75be7a62506e?auto=format&fit=crop&w=800&q=80'
-];
 
 function CommunityPage({ feed, addFeedPost, toggleLikeFeed, addCommentToFeed, notices = [] }) {
   const [postContent, setPostContent] = useState('');
-  const [selectedPresetImage, setSelectedPresetImage] = useState('');
   const [commentInputs, setCommentInputs] = useState({});
   const [expandedNotice, setExpandedNotice] = useState(null);
 
@@ -21,27 +12,20 @@ function CommunityPage({ feed, addFeedPost, toggleLikeFeed, addCommentToFeed, no
   const handleSubmitPost = (e) => {
     e.preventDefault();
     if (!postContent.trim()) return;
-
-    addFeedPost(postContent, selectedPresetImage);
+    addFeedPost(postContent, null);
     setPostContent('');
-    setSelectedPresetImage('');
   };
 
   const handleCommentSubmit = (feedId, e) => {
     e.preventDefault();
     const commentText = commentInputs[feedId] || '';
     if (!commentText.trim()) return;
-
     addCommentToFeed(feedId, commentText);
     setCommentInputs(prev => ({ ...prev, [feedId]: '' }));
   };
 
   const handleCommentChange = (feedId, text) => {
     setCommentInputs(prev => ({ ...prev, [feedId]: text }));
-  };
-
-  const selectPreset = (url) => {
-    setSelectedPresetImage(url === selectedPresetImage ? '' : url);
   };
 
   return (
@@ -102,27 +86,6 @@ function CommunityPage({ feed, addFeedPost, toggleLikeFeed, addCommentToFeed, no
             rows={3}
             required
           />
-        </div>
-
-        {/* Preset Image Selection Wrapper */}
-        <div className="preset-images-section">
-          <span className="preset-label">
-            <Image size={14} /> 운동 인증 사진 추가 (데모 프리셋)
-          </span>
-          <div className="preset-gallery">
-            {imagePresets.map((url, idx) => (
-              <div
-                key={idx}
-                className={`preset-thumbnail-wrapper ${selectedPresetImage === url ? 'selected' : ''}`}
-                onClick={() => selectPreset(url)}
-              >
-                <img src={url} alt={`Preset ${idx + 1}`} className="preset-thumbnail" />
-                <div className="select-overlay">
-                  <Smile size={18} />
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
 
         <div className="form-action-row">

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Trophy, Activity, Bell } from 'lucide-react';
+import { Bell } from 'lucide-react';
 import WodCard from '../components/WodCard';
 import { useAuth } from '../contexts/AuthContext';
 import './UserHome.css';
 
-const UserHome = ({ wods, members, notices, monthlyAttendance }) => {
+const UserHome = ({ wods, notices }) => {
   const [popupNotice, setPopupNotice] = useState(null);
 
   useEffect(() => {
@@ -30,7 +30,7 @@ const UserHome = ({ wods, members, notices, monthlyAttendance }) => {
 
   const [wodTab, setWodTab] = useState('today');
 
-  const { displayName, profile } = useAuth();
+  const { displayName } = useAuth();
 
   const todayStr = new Date().toISOString().split('T')[0];
   const tomorrowDate = new Date();
@@ -40,10 +40,6 @@ const UserHome = ({ wods, members, notices, monthlyAttendance }) => {
   const todayWod = wods.find(w => w.date === todayStr) || wods[0];
   const tomorrowWod = wods.find(w => w.date === tomorrowStr);
 
-  const normalizePhone = (p) => p?.replace(/\D/g, '') || '';
-  const me = members.find(m => normalizePhone(m.phone) === normalizePhone(profile?.phone))
-          || members.find(m => m.name === profile?.name)
-          || {};
 
 
 
@@ -78,42 +74,6 @@ const UserHome = ({ wods, members, notices, monthlyAttendance }) => {
           </div>
         </div>
       </header>
-
-      {/* 나의 활동 요약 (이용 가능 횟수 추가) */}
-      <section className="stats-section">
-        <div className="stat-cards-row">
-          <div className="stat-card">
-            <div className="stat-icon"><Activity size={20} className="text-lime" /></div>
-            <div className="stat-info">
-              <span className="stat-label">이번 달 출석</span>
-              <span className="stat-value">{monthlyAttendance}회</span>
-            </div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-icon" style={{background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6'}}><Trophy size={20} /></div>
-            <div className="stat-info">
-              <span className="stat-label">회원권 만료일</span>
-              <span className="stat-value" style={{
-                fontSize: '0.95rem',
-                color: (() => {
-                  if (!me?.membershipExpiry) return 'var(--text-secondary)';
-                  const days = Math.ceil((new Date(me.membershipExpiry) - new Date()) / 86400000);
-                  return days < 0 ? '#ff3366' : days <= 14 ? '#ff6b6b' : 'var(--text-primary)';
-                })()
-              }}>
-                {me?.membershipExpiry
-                  ? (() => {
-                      const days = Math.ceil((new Date(me.membershipExpiry) - new Date()) / 86400000);
-                      if (days < 0) return '만료됨';
-                      if (days <= 14) return `${me.membershipExpiry} (D-${days})`;
-                      return me.membershipExpiry;
-                    })()
-                  : '미등록'}
-              </span>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* 오늘/내일 와드 */}
       <section className="wod-section">
