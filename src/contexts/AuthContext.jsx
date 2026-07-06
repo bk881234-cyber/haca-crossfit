@@ -38,9 +38,17 @@ export function AuthProvider({ children }) {
     setLoading(false);
   };
 
-  // 전화번호 + 비밀번호로 로그인
-  const signIn = (phone, password) =>
-    supabase.auth.signInWithPassword({ email: phoneToEmail(phone), password });
+  // 전화번호 + 비밀번호로 로그인 (하이픈 없는 버전과 있는 버전 모두 시도)
+  const signIn = async (phone, password) => {
+    let res = await supabase.auth.signInWithPassword({ email: phoneToEmail(phone), password });
+    // 만약 이전 버전에서 하이픈이 포함된 채로 가입된 유저라면 재시도
+    if (res.error && res.error.message.includes('Invalid login credentials')) {
+      const emailWithHyphens = `${phone}@haca.local`;
+      const res2 = await supabase.auth.signInWithPassword({ email: emailWithHyphens, password });
+      if (!res2.error) return res2;
+    }
+    return res;
+  };
 
   // 이름/닉네임/전화번호/생년월일/성별 + 비밀번호로 회원가입
   const signUp = (phone, password, userData) =>
