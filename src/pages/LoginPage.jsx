@@ -63,9 +63,11 @@ const LoginPage = () => {
       }
     } catch (err) {
       const msg = err.message || '';
+      console.error('Login error:', err);
       if (msg.includes('Invalid login credentials')) setError('전화번호 또는 비밀번호가 올바르지 않습니다.');
       else if (msg.includes('User already registered')) setError('이미 가입된 전화번호입니다.');
-      else setError(msg || '오류가 발생했습니다. 다시 시도해주세요.');
+      else if (msg.includes('Email not confirmed')) setError('관리자 설정 오류: 이메일 확인(Confirm email)이 비활성화되지 않았습니다. Supabase 대시보드에서 비활성화해주세요.');
+      else setError(`로그인 실패: ${msg || '오류가 발생했습니다.'}`);
     } finally {
       setLoading(false);
     }
@@ -93,15 +95,13 @@ const LoginPage = () => {
 
           {mode === 'signup' && (
             <>
-              <div className="login-row">
-                <div className="login-field">
-                  <label>이름 *</label>
-                  <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="홍길동" />
-                </div>
-                <div className="login-field">
-                  <label>닉네임 *</label>
-                  <input type="text" value={nickname} onChange={e => setNickname(e.target.value)} placeholder="길동이" />
-                </div>
+              <div className="login-field">
+                <label>이름 *</label>
+                <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="홍길동" />
+              </div>
+              <div className="login-field">
+                <label>닉네임 *</label>
+                <input type="text" value={nickname} onChange={e => setNickname(e.target.value)} placeholder="길동이" />
               </div>
 
               <div className="login-row">
