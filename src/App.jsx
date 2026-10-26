@@ -15,6 +15,7 @@ import SchedulePage from './pages/SchedulePage';
 import ProfilePage from './pages/ProfilePage';
 import RecordPage from './pages/RecordPage';
 import NotificationPanel from './components/NotificationPanel';
+import AddToHomeScreenModal from './components/AddToHomeScreenModal';
 import './App.css';
 
 const formatTimestamp = (ts) => {

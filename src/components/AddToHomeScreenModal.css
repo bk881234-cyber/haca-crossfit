@@ -1,0 +1,276 @@
+/* A2HS 모달 스타일 */
+.a2hs-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: a2hsFadeIn 0.25s ease-out;
+}
+
+.a2hs-modal {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  background: #111418;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  padding: 1.5rem;
+  color: #ffffff;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.8), 0 0 25px rgba(0, 229, 255, 0.15);
+  animation: a2hsScaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.a2hs-close-btn {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.a2hs-close-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.a2hs-header {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.a2hs-app-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #191e24;
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.a2hs-app-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.a2hs-header-text h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+  margin: 0;
+}
+
+.a2hs-header-text p {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin: 0.25rem 0 0 0;
+  line-height: 1.35;
+}
+
+/* 탭 버튼 */
+.a2hs-tabs {
+  display: flex;
+  background: #191e24;
+  border-radius: 12px;
+  padding: 4px;
+  margin: 1.2rem 0;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.a2hs-tab-btn {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.a2hs-tab-btn.active {
+  background: #00e5ff;
+  color: #080a0c;
+  box-shadow: 0 2px 8px rgba(0, 229, 255, 0.3);
+}
+
+/* 가이드 카드 */
+.a2hs-card {
+  background: rgba(25, 30, 36, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 1.1rem;
+}
+
+.a2hs-card-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #00e5ff;
+  margin-bottom: 0.85rem;
+  letter-spacing: -0.01em;
+}
+
+.a2hs-steps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.a2hs-steps li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  font-size: 0.83rem;
+  color: #cbd5e1;
+  line-height: 1.45;
+}
+
+.step-num {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(0, 229, 255, 0.15);
+  color: #00e5ff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.a2hs-inline-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 4px;
+  background: #242b35;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  color: #00e5ff;
+  vertical-align: middle;
+  margin: 0 2px;
+}
+
+.app-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  background: #191e24;
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  border-radius: 6px;
+  font-weight: 600;
+  color: #ffffff;
+  vertical-align: middle;
+}
+
+.app-chip img {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+}
+
+.a2hs-custom-img-wrap {
+  margin-top: 0.85rem;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.a2hs-custom-img-wrap img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* 액션 버튼 */
+.a2hs-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 1.3rem;
+}
+
+.a2hs-btn-primary {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #00e5ff 0%, #0099ff 100%);
+  color: #080a0c;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 229, 255, 0.3);
+  transition: all 0.2s;
+}
+
+.a2hs-btn-primary:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.a2hs-btn-primary:active {
+  transform: translateY(0);
+}
+
+.a2hs-btn-secondary {
+  width: 100%;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
+  color: #94a3b8;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.a2hs-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+}
+
+@keyframes a2hsFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes a2hsScaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}

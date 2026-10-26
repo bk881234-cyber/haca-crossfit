@@ -1,0 +1,21 @@
+{
+  "name": "HACA Training | 하카 크로스핏",
+  "short_name": "HACA Training",
+  "description": "하카 크로스핏 & 트레이닝 클럽 올인원 멤버십 앱",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#080a0c",
+  "theme_color": "#080a0c",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
