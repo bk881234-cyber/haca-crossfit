@@ -610,19 +610,22 @@ function App() {
   if (loading) return <AppLoader />;
 
   return (
-    <Routes>
-      <Route path="/login" element={!user ? <LoginPage /> : <Navigate to="/" replace />} />
-      <Route path="/admin" element={
-        <ProtectedRoute adminOnly>
-          <AppShell />
-        </ProtectedRoute>
-      } />
-      <Route path="/*" element={
-        <ProtectedRoute>
-          <AppShell />
-        </ProtectedRoute>
-      } />
-    </Routes>
+    <>
+      <Routes>
+        <Route path="/login" element={!user ? <LoginPage /> : <Navigate to="/" replace />} />
+        <Route path="/admin" element={
+          <ProtectedRoute adminOnly>
+            <AppShell />
+          </ProtectedRoute>
+        } />
+        <Route path="/*" element={
+          <ProtectedRoute>
+            <AppShell />
+          </ProtectedRoute>
+        } />
+      </Routes>
+      <AddToHomeScreenModal appName="HACA Training" appLogo="/logo.png" autoShowDelay={800} />
+    </>
   );
 }
 
